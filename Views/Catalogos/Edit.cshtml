@@ -1,0 +1,29 @@
+@model TropiNailsPro.Models.Catalogo
+
+@{
+    ViewData["Title"] = "Editar Catálogo";
+}
+
+<h2 class="text-pink mb-4">@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label class="form-label">Archivo Actual</label>
+        <img src="@Model.RutaArchivo" class="img-thumbnail d-block mb-2" style="max-height:200px;" />
+        <label class="form-label">Cambiar Archivo (opcional)</label>
+        <input type="file" class="form-control" name="Archivo" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tipo</label>
+        <select asp-for="Tipo" class="form-select" required>
+            <option value="Imagen" selected="@Model.Tipo=='Imagen'">Imagen</option>
+            <option value="PDF" selected="@Model.Tipo=='PDF'">PDF</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-pink"><i class="bi bi-pencil-square"></i> Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

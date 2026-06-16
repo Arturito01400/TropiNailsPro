@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Recuperar Contraseña";
+    Layout = "_Layout"; // Ajusta si usas otro layout
+}
+
+<div style="display:flex; justify-content:center; align-items:center; height:80vh; flex-direction:column;">
+    <h2 style="color:#d63384; margin-bottom:20px;">Recuperar Contraseña</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div style="color:red; margin-bottom:15px; font-weight:600;">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div style="color:green; margin-bottom:15px; font-weight:600;">
+            @TempData["Mensaje"]
+        </div>
+    }
+
+    <form asp-action="RecuperarClave" method="post" style="display:flex; flex-direction:column; align-items:center; gap:15px;">
+        @Html.AntiForgeryToken()
+        <input type="text" id="Identificador" name="Identificador" 
+               placeholder="Ingresa tu correo o teléfono" required
+               style="padding:10px; width:300px; max-width:90%; border-radius:8px; border:1px solid #ccc;" />
+
+        <button type="submit" 
+                style="padding:10px 20px; background:#d63384; color:white; border:none; border-radius:8px; width:300px; max-width:90%;">
+            Enviar Link Para El Cambio de Contraseña 
+        </button>
+    </form>
+</div>
+
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    button:hover {
+        background-color: #ff6bb0;
+        cursor: pointer;
+    }
+
+    @@media (max-width: 600px) {
+        input[type="text"], button {
+            width: 100% !important;
+        }
+    }
+</style>

@@ -1,0 +1,156 @@
+@model List<TropiNailsPro.Models.Like>
+
+<style>
+body{
+    background:#f5f7fb;
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+
+.container-likes{
+    max-width:650px;
+    margin:auto;
+    margin-top:40px;
+}
+
+.card{
+    background:white;
+    border-radius:16px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.08);
+    padding:25px;
+}
+
+.titulo{
+    text-align:center;
+    margin-bottom:25px;
+    font-weight:600;
+}
+
+.usuario-like{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+}
+
+.usuario-like:last-child{
+    border-bottom:none;
+}
+
+.user-info{
+    display:flex;
+    align-items:center;
+}
+
+.avatar-link{
+    text-decoration:none;
+}
+
+.avatar-img{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    object-fit:cover;
+    margin-right:12px;
+    border:2px solid #fff;
+    box-shadow:0 0 0 2px #ff4da6;
+    transition:.2s;
+}
+
+.avatar-img:hover{
+    transform:scale(1.05);
+}
+
+.nombre{
+    font-weight:600;
+    font-size:15px;
+}
+
+.nombre a{
+    text-decoration:none;
+    color:#333;
+    transition:.2s;
+}
+
+.nombre a:hover{
+    color:#ff4da6;
+}
+
+.btn-volver{
+    display:block;
+    margin:auto;
+    margin-top:25px;
+    width:200px;
+    text-align:center;
+    padding:10px;
+    border-radius:10px;
+    background:black;
+    color:white;
+    text-decoration:none;
+}
+</style>
+
+<div class="container-likes">
+<div class="card">
+
+<h2 class="titulo">❤️ Personas que reaccionaron</h2>
+
+@if(Model == null || Model.Count == 0)
+{
+    <p style="text-align:center;color:gray;">
+        No hay likes todavía.
+    </p>
+}
+else
+{
+    @foreach(var like in Model)
+    {
+        // 🔥 FOTO ESTABLE Y CORRECTA
+        string foto = like.Usuario?.FotoPerfilUrl
+                       ?? "/img/user-default.png";
+
+        // 🔥 NOMBRE ESTABLE
+        var nombre = !string.IsNullOrWhiteSpace(
+                        like.Usuario?.Nombre)
+                     ? like.Usuario.Nombre
+                     : "Usuario";
+
+        // 🔥 PERFIL REAL
+        var perfilId = like.UsuarioId;
+
+        <div class="usuario-like">
+
+            <div class="user-info">
+
+                <!-- 🔥 FOTO CLICABLE -->
+                <a href="/Catalogos/Perfil/@perfilId"
+                   class="avatar-link">
+
+                    <img src="@foto"
+                         class="avatar-img"
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='/img/user-default.png'" />
+
+                </a>
+
+                <!-- 🔥 NOMBRE CLICABLE -->
+                <div class="nombre">
+
+                    <a href="/Catalogos/Perfil/@perfilId">
+                        @nombre
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+}
+
+<a class="btn-volver" href="/Feed/Index">
+⬅ Volver al feed
+</a>
+
+</div>
+</div>

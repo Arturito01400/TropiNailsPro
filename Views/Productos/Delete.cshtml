@@ -1,0 +1,57 @@
+@model TropiNailsPro.Models.Producto
+
+@{
+    ViewData["Title"] = "Eliminar Producto";
+
+    // 🔹 Validación segura de la imagen
+    var imagenPath = string.IsNullOrEmpty(Model.ImagenUrl)
+                      ? Url.Content("~/uploads/default-product.png")
+                      : Url.Content("~/" + Model.ImagenUrl);
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+
+            <h3 class="text-danger fw-bold">
+                🗑️ Eliminar Producto
+            </h3>
+
+            <div class="alert alert-warning mt-3">
+                ¿Seguro que deseas eliminar este producto? Esta acción no se puede deshacer.
+            </div>
+
+            <div class="mb-4 text-center">
+                <img class="img-producto mb-2"
+                     src="@imagenPath"
+                     alt="@Model.Nombre"
+                     width="150"
+                     height="150" />
+
+                <h5>@Model.Nombre</h5>
+                <p class="text-muted">@Model.Descripcion</p>
+            </div>
+
+            <form asp-action="Delete" method="post" onsubmit="return confirmarEliminar();">
+                <input type="hidden" asp-for="Id" />
+
+                <button type="submit" class="btn btn-danger px-4">
+                    Eliminar
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                    Cancelar
+                </a>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        function confirmarEliminar(){
+            return confirm("¿Estás segura que deseas eliminar este producto? Esta acción es permanente.");
+        }
+    </script>
+}

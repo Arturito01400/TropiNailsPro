@@ -1,0 +1,143 @@
+@{
+    ViewData["Title"] = "Vencimiento";
+}
+
+<div style="padding:40px; font-family:'Segoe UI',sans-serif;">
+
+    <!-- HEADER -->
+    <div style="text-align:center; margin-bottom:35px;">
+        <h1 style="font-weight:900; color:#2c2c2c;">
+            💎 Estado de Suscripción
+        </h1>
+        <p style="color:#777; font-size:15px;">
+            Controla tu plan, vencimiento y estado en tiempo real
+        </p>
+    </div>
+
+    <!-- CARDS CONTAINER -->
+    <div style="display:flex; gap:25px; justify-content:center; flex-wrap:wrap;">
+
+        <!-- CARD 1 -->
+        <div style="
+            width:280px;
+            background:linear-gradient(135deg,#7b2ff7,#ff4da6);
+            color:white;
+            border-radius:18px;
+            padding:25px;
+            box-shadow:0 15px 35px rgba(123,47,247,0.3);
+            text-align:center;
+            position:relative;
+            overflow:hidden;
+        ">
+
+            <div style="font-size:14px; opacity:0.9;">⏳ Días Restantes</div>
+
+            <h1 style="font-size:48px; margin:10px 0; font-weight:900;">
+                @ViewBag.DiasRestantes
+            </h1>
+
+            <div style="font-size:13px; opacity:0.85;">
+                Tiempo activo de tu plan
+            </div>
+
+            <div style="
+                position:absolute;
+                bottom:-40px;
+                right:-40px;
+                width:120px;
+                height:120px;
+                background:rgba(255,255,255,0.15);
+                border-radius:50%;
+            "></div>
+
+        </div>
+
+        <!-- CARD 2 -->
+        <div style="
+            width:280px;
+            background:white;
+            border-radius:18px;
+            padding:25px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.08);
+            text-align:center;
+        ">
+
+            <div style="font-size:14px; color:#777;">📅 Fecha de Vencimiento</div>
+
+            <h2 style="margin:15px 0; color:#333; font-weight:800;">
+                @(ViewBag.FechaFin != null 
+                    ? ((DateTime)ViewBag.FechaFin).ToString("dd/MM/yyyy") 
+                    : "N/A")
+            </h2>
+
+            <div style="font-size:13px; color:#999;">
+                Fin del ciclo de suscripción
+            </div>
+
+        </div>
+
+        <!-- CARD 3 -->
+        <div style="
+            width:280px;
+            background:white;
+            border-radius:18px;
+            padding:25px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.08);
+            text-align:center;
+        ">
+
+            <div style="font-size:14px; color:#777;">💳 Estado del Plan</div>
+
+            <div style="margin-top:20px;">
+
+                @if(ViewBag.Estado == "ACTIVA")
+                {
+                    <span style="
+                        background:#e6ffed;
+                        color:#16a34a;
+                        padding:8px 16px;
+                        border-radius:30px;
+                        font-weight:800;
+                        font-size:14px;
+                    ">
+                        🟢 ACTIVA
+                    </span>
+                }
+                else if(ViewBag.Estado == "VENCIDA")
+                {
+                    <span style="
+                        background:#ffe6e6;
+                        color:#dc2626;
+                        padding:8px 16px;
+                        border-radius:30px;
+                        font-weight:800;
+                        font-size:14px;
+                    ">
+                        🔴 VENCIDA
+                    </span>
+                }
+                else
+                {
+                    <span style="
+                        background:#f3f4f6;
+                        color:#6b7280;
+                        padding:8px 16px;
+                        border-radius:30px;
+                        font-weight:800;
+                        font-size:14px;
+                    ">
+                        ⚪ SIN PLAN
+                    </span>
+                }
+
+            </div>
+
+            <div style="margin-top:20px; font-size:12px; color:#999;">
+                Estado actualizado automáticamente
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

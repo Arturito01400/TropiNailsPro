@@ -1,0 +1,168 @@
+@model TropiNailsPro.Models.Publicacion
+
+<style>
+    body{
+        background:linear-gradient(to right,#fff5f7,#ffe3f1);
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .crear-container{
+        max-width:650px;
+        margin:auto;
+        margin-top:40px;
+        background:white;
+        border-radius:15px;
+        box-shadow:0 4px 20px rgba(0,0,0,0.08);
+        padding:25px;
+    }
+
+    .titulo{
+        text-align:center;
+        font-weight:700;
+        color:#e91e63;
+        margin-bottom:25px;
+    }
+
+    .form-control{
+        border-radius:10px;
+        border:1px solid #ddd;
+        padding:10px;
+    }
+
+    .form-control:focus{
+        border-color:#e91e63;
+        box-shadow:0 0 0 0.1rem rgba(233,30,99,.15);
+    }
+
+    .btn-publicar{
+        background:#e91e63;
+        color:white;
+        border:none;
+        font-weight:600;
+        padding:10px 20px;
+        border-radius:10px;
+    }
+
+    .btn-publicar:hover{
+        background:#c2185b;
+        color:white;
+    }
+
+    .preview-img, .preview-video{
+        margin-top:15px;
+        width:100%;
+        border-radius:10px;
+        display:none;
+        max-height:500px;
+        object-fit: contain; /* Para que el video/foto no se corte */
+        background:black;
+    }
+
+    .preview-img{
+        object-fit: cover; /* Fotos se ven completas y centradas */
+    }
+</style>
+
+<div class="crear-container">
+
+    <h3 class="titulo">✨ Publicar nuevo diseño</h3>
+
+    <form asp-controller="Publicaciones" asp-action="Crear" method="post" enctype="multipart/form-data" id="formPublicacion">
+
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label class="form-label">Describe tu diseño</label>
+            <textarea asp-for="Texto" class="form-control" rows="4"
+            placeholder="Ejemplo: Uñas acrílicas con diseño floral 🌸"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Imagen o video por URL</label>
+            <input asp-for="MediaUrl" id="mediaInput" class="form-control"
+            placeholder="Pega aquí la URL de la imagen o video">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Subir imagen o video desde tu dispositivo</label>
+            <input type="file" name="mediaArchivo" id="mediaArchivo" class="form-control" accept="image/*,video/*">
+        </div>
+
+        <img id="previewImg" class="preview-img"/>
+        <video id="previewVideo" class="preview-video" controls></video>
+
+        <div style="text-align:center;margin-top:20px;">
+            <button type="submit" class="btn-publicar">
+                🚀 Publicar en TropiNails
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+let previewImg = document.getElementById("previewImg");
+let previewVideo = document.getElementById("previewVideo");
+let form = document.getElementById("formPublicacion");
+
+// Función para mostrar preview
+function mostrarPreview(url, esVideo){
+    if(esVideo){
+        previewImg.style.display = "none";
+        previewVideo.style.display = "block";
+        previewVideo.src = url;
+    } else {
+        previewVideo.style.display = "none";
+        previewImg.style.display = "block";
+        previewImg.src = url;
+    }
+}
+
+// Preview desde URL
+document.getElementById("mediaInput").addEventListener("input", function(){
+    let url = this.value.toLowerCase();
+    if(url.endsWith(".mp4") || url.endsWith(".webm") || url.endsWith(".ogg")){
+        mostrarPreview(url, true);
+    } else if(url){
+        mostrarPreview(url, false);
+    } else {
+        previewImg.style.display = "none";
+        previewVideo.style.display = "none";
+    }
+});
+
+// Preview desde archivo
+document.getElementById("mediaArchivo").addEventListener("change", function(){
+    let file = this.files[0];
+    if(!file) return;
+
+    let url = URL.createObjectURL(file);
+
+    if(file.type.startsWith("video")){
+        mostrarPreview(url, true);
+    } else {
+        mostrarPreview(url, false);
+    }
+});
+
+// Validación de duración máxima 6 minutos para videos antes de enviar
+form.addEventListener("submit", function(e){
+    let videoFile = document.getElementById("mediaArchivo").files[0];
+    if(videoFile && videoFile.type.startsWith("video")){
+        let videoElement = document.createElement("video");
+        videoElement.preload = "metadata";
+        videoElement.src = URL.createObjectURL(videoFile);
+        videoElement.onloadedmetadata = function(){
+            URL.revokeObjectURL(videoElement.src);
+            if(videoElement.duration > 360){ // 6 minutos = 360 segundos
+                alert("⛔ El video no puede durar más de 6 minutos.");
+                e.preventDefault();
+            } else {
+                form.submit();
+            }
+        }
+        e.preventDefault();
+    }
+});
+</script>

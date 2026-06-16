@@ -1,0 +1,632 @@
+@model TropiNailsPro.Models.Usuario
+@using System.Security.Claims
+
+@{
+    var usuarioActual = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    string foto = Model?.FotoPerfilUrl ?? "/img/user-default.png";
+
+    if (!string.IsNullOrWhiteSpace(foto) && !foto.StartsWith("/"))
+    {
+        foto = "/" + foto;
+    }
+
+    string nombre = !string.IsNullOrWhiteSpace(Model?.Nombre)
+        ? Model.Nombre
+        : "Usuario";
+
+    int usuarioId = Model?.Id ?? 0;
+
+    var publicaciones =
+        ViewBag.CatalogoPersonal
+        as List<TropiNailsPro.Models.Publicacion>
+        ?? new List<TropiNailsPro.Models.Publicacion>();
+}
+
+<!-- ================= PERFIL ================= -->
+
+<div class="perfil-header">
+
+    <div class="foto-wrapper">
+
+       <img src="@foto"
+     class="foto-perfil"
+     onclick="abrirFotoPerfil('@foto')"
+     onerror="this.src='/img/user-default.png'" />
+
+    </div>
+
+    <h3>@nombre</h3>
+
+    <p class="estado">🟢 Activo</p>
+
+    <!-- DATOS -->
+
+    <div class="datos-perfil">
+
+        <p>
+            <b>Usuario:</b>
+
+            @(Model?.UsuarioLogin ?? "No definido")
+        </p>
+
+        <p>
+            <b>Instagram:</b>
+
+            @if (!string.IsNullOrWhiteSpace(Model?.Instagram))
+            {
+                <a href="@Model.Instagram" target="_blank">
+                    @Model.Instagram
+                </a>
+            }
+            else
+            {
+                <span>No registrado</span>
+            }
+        </p>
+
+        <p>
+            <b>TikTok:</b>
+
+            @if (!string.IsNullOrWhiteSpace(Model?.TikTok))
+            {
+                <a href="@Model.TikTok" target="_blank">
+                    @Model.TikTok
+                </a>
+            }
+            else
+            {
+                <span>No registrado</span>
+            }
+        </p>
+
+        <p>
+            <b>Facebook:</b>
+
+            @if (!string.IsNullOrWhiteSpace(Model?.Facebook))
+            {
+                <a href="@Model.Facebook" target="_blank">
+                    @Model.Facebook
+                </a>
+            }
+            else
+            {
+                <span>No registrado</span>
+            }
+        </p>
+
+        <p>
+            <b>WhatsApp:</b>
+
+            @if (!string.IsNullOrWhiteSpace(Model?.WhatsApp))
+            {
+                <a href="@Model.WhatsApp" target="_blank">
+                    Enviar mensaje
+                </a>
+            }
+            else
+            {
+                <span>No registrado</span>
+            }
+        </p>
+
+        <p>
+            <b>Teléfono:</b>
+
+            @(Model?.Telefono ?? "No registrado")
+        </p>
+
+    </div>
+
+    <!-- STATS -->
+
+    <div class="stats">
+
+        <a href="/Seguidores/Lista/@usuarioId">
+
+            <b id="contadorSeguidores">0</b>
+            <br />
+            Seguidores
+
+        </a>
+
+        <a href="/Seguidores/VistaSiguiendo" class="stat-box">
+
+            <b id="contadorSiguiendo">0</b>
+            <br />
+            Siguiendo
+
+        </a>
+
+        <div>
+
+            <b id="contadorCatalogos">
+                @publicaciones.Count
+            </b>
+
+            <br />
+            Publicaciones
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- TITULO -->
+
+<h2 class="titulo">
+    🌸 Publicaciones
+</h2>
+
+<!-- GRID -->
+
+<div class="grid-catalogo">
+
+@foreach (var post in publicaciones)
+{
+    string mediaUrl =
+        string.IsNullOrWhiteSpace(post?.MediaUrl)
+        ? "/img/user-default.png"
+        : post.MediaUrl;
+
+    if (!mediaUrl.StartsWith("/"))
+    {
+        mediaUrl = "/" + mediaUrl;
+    }
+
+    string tipoMedia =
+        string.IsNullOrWhiteSpace(post?.TipoMedia)
+        ? "imagen"
+        : post.TipoMedia.ToLower();
+
+    <div class="post-card">
+
+        <div class="post-media">
+
+            @if (tipoMedia.Contains("video"))
+            {
+                <video controls muted class="media">
+
+                    <source src="@mediaUrl" type="video/mp4" />
+
+                </video>
+            }
+            else
+            {
+                <img src="@mediaUrl"
+                     class="media"
+                     onclick="abrirVisor('@mediaUrl')"
+                     onerror="this.src='/img/user-default.png'" />
+            }
+
+        </div>
+
+        <div class="post-body">
+
+            <a href="/Catalogos/Perfil/@post.UsuarioId"
+               class="usuario-link">
+
+                @(post?.Usuario?.Nombre ?? nombre)
+
+            </a>
+
+            <div class="fecha">
+
+                @(post?.Fecha.ToString("dd/MM/yyyy HH:mm")
+                    ?? "Sin fecha")
+
+            </div>
+
+            <!-- REACCIONES -->
+
+            <div class="reacciones">
+
+                <button class="btn-react like"
+                        onclick="darLike(@post.Id, this)">
+
+                    ❤️ <span>Like</span>
+
+                </button>
+
+                <button class="btn-react comment"
+                        onclick="verComentarios(@post.Id)">
+
+                    💬 <span>Comentar</span>
+
+                </button>
+
+                <button class="btn-react share"
+                        onclick="compartir('@mediaUrl')">
+
+                    🔗 <span>Compartir</span>
+
+                </button>
+
+            </div>
+
+            <div class="stats-post"
+                 id="stats-@post.Id">
+
+                ❤️ @(post?.Likes?.Count ?? 0)
+
+                •
+
+                💬 @(post?.Comentarios?.Count ?? 0)
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+</div>
+
+<!-- VISOR -->
+
+<div id="visorMedia"
+     class="visor-media"
+     onclick="cerrarVisor()">
+
+    <img id="visorImg" />
+
+</div>
+
+<!-- FOTO PERFIL -->
+
+<div id="visorFotoPerfil"
+     class="visor-historias"
+     onclick="cerrarFotoPerfil()">
+
+    <img id="fotoPerfilGrande">
+
+</div>
+
+<style>
+
+body{
+    background:#f5f7fb;
+    font-family:Segoe UI;
+}
+
+.perfil-header{
+    text-align:center;
+    max-width:750px;
+    margin:25px auto;
+    padding:20px;
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+.foto-wrapper{
+    display:flex;
+    justify-content:center;
+}
+
+.foto-perfil{
+    width:135px;
+    height:135px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid #ff4da6;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.foto-perfil:hover{
+    transform:scale(1.05);
+}
+
+.usuario-link{
+    display:inline-block;
+    font-weight:700;
+    color:#ff4da6;
+    text-decoration:none;
+    margin-bottom:6px;
+    transition:.2s;
+}
+
+.usuario-link:hover{
+    transform:scale(1.03);
+    text-decoration:underline;
+}
+
+.datos-perfil{
+    text-align:left;
+    margin-top:15px;
+}
+
+.datos-perfil a{
+    color:#ff4da6;
+    font-weight:600;
+    text-decoration:none;
+}
+
+.stats{
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+
+.stats b{
+    color:#ff4da6;
+    font-size:20px;
+}
+
+.grid-catalogo{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+    max-width:1200px;
+    margin:auto;
+    padding:15px;
+}
+
+.post-card{
+    background:#fff;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+.media{
+    width:100%;
+    height:380px;
+    object-fit:cover;
+    cursor:pointer;
+}
+
+.reacciones{
+    display:flex;
+    justify-content:space-around;
+    padding:12px;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.btn-react{
+    border:none;
+    padding:8px 12px;
+    border-radius:20px;
+    cursor:pointer;
+    background:#f2f2f2;
+    transition:.2s;
+}
+
+.btn-react:hover{
+    transform:scale(1.05);
+}
+
+.like{
+    background:#ffe6ef;
+}
+
+.comment{
+    background:#e6f0ff;
+}
+
+.share{
+    background:#e6ffe9;
+}
+
+.visor-media,
+.visor-historias{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.95);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.visor-media img,
+#fotoPerfilGrande{
+    max-width:90%;
+    max-height:90%;
+    border-radius:12px;
+}
+
+@@media(max-width:992px){
+
+    .grid-catalogo{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@@media(max-width:600px){
+
+    .grid-catalogo{
+        grid-template-columns:1fr;
+    }
+}
+
+</style>
+
+<script>
+
+const usuarioId = parseInt("@usuarioId") || 0;
+
+/* LIKE */
+
+async function darLike(id, btn){
+
+    try{
+
+        const res = await fetch(
+            "/Publicaciones/Like/" + id,
+            {
+                method:"POST"
+            }
+        );
+
+        if(!res.ok) return;
+
+        const statsRes =
+            await fetch(
+                "/Publicaciones/Stats/" + id
+            );
+
+        const post =
+            await statsRes.json();
+
+        const stats =
+            document.getElementById(
+                "stats-" + id
+            );
+
+        if(post && stats){
+
+            stats.innerText =
+                `❤️ ${post.likes} • 💬 ${post.comentarios}`;
+        }
+
+        if(btn){
+
+            btn.disabled = true;
+
+            setTimeout(() => {
+
+                btn.disabled = false;
+
+            }, 800);
+        }
+
+    }catch(e){
+
+        console.log(e);
+    }
+}
+
+/* COMENTARIOS */
+
+function verComentarios(id){
+
+    window.location.href =
+        "/Comentarios/Ver/" + id;
+}
+
+/* COMPARTIR */
+
+function compartir(url){
+
+    navigator.clipboard.writeText(
+        window.location.origin + url
+    );
+
+    alert("Link copiado");
+}
+
+/* SEGUIDORES */
+
+async function cargarSeguidores(){
+
+    try{
+
+        const res =
+            await fetch(
+                `/Seguidores/Resumen?usuarioId=${usuarioId}`
+            );
+
+        if(!res.ok) return;
+
+        const data =
+            await res.json();
+
+        document.getElementById(
+            "contadorSeguidores"
+        ).innerText =
+            data.seguidores || 0;
+
+        document.getElementById(
+            "contadorSiguiendo"
+        ).innerText =
+            data.siguiendo || 0;
+
+    }catch(e){
+
+        console.log(e);
+    }
+}
+
+/* VISOR */
+
+function abrirVisor(url){
+
+    const visor =
+        document.getElementById(
+            "visorMedia"
+        );
+
+    const img =
+        document.getElementById(
+            "visorImg"
+        );
+
+    if(!visor || !img) return;
+
+    img.src = url;
+
+    visor.style.display = "flex";
+}
+
+function cerrarVisor(){
+
+    const visor =
+        document.getElementById(
+            "visorMedia"
+        );
+
+    if(visor){
+
+        visor.style.display = "none";
+    }
+}
+
+/* FOTO PERFIL */
+
+function abrirFotoPerfil(url){
+
+    const visor =
+        document.getElementById(
+            "visorFotoPerfil"
+        );
+
+    const img =
+        document.getElementById(
+            "fotoPerfilGrande"
+        );
+
+    if(!visor || !img) return;
+
+    img.src = url;
+
+    visor.style.display = "flex";
+}
+
+function cerrarFotoPerfil(){
+
+    const visor =
+        document.getElementById(
+            "visorFotoPerfil"
+        );
+
+    if(visor){
+
+        visor.style.display = "none";
+    }
+}
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        cargarSeguidores();
+    }
+);
+
+</script>

@@ -1,0 +1,526 @@
+@model TropiNailsPro.Models.ModeloUnas
+
+@{
+ViewData["Title"]="Agregar Modelo de Uñas";
+}
+
+<div class="container mt-5">
+
+<div class="card shadow-lg border-0 p-4 modelo-card">
+
+<h2 class="titulo-main">
+✨ Nuevo Diseño para Catálogo
+</h2>
+
+<p class="subtitulo">
+Sube fotos o videos de tus diseños como un portafolio profesional.
+</p>
+
+
+<form asp-action="Create"
+method="post"
+enctype="multipart/form-data"
+onsubmit="return validarMedia()">
+
+@Html.AntiForgeryToken()
+
+<div asp-validation-summary="ModelOnly"
+class="text-danger mb-3"></div>
+
+
+<!-- NOMBRE -->
+
+<div class="mb-4">
+<label asp-for="Nombre"
+class="form-label fw-bold">
+💅 Nombre del Diseño
+</label>
+
+<input asp-for="Nombre"
+class="form-control campo-pro"/>
+
+<span asp-validation-for="Nombre"
+class="text-danger"></span>
+
+</div>
+
+
+
+<!-- DESCRIPCION -->
+
+<div class="mb-4">
+
+<label asp-for="Descripcion"
+class="form-label fw-bold">
+📝 Descripción
+</label>
+
+<textarea
+asp-for="Descripcion"
+rows="4"
+class="form-control campo-pro">
+</textarea>
+
+<span asp-validation-for="Descripcion"
+class="text-danger"></span>
+
+</div>
+
+
+
+<!-- URL -->
+
+<div class="mb-4">
+
+<label class="form-label fw-bold">
+🌐 Pegar URL de imagen
+</label>
+
+<input
+asp-for="ImagenUrl"
+id="ImagenUrl"
+class="form-control campo-pro"
+placeholder="https://..."
+oninput="mostrarPreview()"/>
+
+</div>
+
+
+
+
+<!-- ARCHIVO -->
+
+<div class="mb-4">
+
+<label class="form-label fw-bold">
+🎥 Subir Foto o Video
+</label>
+
+<div class="upload-box">
+
+<input
+asp-for="ImagenArchivo"
+id="ImagenArchivo"
+type="file"
+accept="image/*,video/*"
+class="form-control"
+onchange="mostrarPreview()"/>
+
+<div class="upload-note">
+Acepta imágenes y videos
+</div>
+
+</div>
+
+</div>
+
+
+
+
+
+<!-- PREVIEW -->
+
+<div class="preview-area">
+
+<h4 class="preview-title">
+Vista previa
+</h4>
+
+<div class="preview-box">
+
+<img
+id="previewImagen"
+src="/uploads/default-modelo.png"
+style="display:block;"
+onerror="
+this.src='/uploads/default-modelo.png'
+"/>
+
+
+<video
+id="previewVideo"
+controls
+style="display:none;">
+</video>
+
+</div>
+
+</div>
+
+
+
+
+<!-- BOTONES -->
+
+<div class="acciones">
+
+<button
+type="submit"
+class="btn-guardar">
+
+🚀 Publicar Modelo
+
+</button>
+
+
+<a asp-action="Index"
+class="btn-cancelar">
+
+Cancelar
+
+</a>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+
+<style>
+
+body{
+background:
+linear-gradient(
+135deg,
+#fff7fb,
+#fff
+);
+}
+
+
+.modelo-card{
+max-width:900px;
+margin:auto;
+border-radius:32px;
+padding:40px;
+box-shadow:
+0 14px 40px rgba(0,0,0,.12);
+}
+
+
+.titulo-main{
+text-align:center;
+font-size:38px;
+font-weight:800;
+margin-bottom:10px;
+}
+
+.subtitulo{
+text-align:center;
+color:#666;
+margin-bottom:35px;
+font-size:17px;
+}
+
+
+.campo-pro{
+border-radius:18px;
+padding:15px;
+border:1px solid #ddd;
+transition:.3s;
+}
+
+.campo-pro:focus{
+border-color:#ff4da6;
+box-shadow:
+0 0 0 4px rgba(
+255,77,166,.10
+);
+}
+
+
+
+.upload-box{
+padding:22px;
+border:2px dashed #ffb3d9;
+border-radius:20px;
+background:#fff9fd;
+}
+
+.upload-note{
+margin-top:10px;
+font-size:14px;
+color:#777;
+}
+
+
+
+.preview-area{
+margin-top:35px;
+text-align:center;
+}
+
+.preview-title{
+margin-bottom:20px;
+font-weight:700;
+}
+
+
+.preview-box{
+width:420px;
+height:420px;
+max-width:100%;
+margin:auto;
+overflow:hidden;
+border-radius:30px;
+background:#fafafa;
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow:
+0 10px 30px rgba(0,0,0,.10);
+}
+
+
+.preview-box img,
+.preview-box video{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+
+
+.acciones{
+margin-top:35px;
+display:flex;
+justify-content:center;
+gap:18px;
+flex-wrap:wrap;
+}
+
+
+
+.btn-guardar{
+border:none;
+padding:16px 38px;
+border-radius:50px;
+font-weight:700;
+background:
+linear-gradient(
+45deg,
+#ff4da6,
+#ff7ac3
+);
+color:white;
+box-shadow:
+0 10px 25px rgba(
+255,77,166,.30
+);
+transition:.3s;
+}
+
+.btn-guardar:hover{
+transform:translateY(-3px);
+}
+
+
+
+.btn-cancelar{
+padding:16px 38px;
+border-radius:50px;
+text-decoration:none;
+font-weight:700;
+background:#ececec;
+color:#333;
+transition:.3s;
+}
+
+.btn-cancelar:hover{
+background:#ddd;
+}
+
+
+
+@@media(max-width:768px){
+
+.titulo-main{
+font-size:30px;
+}
+
+.preview-box{
+height:320px;
+}
+
+}
+
+</style>
+
+
+
+@section Scripts{
+
+<partial name="_ValidationScriptsPartial"/>
+
+<script>
+
+function mostrarPreview(){
+
+const url=
+document
+.getElementById(
+"ImagenUrl"
+)
+.value.trim();
+
+const archivo=
+document
+.getElementById(
+"ImagenArchivo"
+);
+
+const img=
+document
+.getElementById(
+"previewImagen"
+);
+
+const video=
+document
+.getElementById(
+"previewVideo"
+);
+
+
+
+if(
+archivo.files.length>0
+){
+
+let file=
+archivo.files[0];
+
+let tipo=
+file.type;
+
+let reader=
+new FileReader();
+
+
+if(
+tipo.startsWith(
+"image/"
+)
+)
+{
+reader.onload=e=>{
+
+img.src=
+e.target.result;
+
+img.style.display=
+"block";
+
+video.style.display=
+"none";
+
+};
+
+reader.readAsDataURL(
+file
+);
+}
+
+
+else if(
+tipo.startsWith(
+"video/"
+)
+)
+{
+let urlVideo=
+URL.createObjectURL(
+file
+);
+
+video.src=
+urlVideo;
+
+video.style.display=
+"block";
+
+img.style.display=
+"none";
+}
+
+document
+.getElementById(
+"ImagenUrl"
+).value="";
+}
+
+
+else if(
+url.startsWith(
+"http"
+)
+)
+{
+img.src=url;
+
+img.style.display=
+"block";
+
+video.style.display=
+"none";
+}
+
+
+else
+{
+img.src=
+"/uploads/default-modelo.png";
+
+img.style.display=
+"block";
+
+video.style.display=
+"none";
+}
+
+}
+
+
+
+function validarMedia(){
+
+const url=
+document
+.getElementById(
+"ImagenUrl"
+)
+.value.trim();
+
+const file=
+document
+.getElementById(
+"ImagenArchivo"
+)
+.files.length;
+
+
+
+if(
+!url
+&&
+file===0
+)
+{
+alert(
+"Debes subir una imagen, video o pegar una URL."
+);
+
+return false;
+}
+
+return true;
+
+}
+
+</script>
+
+}

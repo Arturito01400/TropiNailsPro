@@ -1,0 +1,75 @@
+@model TropiNailsPro.Models.UsuarioPerfil
+
+<div class="container mt-5" style="max-width:600px;">
+
+    <h2 class="mb-4 text-center">✏️ Editar Perfil</h2>
+
+    <form asp-action="Guardar" asp-controller="Perfil" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label>Nombre completo</label>
+            <input asp-for="NombreCompleto" class="form-control" />
+            <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label>Teléfono</label>
+            <input asp-for="Telefono" class="form-control" />
+            <span asp-validation-for="Telefono" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label>Instagram</label>
+            <input asp-for="Instagram" class="form-control" />
+            <span asp-validation-for="Instagram" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3 text-center">
+            <label>Foto de Perfil</label>
+            <input type="file" name="foto" class="form-control mb-2" accept="image/*" onchange="previewImagen(event)" />
+
+            <img id="previewFoto"
+                 src="@(!string.IsNullOrEmpty(Model?.ObtenerFoto()) ? Model.ObtenerFoto() : "/img/user-default.png")"
+                 width="120"
+                 class="rounded-circle shadow"
+                 style="object-fit:cover;border:3px solid #e91e63;"
+                 onerror="this.src='/img/user-default.png'" />
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-pink btn-lg">💾 Guardar</button>
+            <a asp-action="Index" class="btn btn-secondary btn-lg">Cancelar</a>
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function previewImagen(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("previewFoto").src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+}
+
+<style>
+.btn-pink {
+    background: #e91e63;
+    color: white;
+    border: none;
+}
+.btn-pink:hover {
+    background: #c2185b;
+}
+</style>

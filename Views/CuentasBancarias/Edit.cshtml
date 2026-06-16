@@ -1,0 +1,66 @@
+@model TropiNailsPro.Models.CuentaBancaria
+
+@{
+    ViewData["Title"] = "Editar Cuenta Bancaria";
+}
+
+<div class="container mt-5">
+
+<h2 class="text-center mb-5 text-primary">✏ Editar Cuenta Bancaria</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="row g-4">
+    <input type="hidden" asp-for="Id"/>
+
+    <!-- 🔥 BANCO LIBRE -->
+    <div class="col-12">
+        <label asp-for="Banco" class="form-label fw-bold">Banco</label>
+        <input asp-for="Banco" class="form-control" placeholder="Ej: Banco Internacional, BHD, etc" />
+        <span asp-validation-for="Banco" class="text-danger"></span>
+    </div>
+
+    <!-- 🔥 LOGO ACTUAL -->
+    @if (!string.IsNullOrEmpty(Model.LogoPersonalizado))
+    {
+        <div class="col-12 text-center">
+            <label class="form-label fw-bold">Logo actual</label><br />
+            <img src="@Model.LogoPersonalizado" style="max-height:80px;" />
+        </div>
+    }
+
+    <!-- 🔥 NUEVO LOGO -->
+    <div class="col-12">
+        <label class="form-label fw-bold">Cambiar logo (opcional)</label>
+        <input type="file" name="LogoFile" class="form-control" accept="image/*" />
+    </div>
+
+    <!-- TITULAR -->
+    <div class="col-md-6">
+        <label asp-for="Titular" class="form-label fw-bold"></label>
+        <input asp-for="Titular" class="form-control"/>
+        <span asp-validation-for="Titular" class="text-danger"></span>
+    </div>
+
+    <!-- NUMERO DE CUENTA -->
+    <div class="col-md-6">
+        <label asp-for="NumeroCuenta" class="form-label fw-bold"></label>
+        <input asp-for="NumeroCuenta" class="form-control"/>
+        <span asp-validation-for="NumeroCuenta" class="text-danger"></span>
+    </div>
+
+    <!-- TIPO CUENTA -->
+    <div class="col-md-6">
+        <label asp-for="TipoCuenta" class="form-label fw-bold"></label>
+        <select asp-for="TipoCuenta" class="form-control" asp-items="ViewBag.TiposCuenta">
+            <option value="">Seleccione</option>
+        </select>
+        <span asp-validation-for="TipoCuenta" class="text-danger"></span>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="col-12 text-center mt-4">
+        <button type="submit" class="btn btn-success btn-lg me-2">💾 Actualizar</button>
+        <a asp-action="Index" class="btn btn-secondary btn-lg">🔙 Volver</a>
+    </div>
+
+</form>
+</div>

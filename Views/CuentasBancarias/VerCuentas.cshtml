@@ -1,0 +1,314 @@
+@model IEnumerable<TropiNailsPro.Models.CuentaBancaria>
+
+@{
+    ViewData["Title"] = "Cuentas Bancarias";
+}
+
+<div class="container mt-4">
+
+    <h2 class="text-center mb-3">
+        💳 Cuentas Bancarias para Transferencia
+    </h2>
+
+    <p class="text-center text-muted mb-5">
+        Realiza tu transferencia a la cuenta de tu manicurista y luego sube el comprobante.
+    </p>
+
+    <div class="row">
+
+        @foreach (var cuenta in Model)
+        {
+            <div class="col-12 col-sm-6 col-lg-4 mb-4">
+
+                <div class="card shadow border-0 card-cuenta h-100">
+
+                    <div class="card-body text-center d-flex flex-column">
+
+                        <!-- 🔥 LOGO LIMPIO -->
+                        <div class="mb-3">
+
+                            <img src="@( !string.IsNullOrEmpty(cuenta.LogoPersonalizado)
+                                        ? cuenta.LogoPersonalizado
+                                        : Url.Content("~/img/bancos/default.png") )"
+                                 class="logo-banco img-fluid"
+                                 onerror="this.src='@Url.Content("~/img/bancos/default.png")'" />
+
+                        </div>
+
+                        <h5 class="card-title text-primary fw-bold">
+                            🏦 @cuenta.Banco
+                        </h5>
+
+                        <p class="card-text mb-3">
+                            <strong>Titular:</strong><br />
+                            <span class="texto-ajustable">
+                                @cuenta.Titular
+                            </span>
+                        </p>
+
+                        <!-- 🔥 NUMERO DESTACADO -->
+                        <div class="cuenta-box mb-3">
+
+                            <span id="cuenta-@cuenta.Id"
+                                  class="numero-cuenta">
+                                @cuenta.NumeroCuenta
+                            </span>
+
+                        </div>
+
+                        <button class="btn btn-outline-primary btn-sm mb-3 w-100"
+                                onclick="copiarCuenta('cuenta-@cuenta.Id')">
+
+                            📋 Copiar Cuenta
+
+                        </button>
+
+                        <p class="card-text">
+                            <strong>Tipo:</strong><br />
+                            @cuenta.TipoCuenta
+                        </p>
+
+                        <hr />
+
+                        <button class="btn btn-success w-100 mt-auto"
+                                onclick="abrirModal(@cuenta.Id)">
+
+                            📤 Subir Comprobante
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+
+<!-- MODAL SUBIR COMPROBANTE -->
+
+<div class="modal fade" id="modalComprobante" tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Subir Comprobante de Transferencia
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form asp-controller="PagosTransferencia"
+                  asp-action="SubirComprobante"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <div class="modal-body">
+
+                    <input type="hidden"
+                           id="CuentaId"
+                           name="CuentaId" />
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Seleccionar comprobante
+                        </label>
+
+                        <input type="file"
+                               name="archivo"
+                               class="form-control"
+                               required />
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                        Cancelar
+
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        Enviar
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* 🔥 TARJETAS MÁS MODERNAS */
+.card-cuenta{
+    border-radius:15px;
+    transition:0.3s;
+    overflow:hidden;
+    background:white;
+}
+
+.card-cuenta:hover{
+    transform:translateY(-5px);
+    box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* 🔥 LOGO */
+.logo-banco{
+    max-height:60px;
+    width:auto;
+    background:white;
+    padding:6px;
+    border-radius:10px;
+    border:1px solid #eee;
+    object-fit:contain;
+}
+
+/* 🔥 CAJA DE CUENTA */
+.cuenta-box{
+    background:#f8f9fa;
+    border:2px dashed #d63384;
+    padding:12px;
+    border-radius:10px;
+    font-weight:bold;
+    font-size:16px;
+    letter-spacing:1px;
+    overflow-wrap:break-word;
+    word-break:break-word;
+}
+
+/* 🔥 TEXTO RESPONSIVE */
+.texto-ajustable{
+    word-break:break-word;
+}
+
+/* 🔥 NUMERO RESPONSIVE */
+.numero-cuenta{
+    font-size:15px;
+}
+
+/* 🔥 MOBILE */
+@@media(max-width:768px){
+
+    .container{
+        padding-left:12px;
+        padding-right:12px;
+    }
+
+    .card-cuenta{
+        border-radius:12px;
+    }
+
+    .logo-banco{
+        max-height:50px;
+    }
+
+    .cuenta-box{
+        font-size:14px;
+        padding:10px;
+    }
+
+    .numero-cuenta{
+        font-size:14px;
+    }
+
+    h2{
+        font-size:24px;
+    }
+
+    .btn{
+        font-size:14px;
+    }
+}
+
+</style>
+
+
+<script>
+
+async function copiarCuenta(id)
+{
+    var cuenta = document.getElementById(id).innerText;
+
+    try {
+
+        await navigator.clipboard.writeText(cuenta);
+
+        mostrarMensaje("Cuenta copiada ✔");
+
+    }
+    catch {
+
+        mostrarMensaje("No se pudo copiar la cuenta");
+
+    }
+}
+
+function abrirModal(id)
+{
+    document.getElementById("CuentaId").value = id;
+
+    var modal = new bootstrap.Modal(
+        document.getElementById("modalComprobante")
+    );
+
+    modal.show();
+}
+
+/* 🔥 ALERTA BONITA */
+function mostrarMensaje(mensaje){
+
+    var alerta = document.createElement("div");
+
+    alerta.innerText = mensaje;
+
+    alerta.style.position = "fixed";
+    alerta.style.bottom = "20px";
+    alerta.style.right = "20px";
+    alerta.style.left = "20px";
+    alerta.style.maxWidth = "300px";
+    alerta.style.margin = "auto";
+    alerta.style.background = "#28a745";
+    alerta.style.color = "white";
+    alerta.style.padding = "12px 15px";
+    alerta.style.borderRadius = "10px";
+    alerta.style.boxShadow = "0 5px 15px rgba(0,0,0,0.3)";
+    alerta.style.zIndex = "9999";
+    alerta.style.textAlign = "center";
+    alerta.style.fontWeight = "600";
+
+    document.body.appendChild(alerta);
+
+    setTimeout(function(){
+
+        alerta.remove();
+
+    }, 2000);
+}
+
+</script>

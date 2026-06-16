@@ -1,0 +1,130 @@
+@model TropiNailsPro.Models.Cita
+
+@{
+    ViewData["Title"] = "Detalles de la Cita";
+}
+
+<h2 class="mb-4">📌 Detalles de la Cita</h2>
+
+<div class="card shadow p-4 mb-4 border-0 rounded-4">
+
+    <!-- ============================= -->
+    <!-- INFORMACIÓN -->
+    <!-- ============================= -->
+
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <strong>👩 Clienta:</strong>
+            @Model.NombreClienta
+        </div>
+
+        <div class="col-md-6">
+            <strong>💅 Servicio:</strong>
+            @Model.Servicio
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <strong>📅 Fecha:</strong>
+            @Model.Fecha.ToString("dd/MM/yyyy")
+        </div>
+
+        <div class="col-md-6">
+            <strong>⏰ Hora:</strong>
+            @Model.Hora.ToString(@"hh\:mm")
+        </div>
+    </div>
+
+    <div class="mb-2">
+        <strong>📝 Notas:</strong>
+        @(string.IsNullOrWhiteSpace(Model.NotasAdicionales)
+            ? "Sin notas adicionales"
+            : Model.NotasAdicionales)
+    </div>
+
+    <div class="mb-2">
+        <strong>📌 Estado:</strong>
+
+        <span class="badge bg-info text-dark">
+            @Model.Estado
+        </span>
+    </div>
+
+    <div class="mb-2">
+        <strong>🕒 Registrada el:</strong>
+        @Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")
+    </div>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- BOTONES -->
+<!-- ============================= -->
+
+<div class="d-flex gap-2">
+
+    <a asp-action="Edit"
+       asp-route-id="@Model.Id"
+       class="btn btn-warning">
+        ✏ Editar
+    </a>
+
+    <a asp-action="Delete"
+       asp-route-id="@Model.Id"
+       class="btn btn-danger">
+        🗑 Eliminar
+    </a>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        ↩ Volver
+    </a>
+
+</div>
+
+
+
+@section Scripts {
+
+    <!-- ============================= -->
+    <!-- SignalR -->
+    <!-- ============================= -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+
+        const citaId = @Model.Id;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/onlineHub")
+            .build();
+
+        connection.start()
+            .then(() => console.log("✅ SignalR conectado desde Details"))
+            .catch(err => console.error(err));
+
+
+        // ====================================================
+        // 🔥 Actualización en tiempo real (opcional)
+        // ====================================================
+        connection.on("ActualizarFilaCitas", function (citas) {
+
+            citas.forEach(c => {
+
+                if (c.id === citaId) {
+
+                    console.log("🔄 Cita actualizada en tiempo real", c);
+
+                    // Si luego quieres refrescar:
+                    // location.reload();
+
+                }
+
+            });
+
+        });
+
+    </script>
+}

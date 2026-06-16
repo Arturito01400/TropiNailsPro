@@ -1,0 +1,278 @@
+@model List<TropiNailsPro.Models.Usuario>
+
+@{
+    ViewData["Title"] = "Panel del Propietario";
+}
+
+<div class="container-fluid mt-4">
+
+    <!-- ENCABEZADO -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-lg border-0">
+
+                <div class="card-body">
+
+                    <h2 class="fw-bold">
+                        Panel del Propietario
+                    </h2>
+
+                    <p class="text-muted">
+                        Monitoreo de crecimiento de TropiNailsPro
+                    </p>
+
+                    <span class="badge bg-dark p-2">
+                        Arturo Quezada Montero
+                    </span>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 FILTROS -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+
+            <a class="btn btn-outline-dark btn-sm" href="?filtro=todos">Todos</a>
+            <a class="btn btn-outline-primary btn-sm" href="?filtro=manicuristas">Manicuristas</a>
+            <a class="btn btn-outline-success btn-sm" href="?filtro=clientas">Clientas</a>
+            <a class="btn btn-outline-warning btn-sm" href="?filtro=prueba">Prueba</a>
+            <a class="btn btn-outline-info btn-sm" href="?filtro=suscritas">Suscritas</a>
+            <a class="btn btn-outline-danger btn-sm" href="?filtro=vencidas">Vencidas</a>
+
+        </div>
+    </div>
+
+    <!-- TARJETAS DE ESTADÍSTICAS -->
+    <div class="row mb-4">
+
+        <div class="col-md-2">
+            <div class="card shadow border-0 bg-primary text-white">
+                <div class="card-body">
+                    <h6>Total Usuarios</h6>
+                    <h3>@ViewBag.TotalUsuarios</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card shadow border-0 bg-dark text-white">
+                <div class="card-body">
+                    <h6>Manicuristas</h6>
+                    <h3>@ViewBag.TotalManicuristas</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card shadow border-0 bg-success text-white">
+                <div class="card-body">
+                    <h6>Clientas</h6>
+                    <h3>@ViewBag.TotalClientas</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card shadow border-0 bg-warning">
+                <div class="card-body">
+                    <h6>Prueba</h6>
+                    <h3>@ViewBag.Pruebas</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card shadow border-0 bg-info text-white">
+                <div class="card-body">
+                    <h6>Suscritas</h6>
+                    <h3>@ViewBag.Suscritas</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="card shadow border-0 bg-danger text-white">
+                <div class="card-body">
+                    <h6>Vencidas</h6>
+                    <h3>@ViewBag.Vencidas</h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TABLA DE USUARIAS -->
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <div class="card shadow-lg border-0">
+
+                <div class="card-header bg-white">
+
+                    <h5 class="fw-bold mb-0">
+                        Usuarias Registradas
+                    </h5>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover align-middle">
+
+                            <thead class="table-dark">
+
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Nombre</th>
+                                    <th>Rol</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Plan</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Registro</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var usuario in Model)
+                                {
+                                    var dias = usuario.FechaVencimientoPlan.HasValue
+                                        ? (usuario.FechaVencimientoPlan.Value - DateTime.Now).Days
+                                        : 999;
+
+                                    string estado = "";
+
+                                    if (usuario.FechaVencimientoPlan != null && usuario.FechaVencimientoPlan < DateTime.Now)
+                                    {
+                                        estado = "🔴 Vencido";
+                                    }
+                                    else if (dias <= 3)
+                                    {
+                                        estado = "⚠️ Por vencer";
+                                    }
+                                    else
+                                    {
+                                        estado = "🟢 Activo";
+                                    }
+
+                                    <tr>
+
+                                        <td>
+                                            <img src="@usuario.FotoPerfilUrl"
+                                                 style="width:45px;height:45px;border-radius:50%;object-fit:cover;" />
+                                        </td>
+
+                                        <td class="fw-bold">
+                                            @usuario.Nombre
+                                        </td>
+
+                                        <td>
+                                            @usuario.Rol
+                                        </td>
+
+                                        <td>
+                                            @usuario.Email
+                                        </td>
+
+                                        <td>
+                                            @usuario.Telefono
+                                        </td>
+
+                                        <td>
+                                            @usuario.Plan
+                                        </td>
+
+                                        <td>
+                                            @estado
+                                        </td>
+
+                                        <td>
+                                            @usuario.FechaRegistro.ToString("dd/MM/yyyy HH:mm")
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 💅 MANICURISTAS Y CLIENTAS -->
+    <div class="row mt-4">
+
+        <div class="col-md-12">
+
+            <div class="card shadow-lg border-0">
+
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">Manicuristas y Clientas</h5>
+                </div>
+
+                <div class="card-body">
+
+                    @foreach (var m in Model.Where(x => x.Rol == "Manicurista"))
+                    {
+                        <div class="border p-3 mb-3 rounded">
+
+                            <h5 class="fw-bold">
+                                💅 @m.Nombre
+                            </h5>
+
+                            @{
+    var manicuristaTabla =
+        ((List<TropiNailsPro.Models.Manicurista>)
+        ViewBag.Manicuristas)
+        .FirstOrDefault(x => x.UsuarioId == m.Id);
+
+    var clientasManicurista =
+        ((List<TropiNailsPro.Models.Usuario>)
+        ViewBag.ClientasPorManicurista)
+        .Where(c =>
+            manicuristaTabla != null &&
+            c.ManicuristaId == manicuristaTabla.Id)
+        .ToList();
+}
+
+<p>
+    👥 Clientas: @clientasManicurista.Count
+</p>
+
+<div>
+    @foreach (var c in clientasManicurista)
+    {
+        <span class="badge bg-secondary m-1">
+            @c.Nombre
+        </span>
+    }
+</div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

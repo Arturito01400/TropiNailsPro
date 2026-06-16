@@ -1,0 +1,42 @@
+@model TropiNailsPro.Models.Pago
+@{
+    ViewData["Title"] = "Editar Deuda";
+}
+
+<div class="container my-4">
+    <h2 class="text-pink mb-4">💳 Editar Deuda del Cliente</h2>
+
+    <form asp-action="EditarDeuda" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="ClienteNombre" class="form-label">Cliente</label>
+            <input asp-for="ClienteNombre" class="form-control" />
+            <span asp-validation-for="ClienteNombre" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Monto" class="form-label">Monto Pendiente</label>
+            <input asp-for="Monto" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Monto" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="Pagado" class="form-check-input" type="checkbox" />
+            <label asp-for="Pagado" class="form-check-label">Pagado</label>
+        </div>
+
+        <button type="submit" class="btn btn-pink">Guardar Cambios</button>
+        <a asp-action="Lista" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
+
+<style>
+.text-pink{ color:#e91e63; font-weight:600; }
+.btn-pink{ background-color:#e91e63; color:white; }
+.btn-pink:hover{ background-color:#c2185b; }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

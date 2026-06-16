@@ -1,0 +1,536 @@
+@model IEnumerable<TropiNailsPro.Models.CuentaBancaria>
+
+@{
+    ViewData["Title"] = "Mis Cuentas Bancarias";
+}
+
+<div class="container cuentas-container mt-4">
+
+    <div class="titulo-wrapper">
+
+        <h2 class="titulo-cuentas">
+            💳 Mis Cuentas Bancarias
+        </h2>
+
+    </div>
+
+    <div class="mb-4 text-end">
+
+        <a asp-action="Create"
+           class="btn btn-success btn-agregar">
+
+            ➕ Agregar Nueva Cuenta
+
+        </a>
+
+    </div>
+
+    <div class="tabla-wrapper">
+
+        <div class="table-responsive tabla-responsive-custom">
+
+            <table class="table table-hover align-middle tabla-cuentas">
+
+                <thead class="table-dark text-center">
+
+                    <tr>
+
+                        <th>Banco</th>
+                        <th>Titular</th>
+                        <th>Número de Cuenta</th>
+                        <th>Tipo</th>
+                        <th class="acciones-columna">
+                            Acciones
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+
+                            <!-- BANCO -->
+                            <td data-label="Banco">
+
+                                <div class="d-flex align-items-center banco-info">
+
+                                    <img src="@( !string.IsNullOrEmpty(item.LogoPersonalizado)
+                                                ? item.LogoPersonalizado
+                                                : Url.Content("~/img/bancos/default.png") )"
+
+                                         class="logo-banco me-2"
+
+                                         onerror="this.src='@Url.Content("~/img/bancos/default.png")'" />
+
+                                    <span class="fw-bold banco-nombre">
+
+                                        @item.Banco
+
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                            <!-- TITULAR -->
+                            <td data-label="Titular">
+
+                                <span class="texto-ajustable">
+                                    @item.Titular
+                                </span>
+
+                            </td>
+
+                            <!-- NUMERO -->
+                            <td data-label="Número de Cuenta">
+
+                                <div class="d-flex align-items-center flex-wrap gap-2 cuenta-wrapper">
+
+                                    <span id="cuenta-@item.Id"
+                                          class="numero-cuenta">
+
+                                        @item.NumeroCuenta
+
+                                    </span>
+
+                                    <button class="btn btn-outline-secondary btn-sm btn-copiar"
+                                            onclick="copiarCuenta('cuenta-@item.Id')">
+
+                                        📋 Copiar
+
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                            <!-- TIPO -->
+                            <td data-label="Tipo">
+
+                                <span class="badge bg-info text-dark badge-tipo">
+
+                                    @item.TipoCuenta
+
+                                </span>
+
+                            </td>
+
+                            <!-- ACCIONES -->
+                            <td data-label="Acciones"
+                                class="text-center">
+
+                                <div class="acciones-wrapper">
+
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-primary btn-sm">
+
+                                        ✏ Editar
+
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-danger btn-sm">
+
+                                        🗑 Eliminar
+
+                                    </a>
+
+                                    <a asp-controller="PagosTransferencia"
+                                       asp-action="Index"
+                                       asp-route-cuentaId="@item.Id"
+                                       class="btn btn-success btn-sm">
+
+                                        👁 Ver Vouchers
+
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    overflow-x:hidden;
+    background:#f5f7fb;
+}
+
+/* ========================= */
+/* CONTENEDOR */
+/* ========================= */
+
+.cuentas-container{
+    width:100%;
+    max-width:1400px;
+    margin:auto;
+    padding-bottom:30px;
+}
+
+.titulo-wrapper{
+    margin-bottom:25px;
+}
+
+.titulo-cuentas{
+    text-align:center;
+    font-weight:700;
+    color:#1e293b;
+    font-size:clamp(25px,3vw,38px);
+    margin-bottom:0;
+}
+
+.btn-agregar{
+    border-radius:14px;
+    padding:12px 20px;
+    font-weight:600;
+    box-shadow:0 6px 18px rgba(40,167,69,0.18);
+}
+
+/* ========================= */
+/* TABLA */
+/* ========================= */
+
+.tabla-wrapper{
+    width:100%;
+}
+
+.tabla-responsive-custom{
+    border-radius:22px;
+    overflow:hidden;
+    background:white;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.tabla-cuentas{
+    margin-bottom:0;
+    min-width:900px;
+    background:white;
+}
+
+.tabla-cuentas thead th{
+    padding:18px 14px;
+    font-size:15px;
+    white-space:nowrap;
+}
+
+.tabla-cuentas tbody td{
+    padding:18px 14px;
+    vertical-align:middle;
+}
+
+.tabla-cuentas tbody tr{
+    transition:0.3s ease;
+}
+
+.tabla-cuentas tbody tr:hover{
+    background:#f8fbff;
+}
+
+/* ========================= */
+/* BANCO */
+/* ========================= */
+
+.banco-info{
+    min-width:180px;
+}
+
+.logo-banco{
+    height:42px;
+    width:42px;
+    object-fit:contain;
+    border-radius:10px;
+    background:white;
+    padding:4px;
+    border:1px solid #ddd;
+    flex-shrink:0;
+}
+
+.banco-nombre{
+    word-break:break-word;
+}
+
+/* ========================= */
+/* CUENTA */
+/* ========================= */
+
+.numero-cuenta{
+    font-weight:600;
+    color:#0f172a;
+    word-break:break-word;
+}
+
+.btn-copiar{
+    border-radius:10px;
+    white-space:nowrap;
+}
+
+/* ========================= */
+/* BADGE */
+/* ========================= */
+
+.badge-tipo{
+    padding:10px 14px;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:600;
+}
+
+/* ========================= */
+/* ACCIONES */
+/* ========================= */
+
+.acciones-columna{
+    width:320px;
+}
+
+.acciones-wrapper{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+}
+
+.acciones-wrapper .btn{
+    border-radius:12px;
+    min-height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px 14px;
+    font-weight:600;
+}
+
+/* ========================= */
+/* TEXTO */
+/* ========================= */
+
+.texto-ajustable{
+    word-break:break-word;
+}
+
+/* ========================= */
+/* TABLETS */
+/* ========================= */
+
+@@media(max-width:992px){
+
+    .tabla-cuentas{
+        min-width:800px;
+    }
+
+    .acciones-columna{
+        width:280px;
+    }
+
+}
+
+/* ========================= */
+/* MOVILES */
+/* ========================= */
+
+@@media(max-width:768px){
+
+    .cuentas-container{
+        padding-left:10px;
+        padding-right:10px;
+    }
+
+    .titulo-cuentas{
+        font-size:28px;
+    }
+
+    .btn-agregar{
+        width:100%;
+        text-align:center;
+    }
+
+    .tabla-responsive-custom{
+        border-radius:18px;
+    }
+
+    .tabla-cuentas{
+        min-width:100%;
+    }
+
+    .tabla-cuentas thead{
+        display:none;
+    }
+
+    .tabla-cuentas,
+    .tabla-cuentas tbody,
+    .tabla-cuentas tr,
+    .tabla-cuentas td{
+        display:block;
+        width:100%;
+    }
+
+    .tabla-cuentas tr{
+        margin-bottom:18px;
+        border-radius:18px;
+        overflow:hidden;
+        background:white;
+        box-shadow:0 4px 14px rgba(0,0,0,0.08);
+        border:1px solid #eef2f7;
+    }
+
+    .tabla-cuentas td{
+        text-align:left;
+        padding:14px 16px;
+        position:relative;
+        border:none;
+        border-bottom:1px solid #f1f5f9;
+    }
+
+    .tabla-cuentas td:last-child{
+        border-bottom:none;
+    }
+
+    .tabla-cuentas td::before{
+        content:attr(data-label);
+        display:block;
+        font-size:13px;
+        font-weight:700;
+        color:#64748b;
+        margin-bottom:8px;
+    }
+
+    .acciones-wrapper{
+        flex-direction:column;
+        width:100%;
+    }
+
+    .acciones-wrapper .btn{
+        width:100%;
+    }
+
+    .cuenta-wrapper{
+        flex-direction:column;
+        align-items:flex-start !important;
+    }
+
+    .btn-copiar{
+        width:100%;
+    }
+
+}
+
+/* ========================= */
+/* TELEFONOS PEQUEÑOS */
+/* ========================= */
+
+@@media(max-width:480px){
+
+    .titulo-cuentas{
+        font-size:24px;
+    }
+
+    .tabla-cuentas td{
+        padding:12px;
+    }
+
+    .acciones-wrapper .btn{
+        font-size:14px;
+    }
+
+    .badge-tipo{
+        width:100%;
+        display:inline-block;
+        text-align:center;
+    }
+
+}
+
+/* ========================= */
+/* HORIZONTAL */
+/* ========================= */
+
+@@media(max-height:500px) and (orientation:landscape){
+
+    .tabla-cuentas td{
+        padding:10px 12px;
+    }
+
+    .acciones-wrapper{
+        flex-direction:row;
+    }
+
+}
+
+</style>
+
+<script>
+
+function copiarCuenta(id){
+
+    var texto =
+        document.getElementById(id).innerText;
+
+    navigator.clipboard.writeText(texto)
+    .then(function(){
+
+        mostrarMensaje(
+            "Número de cuenta copiado ✔"
+        );
+
+    });
+
+}
+
+function mostrarMensaje(mensaje){
+
+    var alerta =
+        document.createElement("div");
+
+    alerta.innerText = mensaje;
+
+    alerta.style.position = "fixed";
+    alerta.style.bottom = "20px";
+    alerta.style.right = "20px";
+    alerta.style.left = "20px";
+    alerta.style.maxWidth = "320px";
+    alerta.style.margin = "auto";
+    alerta.style.background = "#28a745";
+    alerta.style.color = "white";
+    alerta.style.padding = "14px 18px";
+    alerta.style.borderRadius = "14px";
+    alerta.style.boxShadow =
+        "0 8px 18px rgba(0,0,0,0.18)";
+    alerta.style.zIndex = "9999";
+    alerta.style.fontWeight = "600";
+    alerta.style.textAlign = "center";
+    alerta.style.animation =
+        "fadeIn 0.3s ease";
+
+    document.body.appendChild(alerta);
+
+    setTimeout(function(){
+
+        alerta.remove();
+
+    },2000);
+
+}
+
+</script>

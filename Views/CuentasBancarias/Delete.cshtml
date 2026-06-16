@@ -1,0 +1,79 @@
+@model TropiNailsPro.Models.CuentaBancaria
+
+@{
+    ViewData["Title"] = "Eliminar Cuenta Bancaria";
+}
+
+<div class="container mt-4">
+
+    <h2 class="text-center text-danger mb-4">🗑 Eliminar Cuenta Bancaria</h2>
+
+    <div class="alert alert-warning text-center">
+        ⚠ ¿Estás segura de que deseas eliminar esta cuenta bancaria?
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+
+            <!-- 🔥 LOGO (PERSONALIZADO O DEFAULT) -->
+            <div class="text-center mb-3">
+                <img src="@(string.IsNullOrEmpty(Model.LogoPersonalizado) 
+                    ? Url.Content("~/img/bancos/default.png") 
+                    : Model.LogoPersonalizado)" 
+                     style="max-height:80px;" />
+            </div>
+
+            <dl class="row">
+
+                <dt class="col-sm-3">
+                    Banco
+                </dt>
+                <dd class="col-sm-9">
+                    @Model.Banco
+                </dd>
+
+                <dt class="col-sm-3">
+                    Titular
+                </dt>
+                <dd class="col-sm-9">
+                    @Model.Titular
+                </dd>
+
+                <dt class="col-sm-3">
+                    Número de Cuenta
+                </dt>
+                <dd class="col-sm-9">
+                    @Model.NumeroCuenta
+                </dd>
+
+                <dt class="col-sm-3">
+                    Tipo de Cuenta
+                </dt>
+                <dd class="col-sm-9">
+                    @Model.TipoCuenta
+                </dd>
+
+            </dl>
+
+            <form asp-action="Delete">
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="text-center mt-4">
+
+                    <button type="submit" class="btn btn-danger">
+                        🗑 Eliminar
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        🔙 Cancelar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

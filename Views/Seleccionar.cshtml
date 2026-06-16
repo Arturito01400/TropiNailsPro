@@ -1,0 +1,23 @@
+@model List<TropiNailsPro.Models.ModeloUnas>
+@{
+    ViewData["Title"] = "Selecciona tu modelo de uñas";
+}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">💅 Selecciona tu modelo de uñas</h2>
+    <div class="row">
+        @foreach (var modelo in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow">
+                    <img src="@modelo.ImagenUrl" class="card-img-top" alt="@modelo.Nombre">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@modelo.Nombre</h5>
+                        <p class="card-text">@modelo.Descripcion</p>
+                        <p class="text-success fw-bold">RD$ @modelo.Precio</p>
+                        <a asp-action="Detalle" asp-route-id="@modelo.Id" class="btn btn-primary">💳 Elige este modelo</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

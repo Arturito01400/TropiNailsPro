@@ -1,0 +1,110 @@
+@model TropiNailsPro.Models.Manicurista
+
+@{
+    ViewData["Title"] = "Renovar Suscripción";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@ViewData["Title"] - TropiNails Pro</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+body {
+    background: linear-gradient(to right, #fff5f7, #ffe3f1);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.card-renovar {
+    max-width: 500px;
+    margin: 80px auto;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    background-color: #ffffff;
+}
+
+.card-renovar h2 {
+    color: #e91e63;
+    font-weight: bold;
+}
+
+.btn-plan {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 12px 25px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn-plan:hover {
+    transform: translateY(-2px);
+}
+
+.text-muted {
+    font-size: 0.9rem;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <div class="card card-renovar shadow">
+        <h2 class="text-center mb-4">Renovar Suscripción</h2>
+
+        <p class="text-center">
+            Hola <strong>@Model.NombreNegocio</strong>, tu plan actual vence el 
+            <strong>@Model.FechaVencimiento.ToString("dd/MM/yyyy")</strong>.
+        </p>
+
+        <div class="text-center mb-4">
+            <p>Selecciona tu plan para renovar:</p>
+
+            <!-- 🔥 PLAN BÁSICO -->
+            <form asp-action="Renovar" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="tipoPlan" value="Basico" />
+                <button type="submit" class="btn btn-primary btn-plan mx-2">
+                    Plan Básico - 1 Mes
+                </button>
+            </form>
+
+            <!-- 🔥 PLAN PREMIUM -->
+            <form asp-action="Renovar" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="tipoPlan" value="Premium" />
+                <button type="submit" class="btn btn-success btn-plan mx-2">
+                    Plan Premium - 1 Mes
+                </button>
+            </form>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger text-center">
+                @TempData["Error"]
+            </div>
+        }
+
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success text-center">
+                @TempData["Mensaje"]
+            </div>
+        }
+
+        <p class="text-center text-muted">
+            Después de renovar, tu cuenta será activada automáticamente y podrás seguir usando TropiNailsPro sin interrupciones.
+        </p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

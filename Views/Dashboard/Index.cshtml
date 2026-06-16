@@ -1,0 +1,611 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var usuario = ViewBag.UsuarioNombre as string;
+    var clientas = ViewBag.Clientas as List<TropiNailsPro.Models.Usuario>
+        ?? new List<TropiNailsPro.Models.Usuario>();
+
+    var linkRegistro = ViewBag.LinkRegistro as string;
+
+    var esClienta = ViewBag.EsClienta as bool? ?? false;
+
+    var plan = ViewBag.Plan as string ?? "Basico";
+
+    var inventarioDesbloqueado =
+        ViewBag.InventarioDesbloqueado as bool? ?? false;
+
+    var pagosDesbloqueados =
+        ViewBag.PagosDesbloqueados as bool? ?? false;
+
+    var estadisticasDesbloqueadas = true;
+
+    var mostrarSuscripcion =
+        ViewBag.MostrarSuscripcion as bool? ?? false;
+
+    var siguienteClienteDesbloqueado = true;
+
+    var citasHoy =
+    ViewBag.CitasHoy as List<TropiNailsPro.Models.Cita>
+    ?? new List<TropiNailsPro.Models.Cita>();
+}
+
+<style>
+
+body{
+background:linear-gradient(to right,#ffe5ec,#e0f7fa);
+overflow-x:hidden;
+}
+
+.dashboard-panel{
+background:#111;
+padding:35px;
+border-radius:18px;
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.dashboard-panel .card{
+background:white;
+cursor:pointer;
+border-radius:12px;
+transition:none;
+transform:none;
+min-height:auto;
+}
+
+.card:hover{
+transform:none;
+}
+
+.dashboard-header{
+margin-bottom:30px;
+text-align:center;
+}
+
+.dashboard-header h1{
+font-size:2.2rem;
+color:#333;
+}
+
+.dashboard-header p{
+color:#666;
+}
+
+.clienta-card{
+border-radius:12px;
+background:#fff0f6;
+padding:15px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.chat-card{
+background:linear-gradient(
+135deg,
+#ff80ab,
+#f06292
+);
+color:white;
+}
+
+.chat-card .btn{
+background:white;
+color:#e91e63;
+font-weight:bold;
+border:none;
+}
+
+.chat-card .btn:hover{
+background:#ffe4ec;
+}
+
+.link-registro{
+margin-bottom:20px;
+text-align:center;
+}
+
+.link-registro input{
+width:70%;
+text-align:center;
+padding:8px;
+border-radius:5px;
+border:1px solid #ccc;
+}
+
+.fin-card{
+background:white;
+border-radius:12px;
+padding:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.15);
+text-align:center;
+}
+
+.fin-card h4{
+color:#e91e63;
+font-weight:bold;
+}
+
+.fin-card span{
+font-size:22px;
+font-weight:bold;
+}
+
+.premium-lock{
+display:inline-block;
+padding:6px 14px;
+background:#fff3cd;
+border-radius:25px;
+font-size:.85rem;
+font-weight:700;
+}
+
+@@media screen and (max-width:768px){
+
+.dashboard-panel{
+padding:20px;
+}
+
+.link-registro input{
+width:100%;
+}
+
+}
+
+</style>
+
+
+
+<div class="dashboard-header">
+<h1>👋 ¡Bienvenida, @usuario!</h1>
+<p>Selecciona una opción para comenzar.</p>
+</div>
+
+
+<div class="link-registro">
+<label>
+🔗 Link único para tus clientas:
+</label>
+
+<input type="text"
+value="@linkRegistro"
+readonly
+onclick="this.select();" />
+</div>
+
+
+
+<div class="dashboard-panel">
+<div class="row g-4 justify-content-center">
+
+@if(!esClienta)
+{
+
+<div class="col-md-4">
+<div class="card h-100 shadow-sm"
+onclick="window.location.href='@Url.Action("Index","Citas")'">
+
+<div class="card-body text-center">
+<h5>📅 Gestionar Citas</h5>
+
+<a asp-controller="Citas"
+asp-action="Index"
+class="btn btn-primary">
+Ir a Citas
+</a>
+
+</div>
+</div>
+</div>
+
+
+
+<div class="col-md-4">
+<div class="card h-100 shadow-sm"
+onclick="window.location.href='@Url.Action("Index","ModelosUnas")'">
+
+<div class="card-body text-center">
+
+<h5>💅 Modelos de Uñas</h5>
+
+<a asp-controller="ModelosUnas"
+asp-action="Index"
+class="btn btn-success">
+Ver Modelos
+</a>
+
+</div>
+</div>
+</div>
+
+
+
+<div class="col-md-4">
+<div class="card h-100 shadow-sm chat-card"
+onclick="window.location.href='@Url.Action("Index","Chat")'">
+
+<div class="card-body text-center">
+
+<h5>💬 Chat con Clientas</h5>
+
+<a asp-controller="Chat"
+asp-action="Index"
+class="btn">
+Abrir Chat
+</a>
+
+</div>
+</div>
+</div>
+
+
+
+<!-- INVENTARIO PREMIUM -->
+<div class="col-md-4">
+
+@if(inventarioDesbloqueado)
+{
+<div class="card h-100 shadow-sm border-info"
+onclick="window.location.href='@Url.Action("Index","Productos")'">
+
+<div class="card-body text-center">
+
+<h5>📦 Inventario</h5>
+
+<p class="text-muted small">
+Controla productos y stock
+</p>
+
+<a asp-controller="Productos"
+asp-action="Index"
+class="btn btn-info text-white">
+Abrir Inventario
+</a>
+
+</div>
+</div>
+}
+else
+{
+<div class="card h-100 shadow-sm border-warning"
+onclick="window.location.href='@Url.Action("PremiumRequired","Dashboard")'">
+
+<div class="card-body text-center">
+
+<h5>📦 Inventario</h5>
+
+<span class="premium-lock">
+🔒 Premium
+</span>
+
+<br/><br/>
+
+<a asp-controller="Dashboard"
+asp-action="PremiumRequired"
+class="btn btn-warning">
+Actualizar Plan
+</a>
+
+</div>
+</div>
+}
+
+</div>
+
+
+
+<!-- PAGOS PREMIUM -->
+<div class="col-md-4">
+
+@if(pagosDesbloqueados)
+{
+<div class="card h-100 shadow-sm"
+onclick="window.location.href='@Url.Action("Lista","Pagos")'">
+
+<div class="card-body text-center">
+
+<h5>💰 Pagos Recibidos</h5>
+
+<a asp-controller="Pagos"
+asp-action="Lista"
+class="btn btn-outline-primary">
+Ver Pagos
+</a>
+
+</div>
+</div>
+}
+else
+{
+<div class="card h-100 shadow-sm border-warning"
+onclick="window.location.href='@Url.Action("PremiumPagos","Dashboard")'">
+
+<div class="card-body text-center">
+
+<h5>💰 Registro de Pagos</h5>
+
+<span class="premium-lock">
+🔒 Premium
+</span>
+
+<br/><br/>
+
+<a asp-controller="Dashboard"
+asp-action="PremiumRequired"
+class="btn btn-warning">
+Actualizar Plan
+</a>
+
+</div>
+</div>
+}
+
+</div>
+
+
+
+<div class="col-md-4">
+<div class="card h-100 shadow-sm border-warning">
+<div class="card-body text-center">
+
+<h5>📊 Estadísticas</h5>
+
+<button class="btn btn-warning"
+disabled>
+Próximamente
+</button>
+
+</div>
+</div>
+</div>
+
+
+
+<div class="col-md-4">
+<div class="card h-100 shadow-sm border-dark"
+onclick="window.location.href='@Url.Action("Index","Citas")#hoy'">
+
+<div class="card-body text-center">
+
+<h5>➡️ Citas de hoy</h5>
+
+<h2>@citasHoy.Count</h2>
+
+<a href="/Citas/Index#hoy"
+class="btn btn-dark">
+Atender
+</a>
+
+</div>
+</div>
+</div>
+
+
+
+@if(usuario=="Arturo Quezada Montero")
+{
+<div class="col-md-4">
+<div class="card h-100 shadow-sm border-dark"
+onclick="window.location.href='@Url.Action("Crecimiento","Propietario")'">
+
+<div class="card-body text-center">
+
+<h5>🧠 Panel del Propietario</h5>
+
+<p class="text-muted small">
+Monitorear crecimiento
+</p>
+
+<a asp-controller="Propietario"
+asp-action="Crecimiento"
+class="btn btn-dark">
+Abrir Panel
+</a>
+
+</div>
+</div>
+</div>
+}
+
+
+
+@if(mostrarSuscripcion)
+{
+<div class="col-12 text-center mt-3">
+<p class="text-danger fw-bold">
+Tu periodo de prueba terminó.
+Debes suscribirte para continuar.
+</p>
+</div>
+}
+
+}
+
+</div>
+</div>
+
+
+
+<h3 class="mt-5 mb-3 text-center">
+👩‍💼 Mis clientas
+</h3>
+
+
+<div id="lista-clientas">
+
+@if(clientas.Any())
+{
+@foreach(var c in clientas)
+{
+<div class="clienta-card">
+
+<strong>@c.Nombre</strong>
+| @c.Email
+| @c.Telefono
+
+<br/>
+
+Registrada:
+@c.FechaRegistro.ToString(
+"dd/MM/yyyy HH:mm"
+)
+
+</div>
+}
+}
+else
+{
+<p class="text-center text-muted">
+Aún no tienes clientas registradas.
+</p>
+}
+
+</div>
+
+
+
+<h3 class="mt-5 mb-4 text-center">
+📊 Estadísticas Financieras
+</h3>
+
+
+<div class="row text-center mb-4">
+
+<div class="col-md-4">
+<div class="fin-card">
+<h4>💰 Ingresos Hoy</h4>
+<span>
+$@Convert.ToDecimal(
+ViewBag.IngresosHoy
+).ToString("N2")
+</span>
+</div>
+</div>
+
+
+<div class="col-md-4">
+<div class="fin-card">
+<h4>💰 Ingresos del Mes</h4>
+<span>
+$@Convert.ToDecimal(
+ViewBag.IngresosMes
+).ToString("N2")
+</span>
+</div>
+</div>
+
+
+<div class="col-md-4">
+<div class="fin-card">
+<h4>💰 Ingresos del Año</h4>
+<span>
+$@Convert.ToDecimal(
+ViewBag.IngresosAnio
+).ToString("N2")
+</span>
+</div>
+</div>
+
+</div>
+
+
+
+<h4 class="text-center mb-3">
+📉 Clientes que deben
+</h4>
+
+
+@if(ViewBag.ClientasDeudoras != null &&
+ViewBag.ClientasDeudoras.Count >0)
+{
+<table class="table table-bordered text-center">
+
+<thead class="table-danger">
+<tr>
+<th>Clienta</th>
+<th>Monto</th>
+<th>Estado</th>
+</tr>
+</thead>
+
+<tbody>
+
+@foreach(var d in ViewBag.ClientasDeudoras)
+{
+<tr>
+<td>@d.ClienteNombre</td>
+<td>
+$@Convert.ToDecimal(
+d.Monto
+).ToString("N2")
+</td>
+<td class="text-danger">
+Pendiente
+</td>
+</tr>
+}
+
+</tbody>
+</table>
+}
+else
+{
+<p class="text-center text-success">
+No hay clientas con deuda 🎉
+</p>
+}
+
+
+
+<h4 class="text-center mt-5">
+📊 Gráfica de ingresos
+</h4>
+
+<canvas id="graficaIngresos"
+height="100">
+</canvas>
+
+
+@section Scripts{
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+@Html.Raw(
+    System.Text.Json.JsonSerializer.Serialize(
+        ViewBag.GraficaIngresos ?? new List<object>()
+    )
+
+);
+
+const labels=
+datos.map(x=>"Mes "+x.Mes);
+
+const valores=
+datos.map(x=>x.Total);
+
+const ctx=
+document.getElementById(
+'graficaIngresos'
+);
+
+new Chart(ctx,{
+type:'line',
+data:{
+labels:labels,
+datasets:[
+{
+label:'Ingresos',
+data:valores,
+borderColor:'#e91e63',
+backgroundColor:
+'rgba(233,30,99,0.2)',
+tension:0.4
+}
+]
+}
+});
+
+</script>
+
+}

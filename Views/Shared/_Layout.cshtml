@@ -1,0 +1,1048 @@
+﻿@using Microsoft.AspNetCore.Http
+@using System.IO
+@using Microsoft.AspNetCore.Hosting
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IWebHostEnvironment env
+
+@{
+    var title = ViewData["Title"] ?? "TropiNails Pro";
+
+    var usuario =
+        HttpContextAccessor.HttpContext?
+        .Session.GetString("UsuarioNombre");
+
+    var foto =
+        HttpContextAccessor.HttpContext?
+        .Session.GetString("UsuarioFoto");
+
+    var ultimaConexion =
+        HttpContextAccessor.HttpContext?
+        .Session.GetString("UsuarioUltimaConexion");
+
+    var avatarPorDefecto =
+        "/img/user-default.png";
+
+    var fotoSesion =
+        string.IsNullOrWhiteSpace(foto)
+        ? avatarPorDefecto
+        : foto.Replace("\\", "/");
+
+    if (!fotoSesion.StartsWith("/")
+        &&
+        !fotoSesion.StartsWith("http"))
+    {
+        fotoSesion = "/" + fotoSesion;
+    }
+
+    var avatarFinal = fotoSesion;
+
+    DateTime ultimaConexionDt;
+
+    bool tieneUltimaConexion =
+        DateTime.TryParse(
+            ultimaConexion,
+            out ultimaConexionDt
+        );
+
+    var version = DateTime.Now.Second;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="utf-8"/>
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1"/>
+
+<title>@title</title>
+
+<link rel="preload"
+      as="image"
+      href="@avatarFinal">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"/>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+background:linear-gradient(to right,#fff5f7,#ffe3f1);
+margin:0;
+overflow-x:hidden;
+font-family:'Segoe UI',Tahoma,sans-serif;
+}
+
+/* ========= NAVBAR ========= */
+
+.navbar{
+padding:14px 20px;
+}
+
+.brand{
+font-weight:800;
+color:#e91e63;
+font-size:20px;
+white-space:nowrap;
+}
+
+/* ========= BOTONES ========= */
+
+.btn,
+.btn-sm{
+border-radius:24px;
+font-weight:700;
+transition:.30s;
+}
+
+.btn:hover{
+transform:translateY(-2px);
+}
+
+/* ========= FEED ========= */
+
+.btn-feed{
+display:inline-flex;
+align-items:center;
+gap:10px;
+
+padding:11px 24px;
+
+background:
+linear-gradient(
+135deg,
+#8b3dff,
+#ff4da6
+);
+
+border:none;
+border-radius:35px;
+
+font-weight:800;
+font-size:14px;
+color:white !important;
+text-decoration:none;
+
+box-shadow:
+0 8px 25px rgba(139,61,255,.30);
+
+position:relative;
+overflow:hidden;
+
+transition:.35s;
+}
+
+.btn-feed:before{
+content:"";
+position:absolute;
+left:-100%;
+top:0;
+width:100%;
+height:100%;
+
+background:
+linear-gradient(
+90deg,
+transparent,
+rgba(255,255,255,.35),
+transparent
+);
+
+transition:.6s;
+}
+
+.btn-feed:hover:before{
+left:120%;
+}
+
+.btn-feed:hover{
+transform:
+translateY(-3px)
+scale(1.02);
+}
+
+.feed-badge{
+background:white;
+color:#ff4da6;
+padding:4px 8px;
+border-radius:12px;
+font-size:10px;
+font-weight:800;
+}
+
+/* CHAT */
+
+.btn-pink{
+background:#e91e63;
+color:white;
+border:none;
+font-weight:700;
+padding:10px 18px;
+}
+
+.btn-pink:hover{
+background:#c2185b;
+color:white;
+}
+
+/* AVATAR */
+
+.avatar-wrapper{
+position:relative;
+display:inline-block;
+width:42px;
+height:42px;
+border-radius:50%;
+background:#f5f5f5;
+border:3px solid #e91e63;
+}
+
+.avatar{
+width:100%;
+height:100%;
+border-radius:50%;
+object-fit:cover;
+display:block;
+}
+
+.online-dot{
+position:absolute;
+bottom:0;
+right:0;
+width:13px;
+height:13px;
+border-radius:50%;
+background:#bbb;
+border:2px solid white;
+z-index:10;
+}
+
+.online-dot.online{
+background:#22c55e;
+}
+
+.online-minutos{
+position:absolute;
+bottom:-18px;
+right:-4px;
+font-size:10px;
+color:#555;
+font-weight:600;
+}
+
+/* CAMPANA */
+
+.bell-wrapper{
+position:relative;
+font-size:22px;
+cursor:pointer;
+margin-right:20px;
+}
+
+.badge-notify{
+position:absolute;
+top:-6px;
+right:-8px;
+background:red;
+color:white;
+border-radius:50%;
+font-size:11px;
+padding:3px 6px;
+display:none;
+}
+
+/* BANCO */
+
+.btn-bank{
+margin-left:15px;
+font-weight:700;
+}
+
+/* NOTIFICACIONES */
+
+.panel-notificaciones{
+position:absolute;
+right:20px;
+top:65px;
+width:320px;
+background:white;
+border-radius:12px;
+display:none;
+z-index:9999;
+overflow:hidden;
+}
+
+/* ===== BUSCADOR ===== */
+
+.search-global-wrap{
+margin-left:18px;
+position:relative;
+width:380px;
+max-width:100%;
+}
+
+.search-global{
+width:100%;
+border:none;
+outline:none;
+background:#f3f5fb;
+padding:11px 18px 11px 42px;
+border-radius:30px;
+font-size:14px;
+transition:.3s;
+}
+
+.search-global:focus{
+background:white;
+box-shadow:0 0 0 2px #e91e6330;
+}
+
+.search-icon{
+position:absolute;
+left:15px;
+top:50%;
+transform:translateY(-50%);
+}
+
+.search-dropdown{
+display:none;
+position:absolute;
+top:50px;
+left:0;
+width:100%;
+background:white;
+border-radius:16px;
+box-shadow:0 8px 30px rgba(0,0,0,.12);
+overflow:hidden;
+z-index:99999;
+max-height:420px;
+overflow-y:auto;
+}
+
+.result-item{
+padding:12px 14px;
+display:flex;
+align-items:center;
+gap:12px;
+cursor:pointer;
+}
+
+.result-item:hover{
+background:#fff1f7;
+}
+
+.result-item img{
+width:42px;
+height:42px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.result-tag{
+padding:12px 14px;
+font-weight:600;
+cursor:pointer;
+}
+
+.result-tag:hover{
+background:#faf3f8;
+}
+
+/* TABLET */
+
+@@media(max-width:991px){
+
+.container{
+max-width:100%;
+padding-left:12px;
+padding-right:12px;
+}
+
+.navbar .container{
+gap:12px;
+flex-wrap:wrap;
+}
+
+.search-global-wrap{
+order:3;
+width:100%;
+margin:12px 0 0 0;
+}
+
+.ms-auto{
+width:100%;
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+justify-content:center;
+}
+
+.btn-bank{
+margin-left:0;
+}
+
+.btn-feed,
+.btn-pink{
+padding:10px 18px;
+}
+
+}
+
+/* MOVIL */
+
+@@media(max-width:768px){
+
+.brand{
+font-size:17px;
+width:100%;
+text-align:center;
+}
+
+.search-global{
+font-size:13px;
+}
+
+.ms-auto{
+flex-direction:column;
+align-items:stretch !important;
+}
+
+.bell-wrapper{
+margin-right:0;
+text-align:center;
+}
+
+.btn-feed,
+.btn-pink,
+.btn-outline-dark,
+.dropdown button{
+width:100%;
+justify-content:center;
+text-align:center;
+}
+
+.btn-bank{
+width:100%;
+}
+
+.dropdown{
+width:100%;
+}
+
+.dropdown-toggle{
+display:flex;
+justify-content:center;
+}
+
+.panel-notificaciones{
+width:95%;
+right:10px;
+}
+
+}
+
+/* MOVILES PEQUEÑOS */
+
+@@media(max-width:480px){
+
+.navbar{
+padding:12px;
+}
+
+.btn-feed{
+font-size:13px;
+padding:12px;
+}
+
+.avatar-wrapper{
+width:38px;
+height:38px;
+}
+
+}
+
+/* ===================================================== */
+/* 📱 SOLO CHAT MOVIL */
+/* ===================================================== */
+
+@@media(max-width:768px){
+
+    .chat-page .search-global-wrap,
+    .chat-page .bell-wrapper,
+    .chat-page .btn-feed,
+    .chat-page .btn-pink,
+    .chat-page .btn-bank,
+    .chat-page .avatar-wrapper{
+        display:none !important;
+    }
+
+    .chat-page .navbar{
+        padding:10px 15px !important;
+    }
+
+    .chat-page .navbar .container{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+    }
+
+    .chat-page .brand{
+        width:auto !important;
+        font-size:18px !important;
+        text-align:center;
+    }
+
+}
+
+/* =========================================
+   💎 BOTÓN SUSCRIPCIÓN - PRO MAX SAAS
+========================================= */
+
+.vencimiento-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 20px;
+    border-radius: 50px;
+
+    font-weight: 800;
+    font-size: 14px;
+
+    color: #fff !important;
+    text-decoration: none !important;
+
+    background: linear-gradient(
+        135deg,
+        #ff3d7f,
+        #7b2ff7,
+        #00c6ff
+    );
+
+    background-size: 300% 300%;
+    animation: gradientMove 6s ease infinite;
+
+    box-shadow:
+        0 10px 25px rgba(123, 47, 247, 0.35),
+        0 5px 15px rgba(255, 61, 127, 0.25);
+
+    border: none;
+
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+/* brillo animado tipo SaaS premium */
+.vencimiento-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 100%;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.35),
+        transparent
+    );
+
+    transform: skewX(-20deg);
+    transition: 0.6s;
+}
+
+.vencimiento-btn:hover::before {
+    left: 120%;
+}
+
+.vencimiento-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+
+    box-shadow:
+        0 15px 35px rgba(123, 47, 247, 0.45),
+        0 8px 20px rgba(255, 61, 127, 0.35);
+
+    color: #fff !important;
+}
+
+/* animación de gradiente */
+@@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* icono opcional dentro del botón */
+.vencimiento-btn i,
+.vencimiento-btn span {
+    font-weight: 900;
+}
+.vencimiento-btn::after {
+    content: "LIVE";
+    font-size: 9px;
+    font-weight: 900;
+
+    background: #00e676;
+    color: black;
+
+    padding: 3px 6px;
+    border-radius: 10px;
+
+    margin-left: 8px;
+}
+
+
+</style>
+
+</head>
+
+<body class="@ViewData["BodyClass"]">
+
+<nav class="navbar bg-white shadow-sm">
+
+<div class="container">
+
+<a asp-controller="Dashboard"
+   asp-action="Index"
+   class="brand text-decoration-none">
+
+💅 TropiNails Pro
+
+</a>
+
+@if(!string.IsNullOrEmpty(usuario))
+{
+<div class="search-global-wrap">
+
+<span class="search-icon">
+🔎
+</span>
+
+<input
+id="globalSearch"
+class="search-global"
+type="text"
+placeholder="Buscar usuarios, #hashtags o explorar..."
+autocomplete="off"
+/>
+
+<div id="searchDropdown"
+class="search-dropdown"></div>
+
+</div>
+}
+
+<div class="ms-auto d-flex align-items-center">
+
+@if(!string.IsNullOrEmpty(usuario))
+{
+
+<div class="bell-wrapper"
+onclick="togglePanelNotificaciones()">
+
+🔔
+
+<span id="badgeNotify"
+class="badge-notify">
+0
+</span>
+
+</div>
+
+<div id="panelNotificaciones"
+class="panel-notificaciones shadow">
+
+<div class="panel-header">
+🔔 Notificaciones
+</div>
+
+<div id="listaNotificaciones"
+class="panel-body">
+Cargando...
+</div>
+
+<div class="panel-footer">
+<a href="/Notificaciones">
+Ver todas
+</a>
+</div>
+
+</div>
+
+<a asp-controller="Feed"
+asp-action="Index"
+class="btn-feed me-3">
+
+🔥 Feed Social
+
+<span class="feed-badge">
+LIVE
+</span>
+
+</a>
+
+<a asp-controller="Chat"
+asp-action="Conversaciones"
+class="btn btn-sm btn-pink me-3">
+
+💬 Chat
+
+</a>
+
+<a href="/Vencimiento/Index" class="btn btn-sm vencimiento-btn me-3">
+    ⏳ Suscripción
+</a>
+
+<div class="dropdown">
+
+<form id="formFoto"
+asp-controller="Perfil"
+asp-action="Guardar"
+method="post"
+enctype="multipart/form-data">
+
+<input type="file"
+name="foto"
+id="inputFoto"
+hidden
+accept="image/*"/>
+
+</form>
+
+<a class="dropdown-toggle text-decoration-none"
+data-bs-toggle="dropdown"
+role="button">
+
+<div class="avatar-wrapper">
+
+<img src="@avatarFinal"
+id="avatarPerfil"
+class="avatar"
+alt="Perfil"
+onerror="this.onerror=null;this.src='@avatarPorDefecto';"/>
+
+<span id="onlineDot"
+class="online-dot online"></span>
+
+<span id="minutosOffline"
+class="online-minutos"></span>
+
+</div>
+
+</a>
+
+<ul class="dropdown-menu dropdown-menu-end">
+
+<li>
+
+<a asp-controller="Perfil"
+asp-action="Index"
+class="dropdown-item">
+
+👤 Mi perfil
+
+</a>
+
+</li>
+
+<li>
+
+<a asp-controller="Perfil"
+asp-action="Editar"
+class="dropdown-item">
+
+👩‍⚖️Subir perfil
+
+</a>
+
+</li>
+
+<li><hr></li>
+
+<li>
+
+<a asp-controller="Auth"
+asp-action="Logout"
+class="dropdown-item text-danger">
+
+🚪 Cerrar sesión
+
+</a>
+
+</li>
+
+</ul>
+
+</div>
+
+var rolUsuario =
+    HttpContextAccessor.HttpContext?
+    .Session.GetString("UsuarioRol");
+
+@if(rolUsuario == "Manicurista" || rolUsuario == "Clienta")
+{
+<div class="dropdown btn-bank">
+
+    <button
+    class="btn btn-outline-dark dropdown-toggle btn-sm"
+    data-bs-toggle="dropdown">
+
+        💳 Cuenta Bancaria
+
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end">
+
+        @if(rolUsuario == "Manicurista")
+        {
+            <li>
+
+                <a asp-controller="CuentasBancarias"
+                   asp-action="Index"
+                   class="dropdown-item">
+
+                    💅 Administrar mis cuentas
+
+                </a>
+
+            </li>
+        }
+
+        @if(rolUsuario == "Clienta")
+        {
+            <li>
+
+                <a asp-controller="CuentasBancarias"
+                   asp-action="VerCuentas"
+                   class="dropdown-item">
+
+                    👁 Ver cuentas para pagar
+
+                </a>
+
+            </li>
+        }
+
+    </ul>
+
+</div>
+}
+
+}
+
+</div>
+
+</div>
+
+</nav>
+
+<div class="container mt-4">
+@RenderBody()
+</div>
+
+<div id="toastContainer"
+class="toast-bank">
+</div>
+
+<audio id="notifSound">
+<source src="https://actions.google.com/sounds/v1/alarms/notification_simple.ogg">
+</audio>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script>
+
+/* ===========================
+ BUSCADOR GLOBAL
+=========================== */
+
+let searchTimer;
+
+const globalSearch =
+document.getElementById("globalSearch");
+
+if(globalSearch){
+
+globalSearch.addEventListener(
+"keyup",
+function(){
+
+clearTimeout(searchTimer);
+
+let q = this.value.trim();
+
+if(q.length < 2){
+
+const dropdown =
+document.getElementById("searchDropdown");
+
+if(dropdown){
+dropdown.style.display = "none";
+}
+
+return;
+}
+
+searchTimer = setTimeout(
+() => buscarGlobal(q),
+300
+);
+
+});
+
+}
+
+async function buscarGlobal(q){
+
+try{
+
+const r = await fetch(
+"/Usuarios/BuscarGlobal?q=" +
+encodeURIComponent(q)
+);
+
+/* 🔥 PROTECCIÓN */
+if(!r.ok){
+
+console.log(
+"Error cargando búsqueda global"
+);
+
+return;
+}
+
+const data = await r.json();
+
+if(!data){
+
+console.log("Sin datos");
+
+return;
+}
+
+let box =
+document.getElementById(
+"searchDropdown"
+);
+
+if(!box) return;
+
+let html = "";
+
+/* 🔥 USUARIOS */
+if(data.usuarios){
+
+data.usuarios.forEach(u=>{
+
+let foto =
+u.foto ||
+"/img/user-default.png";
+
+/* 🔥 RUTA CORREGIDA */
+html +=
+"<div class='result-item' onclick='window.location=\"/Catalogos/Perfil/" + u.id + "\"'>" +
+
+"<img src='" + foto + "' " +
+"onerror=\"this.src='/img/user-default.png'\">" +
+
+"<div>" +
+"<b>" + (u.nombre || "Usuario") + "</b><br>" +
+"<small>@@" + (u.usuario || "usuario") + "</small>" +
+"</div>" +
+
+"</div>";
+
+});
+
+}
+
+/* HASHTAGS */
+if(data.hashtags){
+
+data.hashtags.forEach(h=>{
+
+html +=
+`
+<div class='result-tag'
+onclick='window.location="/Explorar/Hashtag/${h.nombre}"'>
+
+#${h.nombre}
+
+</div>
+`;
+
+});
+
+}
+
+if(html === ""){
+
+html =
+"<div style='padding:15px;color:gray'>" +
+"Sin resultados" +
+"</div>";
+}
+
+box.innerHTML = html;
+
+box.style.display = "block";
+
+}catch(e){
+
+console.error(
+"Error buscador global:",
+e
+);
+
+}
+
+}
+
+document.addEventListener(
+"click",
+function(e){
+
+if(!e.target.closest(".search-global-wrap")){
+
+let box =
+document.getElementById(
+"searchDropdown"
+);
+
+if(box){
+
+box.style.display = "none";
+}
+
+}
+
+}
+);
+
+</script>
+
+@await RenderSectionAsync(
+"Scripts",
+required:false
+)
+
+</body>
+</html>

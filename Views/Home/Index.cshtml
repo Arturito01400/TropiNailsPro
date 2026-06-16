@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+    Layout = "_Layout";
+}
+
+<div class="text-center mt-5">
+    <h2 class="text-primary">Bienvenido, Admin TropiNails!</h2>
+    <p class="lead">Selecciona una opción para comenzar.</p>
+
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-5 mb-4">
+            <div class="card shadow-lg p-4">
+                <h4 class="text-success">Gestionar Citas</h4>
+                <p>Ver, crear y editar citas de tus clientas.</p>
+                <a class="btn btn-outline-primary" asp-controller="Citas" asp-action="Index">Ir a Citas</a>
+            </div>
+        </div>
+
+        <div class="col-md-5 mb-4">
+            <div class="card shadow-lg p-4">
+                <h4 class="text-info">Modelos de Uñas</h4>
+                <p>Mira y administra tus diseños de uñas.</p>
+                <a class="btn btn-outline-success" asp-controller="ModelosUnas" asp-action="Index">Ver Modelos</a>
+            </div>
+        </div>
+    </div>
+</div>

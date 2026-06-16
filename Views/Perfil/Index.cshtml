@@ -1,0 +1,1021 @@
+@model TropiNailsPro.Models.Usuario
+
+@{
+    bool enLinea = ViewBag.EnLinea != null && (bool)ViewBag.EnLinea;
+
+    string foto = string.IsNullOrEmpty(Model?.FotoPerfil)
+        ? "/img/user-default.png"
+        : Model.FotoPerfil;
+
+    if (!foto.StartsWith("/")) foto = "/" + foto;
+
+    int manicuristaId = Model.Id;
+
+    string nombreCompleto =
+        !string.IsNullOrEmpty(Model.Nombre)
+        ? Model.Nombre
+        : "Usuario";
+
+    string usuarioLogin =
+        !string.IsNullOrEmpty(Model.UsuarioLogin)
+        ? Model.UsuarioLogin
+        : "No definido";
+}
+
+<div class="container mt-4 perfil-wrap">
+
+<div class="text-center mb-3">
+<a class="btn btn-pink" href="/Historias/Create">
+➕ Agregar Historia
+</a>
+</div>
+
+
+<div class="card perfil-card shadow-lg mx-auto">
+<div class="card-body text-center">
+
+<div class="position-relative d-inline-block">
+<img src="@foto"
+class="avatar-grande mb-3"
+onclick="abrirFotoPerfil('@foto')"
+style="cursor:pointer"
+onerror="this.src='/img/user-default.png'" />
+
+<span id="estadoDot"
+class="estado-dot @(enLinea ? "online" : "offline")">
+</span>
+</div>
+
+<h4 class="fw-bold mb-1">
+@nombreCompleto
+</h4>
+
+<p id="estadoTexto"
+class="estado-text @(enLinea ? "online-text" : "offline-text")">
+@(enLinea ? "🟢 Activo" : "⚪ Offline")
+</p>
+
+<hr/>
+
+<!-- NUEVO BLOQUE SOCIAL -->
+<div class="social-stats">
+
+<a href="/Seguidores/Lista/@Model.Id"
+class="stat-box">
+<span id="contadorSeguidores">0</span>
+<small>Seguidores</small>
+</a>
+
+<a href="/Seguidores/VistaSiguiendo" class="stat-box">
+    <span id="contadorSiguiendo">0</span>
+    <small>Siguiendo</small>
+</a>
+
+<div class="stat-box">
+<span id="contadorCatalogos">0</span>
+<small>Catálogos</small>
+</div>
+
+</div>
+<!-- FIN NUEVO BLOQUE SOCIAL -->
+
+
+<div class="datos-perfil text-start">
+
+<p>
+<b>Usuario:</b>
+@usuarioLogin
+</p>
+
+<p>
+<b>Instagram:</b>
+
+@if(!string.IsNullOrEmpty(Model.Instagram))
+{
+<a href="@Model.Instagram" target="_blank">
+@Model.Instagram
+</a>
+}
+else
+{
+<span>No registrado</span>
+}
+</p>
+
+
+<p>
+<b>TikTok:</b>
+
+@if(!string.IsNullOrEmpty(Model.TikTok))
+{
+<a href="@Model.TikTok" target="_blank">
+@Model.TikTok
+</a>
+}
+else
+{
+<span>No registrado</span>
+}
+</p>
+
+
+<p>
+<b>Facebook:</b>
+
+@if(!string.IsNullOrEmpty(Model.Facebook))
+{
+<a href="@Model.Facebook" target="_blank">
+@Model.Facebook
+</a>
+}
+else
+{
+<span>No registrado</span>
+}
+</p>
+
+
+<p>
+<b>WhatsApp:</b>
+
+@if(!string.IsNullOrEmpty(Model.WhatsApp))
+{
+<a href="@Model.WhatsApp"
+target="_blank">
+Enviar mensaje
+</a>
+}
+else
+{
+<span>No registrado</span>
+}
+</p>
+
+
+<p>
+<b>Teléfono:</b>
+@Model.Telefono
+</p>
+
+</div>
+
+
+<button class="btn btn-pink mt-3 w-100"
+data-bs-toggle="modal"
+data-bs-target="#editModal">
+✏️ Editar Perfil
+</button>
+
+</div>
+</div>
+
+
+
+<div class="mt-5">
+
+<h3 class="text-center mb-4">
+🌸 Catálogos
+</h3>
+
+<div id="feedCatalogos"
+class="feed-container masonry-grid">
+Cargando catálogos...
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- VISOR -->
+
+<div id="visorMedia"
+class="visor-media">
+
+<span class="cerrar"
+onclick="cerrarVisor()">
+✕
+</span>
+
+<span class="flecha izquierda"
+onclick="anteriorMedia()">
+❮
+</span>
+
+<img id="mediaImagen"
+style="display:none;">
+
+<video id="mediaVideo"
+controls
+muted
+style="display:none;">
+</video>
+
+<span class="flecha derecha"
+onclick="siguienteMedia()">
+❯
+</span>
+
+</div>
+
+
+<div id="visorFotoPerfil"
+class="visor-historias">
+
+<button class="cerrar-historia"
+onclick="cerrarFotoPerfil()">
+✕
+</button>
+
+<img id="fotoPerfilGrande">
+
+</div>
+
+
+
+<style>
+
+body{
+background:#f6f8fc;
+font-family:Segoe UI;
+}
+
+
+/* PERFIL */
+
+.perfil-wrap{
+max-width:1200px;
+}
+
+.perfil-card{
+max-width:680px;
+border:none;
+border-radius:25px;
+overflow:hidden;
+}
+
+.avatar-grande{
+width:150px;
+height:150px;
+object-fit:cover;
+border-radius:50%;
+border:5px solid #e91e63;
+box-shadow:0 8px 30px rgba(0,0,0,.12);
+}
+
+.estado-dot{
+width:18px;
+height:18px;
+border-radius:50%;
+position:absolute;
+bottom:20px;
+right:10px;
+border:3px solid white;
+}
+
+.online{
+background:#12d162;
+}
+
+.offline{
+background:#bbb;
+}
+
+.online-text{
+color:#12a150;
+font-weight:600;
+}
+
+.offline-text{
+color:#777;
+}
+
+.datos-perfil p{
+margin-bottom:14px;
+word-break:break-word;
+}
+
+
+
+/* NUEVO BLOQUE SOCIAL */
+
+.social-stats{
+display:flex;
+justify-content:center;
+gap:30px;
+margin:25px 0 30px;
+flex-wrap:wrap;
+}
+
+.stat-box{
+background:#fff;
+text-decoration:none;
+color:#222;
+padding:18px 28px;
+border-radius:18px;
+min-width:140px;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+transition:.25s;
+text-align:center;
+}
+
+.stat-box:hover{
+transform:translateY(-4px);
+box-shadow:0 8px 22px rgba(233,30,99,.18);
+}
+
+.stat-box span{
+display:block;
+font-size:28px;
+font-weight:700;
+color:#e91e63;
+}
+
+.stat-box small{
+font-size:14px;
+color:#666;
+}
+
+
+
+/* FEED CATALOGO */
+
+.feed-container{
+max-width:1100px;
+margin:auto;
+margin-top:35px;
+}
+
+.masonry-grid{
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(280px,1fr));
+gap:24px;
+align-items:start;
+}
+
+.post-card{
+background:white;
+border-radius:18px;
+overflow:hidden;
+box-shadow:0 4px 15px rgba(0,0,0,.08);
+transition:.2s;
+}
+
+.post-card:hover{
+transform:translateY(-3px);
+}
+
+.post-header{
+display:flex;
+align-items:center;
+padding:15px;
+position:relative;
+}
+
+.menu-post{
+position:absolute;
+right:14px;
+top:10px;
+font-size:22px;
+cursor:pointer;
+color:#777;
+}
+
+.menu-post:hover{
+color:#ff4da6;
+}
+
+.avatar-img{
+width:45px;
+height:45px;
+border-radius:50%;
+object-fit:cover;
+margin-right:10px;
+border:2px solid white;
+box-shadow:0 0 0 2px #ff4da6;
+}
+
+.user-info{
+flex:1;
+min-width:0;
+}
+
+.user-name{
+font-weight:700;
+font-size:15px;
+word-break:break-word;
+}
+
+.post-date{
+font-size:12px;
+color:gray;
+}
+
+
+.post-img{
+width:100%;
+max-height:520px;
+object-fit:cover;
+cursor:pointer;
+display:block;
+}
+
+.post-video{
+width:100%;
+max-height:520px;
+background:black;
+display:block;
+}
+
+
+.post-actions{
+display:flex;
+justify-content:space-between;
+flex-wrap:wrap;
+gap:8px;
+padding:14px 14px;
+border-top:1px solid #eee;
+}
+
+.action{
+cursor:pointer;
+font-size:14px;
+background:none;
+border:none;
+color:#444;
+}
+
+.action:hover{
+color:#ff4da6;
+}
+
+.stats{
+padding:0 15px 15px;
+font-size:13px;
+color:#555;
+}
+
+
+
+/* VISOR */
+
+.visor-media{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:none;
+align-items:center;
+justify-content:center;
+background:rgba(0,0,0,.95);
+z-index:9999;
+}
+
+.visor-media img,
+.visor-media video{
+max-width:92%;
+max-height:90%;
+border-radius:12px;
+}
+
+.cerrar{
+position:absolute;
+top:18px;
+right:25px;
+font-size:40px;
+color:white;
+cursor:pointer;
+z-index:10001;
+}
+
+.flecha{
+position:absolute;
+top:50%;
+transform:translateY(-50%);
+font-size:60px;
+color:white;
+cursor:pointer;
+user-select:none;
+}
+
+.izquierda{
+left:25px;
+}
+
+.derecha{
+right:25px;
+}
+
+
+/* FOTO PERFIL */
+
+.visor-historias{
+display:none;
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.96);
+justify-content:center;
+align-items:center;
+z-index:99999;
+}
+
+#fotoPerfilGrande{
+max-width:90%;
+max-height:88%;
+border-radius:15px;
+}
+
+.cerrar-historia{
+position:absolute;
+top:25px;
+right:35px;
+background:none;
+border:none;
+font-size:40px;
+color:white;
+}
+
+
+
+/* RESPONSIVE */
+
+@@media(max-width:991px){
+
+.perfil-card{
+max-width:95%;
+}
+
+.masonry-grid{
+grid-template-columns:
+repeat(auto-fit,minmax(260px,1fr));
+}
+
+}
+
+
+@@media(max-width:768px){
+
+.avatar-grande{
+width:125px;
+height:125px;
+}
+
+.post-actions{
+justify-content:center;
+}
+
+.action{
+width:100%;
+}
+
+.flecha{
+font-size:44px;
+}
+
+.post-img,
+.post-video{
+max-height:430px;
+}
+
+}
+
+
+@@media(max-width:480px){
+
+.container{
+padding-left:10px;
+padding-right:10px;
+}
+
+.avatar-grande{
+width:110px;
+height:110px;
+}
+
+.post-header{
+padding:12px;
+}
+
+.avatar-img{
+width:38px;
+height:38px;
+}
+
+.user-name{
+font-size:14px;
+}
+
+.post-img,
+.post-video{
+max-height:350px;
+}
+
+.stats{
+font-size:12px;
+}
+
+}
+
+</style>
+
+
+
+<script>
+
+const manicuristaId=parseInt("@manicuristaId") || 0;
+const fotoPerfil="@foto";
+const nombreUsuario="@nombreCompleto";
+
+let mediaList=[];
+let mediaActual=0;
+
+
+
+async function cargarFeedCatalogos(){
+
+const cont=document.getElementById("feedCatalogos");
+
+if(!manicuristaId){
+cont.innerHTML=
+"No se pudo identificar el usuario";
+return;
+}
+
+cont.innerHTML="Cargando catálogos...";
+
+try{
+
+const res=await fetch(
+`/Publicaciones/ObtenerPorUsuario?usuarioId=${manicuristaId}`
+);
+
+const catalogos=await res.json();
+
+document.getElementById(
+"contadorCatalogos"
+).innerText=catalogos.length;
+
+
+if(!catalogos || catalogos.length===0){
+cont.innerHTML=
+"<p style='text-align:center'>No hay catálogos</p>";
+return;
+}
+
+cont.innerHTML="";
+mediaList=[];
+
+catalogos.forEach((c,index)=>{
+
+let media="";
+let tipo=(c.tipoMedia || "imagen").toLowerCase();
+
+mediaList.push(c);
+
+
+if(tipo==="video"){
+
+media=`
+<video
+class="post-video"
+controls
+preload="metadata">
+<source src="${c.mediaUrl}"
+type="video/mp4">
+</video>
+`;
+
+}else{
+
+media=`
+<img
+src="${c.mediaUrl}"
+class="post-img"
+loading="lazy"
+onclick="abrirVisor(${index})">
+`;
+
+}
+
+
+cont.innerHTML +=`
+
+<div class="post-card">
+
+<div class="post-header">
+
+<img src="${fotoPerfil}"
+class="avatar-img"/>
+
+<div class="user-info">
+<div class="user-name">
+${nombreUsuario}
+</div>
+
+<div class="post-date">
+${new Date(c.fecha).toLocaleString()}
+</div>
+</div>
+
+<div class="menu-post"
+onclick="eliminarPost(${c.id})">
+⋮
+</div>
+
+</div>
+
+${media}
+
+<div class="post-actions">
+
+<button class="action"
+onclick="darLike(${c.id})">
+❤️ Me encanta
+</button>
+
+<button class="action"
+onclick="verComentarios(${c.id})">
+💬 Comentar
+</button>
+
+<button class="action"
+onclick="compartir('${c.mediaUrl}')">
+🔗 Compartir
+</button>
+
+</div>
+
+<div class="stats"
+id="stats-${c.id}">
+❤️ ${c.likes || 0} Likes • 💬 ${c.comentarios || 0} Comentarios
+</div>
+
+</div>
+
+`;
+
+});
+
+
+}catch(e){
+
+console.error(e);
+cont.innerHTML=
+"Error cargando catálogos";
+
+}
+
+}
+
+
+
+/* NUEVO */
+async function cargarSeguidores(){
+
+try{
+
+const res=await fetch(
+`/Seguidores/Resumen?usuarioId=${manicuristaId}`
+);
+
+if(!res.ok) return;
+
+const data=await res.json();
+
+document.getElementById(
+"contadorSeguidores"
+).innerText=
+data.seguidores || 0;
+
+document.getElementById(
+"contadorSiguiendo"
+).innerText=
+data.siguiendo || 0;
+
+}catch(e){
+
+console.log(
+"No se cargaron seguidores"
+);
+
+}
+
+}
+
+
+
+/* visor */
+
+function abrirVisor(index){
+
+mediaActual=index;
+
+const pub=mediaList[index];
+
+const img=
+document.getElementById("mediaImagen");
+
+const vid=
+document.getElementById("mediaVideo");
+
+img.style.display="none";
+vid.style.display="none";
+
+
+if(pub.tipoMedia==="video"){
+
+vid.src=pub.mediaUrl;
+vid.style.display="block";
+
+}else{
+
+img.src=pub.mediaUrl;
+img.style.display="block";
+
+}
+
+document.getElementById(
+"visorMedia"
+).style.display="flex";
+
+}
+
+
+function cerrarVisor(){
+
+document.getElementById(
+"visorMedia"
+).style.display="none";
+
+let vid=document.getElementById(
+"mediaVideo"
+);
+
+vid.pause();
+vid.src="";
+
+}
+
+
+
+function siguienteMedia(){
+
+mediaActual++;
+
+if(mediaActual>=mediaList.length){
+mediaActual=0;
+}
+
+abrirVisor(mediaActual);
+
+}
+
+function anteriorMedia(){
+
+mediaActual--;
+
+if(mediaActual<0){
+mediaActual=mediaList.length-1;
+}
+
+abrirVisor(mediaActual);
+
+}
+
+
+
+/* likes */
+
+async function darLike(id){
+
+await fetch(
+"/Publicaciones/Like/"+id,
+{method:"POST"}
+);
+
+actualizarStats(id);
+
+}
+
+async function actualizarStats(id){
+
+const res=
+await fetch("/Publicaciones/ObtenerFeed");
+
+const posts=
+await res.json();
+
+const post=
+posts.find(p=>p.id===id);
+
+if(post){
+
+document.getElementById(
+"stats-"+id
+).innerText=
+`❤️ ${post.likes} Likes • 💬 ${post.comentarios} Comentarios`;
+
+}
+
+}
+
+
+
+/* acciones */
+
+function verComentarios(id){
+window.location.href=
+"/Comentarios/Ver/"+id;
+}
+
+function compartir(url){
+
+navigator.clipboard.writeText(
+window.location.origin + url
+);
+
+alert("Link copiado para compartir");
+
+}
+
+
+
+async function eliminarPost(id){
+
+if(!confirm(
+"¿Quieres eliminar esta publicación?"
+)){
+return;
+}
+
+try{
+
+const res=await fetch(
+`/Publicaciones/Eliminar?id=${id}`,
+{
+method:"POST"
+}
+);
+
+if(res.ok){
+location.reload();
+}else{
+alert(
+"No se pudo eliminar la publicación"
+);
+}
+
+}catch(e){
+
+console.error(e);
+alert("Error eliminando publicación");
+
+}
+
+}
+
+
+
+/* foto perfil */
+
+function abrirFotoPerfil(url){
+
+const fp=
+document.getElementById(
+"fotoPerfilGrande"
+);
+
+fp.src=url;
+
+document.getElementById(
+"visorFotoPerfil"
+).style.display="flex";
+
+}
+
+
+function cerrarFotoPerfil(){
+
+document.getElementById(
+"visorFotoPerfil"
+).style.display="none";
+
+}
+
+
+
+/* INICIO */
+document.addEventListener(
+"DOMContentLoaded",
+function(){
+
+cargarFeedCatalogos();
+cargarSeguidores();
+
+}
+);
+
+</script>

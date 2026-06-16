@@ -1,0 +1,453 @@
+@model TropiNailsPro.Models.Publicacion
+@using System.Security.Claims
+
+@{
+    var usuarioActual = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    // 🔥 NORMALIZADOR ÚNICO Y ULTRA SEGURO
+    string NormalizeFoto(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return "/img/user-default.png?v=1";
+
+        path = path.Trim();
+
+        if (
+            path.ToLower() == "null" ||
+            path.ToLower() == "undefined"
+        )
+            return "/img/user-default.png?v=1";
+
+        // 🔥 LIMPIAR BACKSLASHES
+        path = path.Replace("\\", "/");
+
+        // 🔥 QUITAR WWWROOT
+        if (path.Contains("wwwroot"))
+            path = path.Replace("wwwroot", "");
+
+        // 🔥 QUITAR DOBLES SLASH
+        while (path.Contains("//"))
+        {
+            path = path.Replace("//", "/");
+        }
+
+        // 🔥 URL EXTERNA
+        if (
+            path.StartsWith("http://") ||
+            path.StartsWith("https://")
+        )
+        {
+            return path;
+        }
+
+        // 🔥 ASEGURAR SLASH
+        if (!path.StartsWith("/"))
+            path = "/" + path;
+
+        return path;
+    }
+
+    // 🔥 USUARIO REAL DEL POST
+    var nombrePost =
+        !string.IsNullOrWhiteSpace(Model.Usuario?.Nombre)
+        ? Model.Usuario.Nombre
+        : "Usuario";
+
+    var fotoPost =
+        NormalizeFoto(Model.Usuario?.FotoPerfil);
+}
+
+<style>
+body{
+background:#eef1f6;
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+
+.container-comentarios{
+max-width:750px;
+margin:auto;
+margin-top:25px;
+}
+
+h2{
+text-align:center;
+margin-bottom:18px;
+font-weight:800;
+}
+
+.post-card{
+background:white;
+border-radius:18px;
+box-shadow:0 8px 22px rgba(0,0,0,0.08);
+overflow:hidden;
+margin-bottom:20px;
+}
+
+.post-header{
+display:flex;
+align-items:center;
+padding:15px;
+gap:10px;
+}
+
+.avatar-img{
+width:45px;
+height:45px;
+min-width:45px;
+min-height:45px;
+border-radius:50%;
+object-fit:cover;
+margin-right:10px;
+box-shadow:0 0 0 2px #ff4da6;
+cursor:pointer;
+flex-shrink:0;
+background:#f3f3f3;
+}
+
+.comentario-avatar{
+width:38px;
+height:38px;
+min-width:38px;
+min-height:38px;
+border-radius:50%;
+object-fit:cover;
+box-shadow:0 0 0 2px #eee;
+flex-shrink:0;
+background:#f3f3f3;
+}
+
+.user-name{
+font-weight:700;
+font-size:15px;
+color:#222;
+}
+
+.fecha{
+font-size:12px;
+color:#888;
+}
+
+.post-text{
+padding:0 15px 15px 15px;
+font-size:15px;
+}
+
+.post-img{
+width:100%;
+max-height:520px;
+object-fit:cover;
+}
+
+.post-video{
+width:100%;
+max-height:520px;
+display:block;
+margin:auto;
+background:black;
+}
+
+.comentarios{
+background:white;
+border-radius:18px;
+padding:18px;
+box-shadow:0 8px 22px rgba(0,0,0,0.06);
+}
+
+.comentario{
+padding:12px 0;
+border-bottom:1px solid #eee;
+position:relative;
+}
+
+.comentario:last-child{
+border-bottom:none;
+}
+
+.comentario-box{
+display:flex;
+gap:10px;
+align-items:flex-start;
+}
+
+.comentario-user{
+font-weight:700;
+font-size:14px;
+color:#111;
+}
+
+.comentario-texto{
+font-size:14px;
+margin-top:2px;
+word-break:break-word;
+}
+
+.fecha-comentario{
+font-size:11px;
+color:#999;
+margin-top:3px;
+}
+
+.respuesta{
+margin-left:45px;
+margin-top:10px;
+padding-left:10px;
+border-left:2px solid #eee;
+}
+
+.form-comentario textarea{
+width:100%;
+border:none;
+outline:none;
+background:#f2f2f2;
+padding:12px;
+border-radius:12px;
+resize:none;
+}
+
+.btn-publicar{
+margin-top:10px;
+background:#ff4da6;
+border:none;
+color:white;
+padding:10px 16px;
+border-radius:10px;
+cursor:pointer;
+font-weight:600;
+}
+
+.btn-publicar:hover{
+background:#ff2f94;
+}
+
+.btn-volver{
+display:block;
+text-align:center;
+margin-top:20px;
+padding:12px;
+border-radius:12px;
+background:linear-gradient(90deg,#ff4da6,#ff1f7a);
+color:white;
+font-weight:700;
+text-decoration:none;
+}
+
+.menu-dots{
+position:absolute;
+right:10px;
+top:10px;
+cursor:pointer;
+font-size:18px;
+user-select:none;
+}
+
+.menu-opciones{
+display:none;
+position:absolute;
+right:10px;
+top:30px;
+background:white;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+overflow:hidden;
+z-index:10;
+}
+
+.menu-opciones a{
+display:block;
+padding:10px 15px;
+font-size:13px;
+color:#333;
+text-decoration:none;
+}
+
+.menu-opciones a:hover{
+background:#f2f2f2;
+}
+</style>
+
+<div class="container-comentarios">
+
+<h2>💬 Comentarios</h2>
+
+<div class="post-card">
+
+<div class="post-header">
+
+<a href="/Catalogos/Perfil/@Model.UsuarioId">
+
+<img src="@fotoPost"
+     class="avatar-img"
+     loading="lazy"
+     draggable="false"
+     onerror="this.onerror=null;this.src='/img/user-default.png?v=1';" />
+
+</a>
+
+<div>
+
+<div class="user-name">@nombrePost</div>
+
+<div class="fecha">@Model.Fecha.ToString("dd MMM yyyy • HH:mm")</div>
+
+</div>
+
+</div>
+
+<div class="post-text">@Model.Texto</div>
+
+@if (!string.IsNullOrEmpty(Model.MediaUrl))
+{
+    if(Model.TipoMedia == "video")
+    {
+        <video class="post-video" controls>
+            <source src="@Model.MediaUrl">
+        </video>
+    }
+    else
+    {
+        <img src="@Model.MediaUrl"
+             class="post-img"
+             onerror="this.style.display='none';" />
+    }
+}
+
+</div>
+
+<div class="comentarios">
+
+<h4>@Model.Comentarios.Count Comentarios</h4>
+
+@foreach(var c in Model.Comentarios
+    .Where(x => x.ComentarioPadreId == null)
+    .OrderBy(x => x.Fecha))
+{
+    var nombreComentario =
+        !string.IsNullOrWhiteSpace(c.Usuario?.Nombre)
+        ? c.Usuario.Nombre
+        : "Usuario";
+
+    var fotoComentario =
+        NormalizeFoto(c.Usuario?.FotoPerfil);
+
+<div class="comentario">
+
+@if (c.UsuarioId.ToString() == usuarioActual)
+{
+    <div class="menu-dots" onclick="toggleMenu(@c.Id)">⋮</div>
+
+    <div class="menu-opciones" id="menu-@c.Id">
+        <a href="/Publicaciones/EliminarComentario/@c.Id">🗑 Eliminar</a>
+    </div>
+}
+
+<div class="comentario-box">
+
+<img src="@fotoComentario"
+     class="comentario-avatar"
+     loading="lazy"
+     draggable="false"
+     onerror="this.onerror=null;this.src='/img/user-default.png?v=1';" />
+
+<div>
+
+<div class="comentario-user">@nombreComentario</div>
+
+<div class="comentario-texto">@c.Texto</div>
+
+<div class="fecha-comentario">@c.Fecha.ToString("dd MMM yyyy • HH:mm")</div>
+
+<span onclick="responderComentario(@c.Id)"
+      style="font-size:12px;color:#ff4da6;cursor:pointer;">
+    Responder
+</span>
+
+</div>
+
+</div>
+
+<!-- RESPUESTAS -->
+@foreach(var r in c.Respuestas.OrderBy(x => x.Fecha))
+{
+    var nombreRespuesta =
+        !string.IsNullOrWhiteSpace(r.Usuario?.Nombre)
+        ? r.Usuario.Nombre
+        : "Usuario";
+
+    var fotoRespuesta =
+        NormalizeFoto(r.Usuario?.FotoPerfil);
+
+<div class="respuesta">
+
+<div class="comentario-box">
+
+<img src="@fotoRespuesta"
+     class="comentario-avatar"
+     loading="lazy"
+     draggable="false"
+     onerror="this.onerror=null;this.src='/img/user-default.png?v=1';" />
+
+<div>
+
+<div class="comentario-user">@nombreRespuesta</div>
+
+<div class="comentario-texto">@r.Texto</div>
+
+<div class="fecha-comentario">@r.Fecha.ToString("dd MMM yyyy • HH:mm")</div>
+
+</div>
+
+</div>
+
+</div>
+}
+
+</div>
+}
+
+<div class="form-comentario">
+
+<form method="post" action="/Publicaciones/Comentar">
+
+<input type="hidden" name="publicacionId" value="@Model.Id"/>
+<input type="hidden" name="comentarioPadreId" id="comentarioPadreId"/>
+
+<textarea name="texto" required placeholder="Escribe un comentario..."></textarea>
+
+<button class="btn-publicar" type="submit">
+    Publicar comentario
+</button>
+
+</form>
+
+</div>
+
+<a class="btn-volver" href="/Feed/Index">⬅ Volver al Feed</a>
+
+</div>
+
+<script>
+function toggleMenu(id){
+
+    var menu =
+    document.getElementById(
+        "menu-" + id
+    );
+
+    if(menu.style.display === "block"){
+        menu.style.display = "none";
+    }else{
+        menu.style.display = "block";
+    }
+}
+
+function responderComentario(id){
+
+    document.getElementById(
+        "comentarioPadreId"
+    ).value = id;
+
+    document.querySelector(
+        "textarea[name='texto']"
+    ).focus();
+}
+</script>

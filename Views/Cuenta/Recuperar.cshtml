@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Recuperar contraseña";
+    Layout = "_Layout";
+}
+
+<div class="container vh-100 d-flex justify-content-center align-items-center">
+    <div class="card shadow-lg p-4 rounded-4" style="width:400px;">
+
+        <h3 class="text-center mb-4">🔐 Recuperar contraseña</h3>
+
+        <form asp-action="Recuperar" method="post">
+
+            <div class="mb-3">
+                <label class="form-label">Correo electrónico</label>
+                <input name="Email" class="form-control" required />
+            </div>
+
+            <button class="btn btn-primary w-100">
+                Enviar enlace
+            </button>
+
+            <div class="text-center mt-3">
+                <a asp-action="Login">Volver al login</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>

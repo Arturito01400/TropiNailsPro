@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Confirmación de Pago";
+    var mensaje = ViewBag.Mensaje as string ?? "✅ Operación realizada correctamente.";
+}
+
+<div class="container my-5 text-center">
+    <h2 class="text-pink mb-4">🔔 Confirmación</h2>
+    <div class="alert alert-success fs-5">
+        @mensaje
+    </div>
+    <a asp-action="Lista" class="btn btn-pink">Volver a Pagos</a>
+</div>
+
+<style>
+.text-pink{ color:#e91e63; font-weight:600; }
+.btn-pink{ background-color:#e91e63; color:white; }
+.btn-pink:hover{ background-color:#c2185b; }
+</style>

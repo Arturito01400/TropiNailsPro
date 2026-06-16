@@ -1,0 +1,55 @@
+@model TropiNailsPro.Models.CuentaBancaria
+
+@{
+    ViewData["Title"] = "Agregar Cuenta Bancaria";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-5 text-primary">➕ Agregar Cuenta Bancaria</h2>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="row g-4">
+
+        <!-- 🔥 BANCO LIBRE -->
+        <div class="col-12">
+            <label asp-for="Banco" class="form-label fw-bold"></label>
+            <input asp-for="Banco" class="form-control" placeholder="Ej: Banco Popular, Chase, BBVA..." />
+            <span asp-validation-for="Banco" class="text-danger"></span>
+        </div>
+
+        <!-- 🔥 LOGO OPCIONAL -->
+        <div class="col-12">
+            <label class="form-label fw-bold">Logo del banco (opcional)</label>
+            <input type="file" name="LogoFile" class="form-control" accept="image/*" />
+        </div>
+
+        <!-- TITULAR -->
+        <div class="col-md-6">
+            <label asp-for="Titular" class="form-label fw-bold"></label>
+            <input asp-for="Titular" class="form-control" placeholder="Ej: Juan Pérez" />
+            <span asp-validation-for="Titular" class="text-danger"></span>
+        </div>
+
+        <!-- NUMERO DE CUENTA -->
+        <div class="col-md-6">
+            <label asp-for="NumeroCuenta" class="form-label fw-bold"></label>
+            <input asp-for="NumeroCuenta" class="form-control" placeholder="000-000-0000"/>
+            <span asp-validation-for="NumeroCuenta" class="text-danger"></span>
+        </div>
+
+        <!-- TIPO CUENTA -->
+        <div class="col-md-6">
+            <label asp-for="TipoCuenta" class="form-label fw-bold"></label>
+            <select asp-for="TipoCuenta" class="form-control" asp-items="ViewBag.TiposCuenta">
+                <option value="">Seleccione</option>
+            </select>
+            <span asp-validation-for="TipoCuenta" class="text-danger"></span>
+        </div>
+
+        <!-- BOTONES -->
+        <div class="col-12 text-center mt-4">
+            <button type="submit" class="btn btn-success btn-lg me-2">💾 Guardar Cuenta</button>
+            <a asp-action="Index" class="btn btn-secondary btn-lg">🔙 Volver</a>
+        </div>
+
+    </form>
+</div>

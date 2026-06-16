@@ -1,0 +1,130 @@
+@model List<TropiNailsPro.Models.Publicacion>
+
+<style>
+.perfil-container{
+    max-width:650px;
+    margin:auto;
+    margin-top:30px;
+}
+
+.perfil-header{
+    display:flex;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.perfil-foto{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    object-fit:cover;
+    object-position:center;
+    margin-right:15px;
+    border:3px solid #ff4da6;
+}
+
+.perfil-nombre{
+    font-size:20px;
+    font-weight:600;
+}
+
+.grid-posts{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:5px;
+}
+
+.grid-posts img,
+.grid-posts video{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    cursor:pointer;
+    border-radius:8px;
+}
+</style>
+
+<div class="perfil-container">
+
+@if(Model != null && Model.Any())
+{
+    // ✔️ seguro porque el controlador ya filtra por usuario
+    var usuario = Model.FirstOrDefault()?.Usuario;
+
+    string fotoPerfil = "/img/user-default.png";
+
+    if(usuario != null && !string.IsNullOrEmpty(usuario.FotoPerfil))
+    {
+        fotoPerfil = usuario.FotoPerfil;
+
+        if(!fotoPerfil.StartsWith("/"))
+        {
+            fotoPerfil = "/" + fotoPerfil;
+        }
+    }
+
+    string nombreUsuario =
+        !string.IsNullOrEmpty(usuario?.Nombre)
+        ? usuario.Nombre
+        : "Usuario";
+
+    <div class="perfil-header">
+
+        @if(usuario != null && !string.IsNullOrEmpty(usuario.FotoPerfil))
+        {
+            <img src="@fotoPerfil"
+                 class="perfil-foto"
+                 onerror="this.src='/img/user-default.png'" />
+        }
+        else
+        {
+            <div class="perfil-foto"
+                 style="background:#ff4da6;color:white;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;">
+                @(nombreUsuario.Substring(0,1))
+            </div>
+        }
+
+        <div>
+            <div class="perfil-nombre">
+                @nombreUsuario
+            </div>
+
+            <div>
+                @Model.Count publicaciones
+            </div>
+        </div>
+
+    </div>
+
+    <div class="grid-posts">
+
+        @foreach(var post in Model)
+        {
+            if(!string.IsNullOrEmpty(post.MediaUrl))
+            {
+                if(post.TipoMedia == "video")
+                {
+                    <video muted controls>
+                        <source src="@post.MediaUrl" type="video/mp4">
+                        Tu navegador no soporta video.
+                    </video>
+                }
+                else
+                {
+                    <img src="@post.MediaUrl"
+                         alt="Publicación"
+                         onerror="this.style.display='none'">
+                }
+            }
+        }
+
+    </div>
+}
+else
+{
+    <div style="text-align:center;margin-top:50px;color:#999;">
+        Este usuario aún no tiene publicaciones.
+    </div>
+}
+
+</div>

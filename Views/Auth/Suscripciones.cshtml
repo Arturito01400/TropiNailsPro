@@ -1,0 +1,233 @@
+@model TropiNailsPro.Models.Manicurista
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Suscripción Vencida";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@ViewData["Title"] - TropiNails Pro</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff80ab, #e91e63);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.card-suscripcion {
+    width: 100%;
+    max-width: 480px;
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+@@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.icono {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+h2 {
+    color: #e91e63;
+    font-weight: bold;
+}
+
+.nombre {
+    font-weight: bold;
+}
+
+.descripcion {
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.plan-box {
+    margin-bottom: 20px;
+    background: #fff0f6;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.footer {
+    font-size: 13px;
+    color: #777;
+    margin-top: 20px;
+}
+
+.pay-info {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="card-suscripcion">
+
+    <div class="icono">💅</div>
+
+    <h2>Suscripción Vencida</h2>
+
+    <p class="descripcion">
+        Hola
+        <span class="nombre">
+            @(Model?.NombreNegocio ?? "Manicurista")
+        </span>,
+        tu período gratuito de 15 días ha finalizado.
+    </p>
+
+    <p class="descripcion">
+        Activa tu suscripción para continuar usando
+        <strong>TropiNails Pro</strong>.
+    </p>
+
+    <!-- 🔥 PLAN ÚNICO -->
+    <div class="plan-box">
+
+        <h4>
+            💎 Plan Profesional
+        </h4>
+
+        <h3 style="color:#e91e63;">
+            USD $10.20 / mes
+        </h3>
+
+        <div class="pay-info">
+            ✔ Acceso completo a la plataforma
+        </div>
+
+        <div class="pay-info">
+            ✔ Chat en tiempo real
+        </div>
+
+        <div class="pay-info">
+            ✔ Gestión de citas
+        </div>
+
+        <div class="pay-info">
+            ✔ Publicaciones y red social
+        </div>
+
+        <div class="pay-info">
+            ✔ Pago seguro con PayPal o tarjeta
+        </div>
+
+        <div id="paypal-button-container"></div>
+
+    </div>
+
+    <div class="footer">
+        Activación automática ✔ Suscripción segura ✔
+    </div>
+
+</div>
+
+<!-- 🔥 PAYPAL SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=AUWEvAb4p4QCtC2Q9xDlfQGdiy0xesKxxBbdsSn3XoZBBiLW-h1BYKICL8OUD3EIfc1d3prWUdceSAwy&currency=USD"></script>
+
+<script>
+
+paypal.Buttons({
+
+    style: {
+        layout: 'vertical',
+        color: 'gold',
+        shape: 'rect',
+        label: 'paypal'
+    },
+
+    createOrder: function (data, actions) {
+
+        return actions.order.create({
+
+            purchase_units: [{
+
+                amount: {
+                   value: '10.20'
+                }
+
+            }]
+
+        });
+
+    },
+
+    onApprove: function (data, actions) {
+
+        return actions.order.capture().then(function () {
+
+            fetch("/api/paypal/confirmar", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    orderID: data.orderID,
+                    plan: "Premium"
+
+                })
+
+            })
+            .then(res => res.json())
+            .then((res) => {
+
+                if (res.ok) {
+
+                    alert("Suscripción activada 🎉");
+
+                    window.location.href = "/Dashboard";
+
+                } else {
+
+                    alert("Error confirmando el pago ❌");
+
+                }
+
+            })
+            .catch(() => {
+
+                alert("Error de conexión con el servidor ❌");
+
+            });
+
+        });
+
+    }
+
+}).render('#paypal-button-container');
+
+</script>
+
+</body>
+</html>

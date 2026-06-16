@@ -1,0 +1,272 @@
+@model TropiNailsPro.Models.ViewModels.CambiarContrasenaViewModel
+
+@{
+    ViewData["Title"] = "Cambiar Contraseña";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Cambiar Contraseña</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:#fff5fa;
+            font-family:'Segoe UI',sans-serif;
+            padding:20px;
+        }
+
+        .contenedor{
+            width:100%;
+            max-width:420px;
+            background:white;
+            border-radius:20px;
+            padding:35px 30px;
+            box-shadow:0 10px 35px rgba(0,0,0,0.08);
+            text-align:center;
+        }
+
+        .logo{
+            font-size:50px;
+            margin-bottom:10px;
+        }
+
+        h2{
+            color:#d63384;
+            margin-bottom:25px;
+            font-size:28px;
+        }
+
+        .mensaje-ok{
+            background:#d4edda;
+            color:#155724;
+            padding:15px;
+            border-radius:12px;
+            margin-bottom:20px;
+            font-weight:600;
+        }
+
+        .mensaje-error{
+            background:#ffe5e5;
+            color:#c62828;
+            padding:15px;
+            border-radius:12px;
+            margin-bottom:20px;
+            font-weight:600;
+        }
+
+        .campo{
+            position:relative;
+            width:100%;
+            margin-bottom:18px;
+        }
+
+        .campo input{
+            width:100%;
+            padding:14px;
+            border-radius:12px;
+            border:1px solid #ddd;
+            outline:none;
+            font-size:15px;
+            transition:.3s;
+        }
+
+        .campo input:focus{
+            border-color:#d63384;
+            box-shadow:0 0 0 3px rgba(214,51,132,.12);
+        }
+
+        .ojo{
+            position:absolute;
+            right:14px;
+            top:13px;
+            cursor:pointer;
+            font-size:18px;
+        }
+
+        .btn{
+            width:100%;
+            padding:14px;
+            border:none;
+            border-radius:12px;
+            background:#d63384;
+            color:white;
+            font-size:16px;
+            font-weight:600;
+            cursor:pointer;
+            transition:.3s;
+        }
+
+        .btn:hover{
+            background:#ff4da6;
+            transform:translateY(-1px);
+        }
+
+        .btn-login{
+            display:inline-block;
+            margin-top:15px;
+            background:#d63384;
+            color:white;
+            padding:12px 18px;
+            border-radius:10px;
+            text-decoration:none;
+            font-weight:600;
+        }
+
+        .btn-login:hover{
+            background:#ff4da6;
+        }
+
+        .text-danger{
+            color:red;
+            font-size:13px;
+            margin-top:5px;
+            display:block;
+            text-align:left;
+        }
+
+        @@media(max-width:600px){
+
+            .contenedor{
+                padding:30px 20px;
+            }
+
+            h2{
+                font-size:24px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="contenedor">
+
+        <div class="logo">
+            💅
+        </div>
+
+        <h2>
+            Cambiar Contraseña
+        </h2>
+
+        <!-- ✅ MENSAJE ÉXITO -->
+        @if (TempData["MensajeClave"] != null)
+        {
+            <div class="mensaje-ok">
+                ✔ @TempData["MensajeClave"]
+
+                <br />
+                <br />
+
+                <a asp-action="Login"
+                   class="btn-login">
+                    Ir al Login
+                </a>
+            </div>
+        }
+
+        <!-- ❌ ERROR -->
+        @if (TempData["Error"] != null)
+        {
+            <div class="mensaje-error">
+                @TempData["Error"]
+            </div>
+        }
+
+        <!-- 🔥 FORM -->
+        @if (TempData["MensajeClave"] == null)
+        {
+            <form asp-action="CambiarClave"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input asp-for="Token"
+                       type="hidden" />
+
+                <!-- NUEVA -->
+                <div class="campo">
+
+                    <input asp-for="NuevaClave"
+                           id="nueva"
+                           type="password"
+                           placeholder="Nueva contraseña"
+                           required />
+
+                    <span class="ojo"
+                          onclick="toggle('nueva')">
+                        👁
+                    </span>
+
+                    <span asp-validation-for="NuevaClave"
+                          class="text-danger"></span>
+
+                </div>
+
+                <!-- CONFIRMAR -->
+                <div class="campo">
+
+                    <input asp-for="ConfirmarClave"
+                           id="confirmar"
+                           type="password"
+                           placeholder="Confirmar contraseña"
+                           required />
+
+                    <span class="ojo"
+                          onclick="toggle('confirmar')">
+                        👁
+                    </span>
+
+                    <span asp-validation-for="ConfirmarClave"
+                          class="text-danger"></span>
+
+                </div>
+
+                <button type="submit"
+                        class="btn">
+                    Cambiar Contraseña
+                </button>
+
+            </form>
+        }
+
+    </div>
+
+    <script>
+
+        function toggle(id)
+        {
+            const input =
+                document.getElementById(id);
+
+            input.type =
+                input.type === "password"
+                ? "text"
+                : "password";
+        }
+
+    </script>
+
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial");
+    }
+
+</body>
+</html>

@@ -1,0 +1,195 @@
+@model IEnumerable<TropiNailsPro.Models.Pago>
+
+@{
+    ViewData["Title"] = "Pagos";
+    var sumatorias = ViewBag.Sumatorias;
+    var deudoras = ViewBag.Deudoras as List<TropiNailsPro.Models.Pago> ?? new List<TropiNailsPro.Models.Pago>();
+}
+
+<h2 class="mb-4 text-center" style="color:#d63384;">Pagos 💵</h2>
+
+<!-- BOTON AGREGAR PAGO -->
+<div class="mb-4 text-end">
+
+    <a asp-action="Crear" class="btn text-white"
+       style="background:#e91e63; border-radius:8px;">
+
+        + Registrar Pago
+
+    </a>
+
+</div>
+
+
+<!-- Tarjeticas Hoy Mes Año -->
+
+<div class="row mb-4">
+
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm p-3 h-100"
+             style="border-radius:1rem; background:white; color:#d63384;">
+            <h5>Hoy</h5>
+            <p class="fs-4">
+                $@((sumatorias?.Diario ?? 0).ToString("N2"))
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm p-3 h-100"
+             style="border-radius:1rem; background:white; color:#d63384;">
+            <h5>Mes</h5>
+            <p class="fs-4">
+                $@((sumatorias?.Mensual ?? 0).ToString("N2"))
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm p-3 h-100"
+             style="border-radius:1rem; background:white; color:#d63384;">
+            <h5>Año</h5>
+            <p class="fs-4">
+                $@((sumatorias?.Anual ?? 0).ToString("N2"))
+            </p>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- CLIENTES QUE DEBEN -->
+
+<h4 class="mt-4" style="color:#d63384;">Clientes que deben</h4>
+
+<table class="table table-hover mb-4">
+
+    <thead style="background:#ffe6f5; color:#b10068;">
+        <tr>
+            <th>Cliente</th>
+            <th>Monto Pendiente</th>
+            <th>Fecha Pago</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @if (deudoras.Any())
+        {
+            foreach (var deuda in deudoras)
+            {
+                <tr>
+
+                    <td>@deuda.ClienteNombre</td>
+
+                    <td>$@deuda.Monto.ToString("0.00")</td>
+
+                    <td>@deuda.FechaPago.ToString("dd/MM/yyyy")</td>
+
+                    <td>
+
+                        <a asp-action="Editar"
+                           asp-route-id="@deuda.Id"
+                           class="btn btn-sm text-white"
+                           style="background:#f48fb1;">
+                            Editar
+                        </a>
+
+                        <a asp-action="CobrarDeuda"
+                           asp-route-id="@deuda.Id"
+                           class="btn btn-sm text-white"
+                           style="background:#e91e63;"
+                           onclick="return confirm('¿Deseas marcar esta deuda como pagada?');">
+                            Cobrar
+                        </a>
+
+                    </td>
+
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center text-muted">
+                    No hay clientes con deuda registrada
+                </td>
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+
+
+<!-- PAGOS DE HOY -->
+
+<h4 class="mt-4" style="color:#d63384;"> Mis Pagos</h4>
+
+<table class="table table-striped align-middle mb-0">
+
+    <thead style="background:#f8bbd0; color:#880e4f;">
+        <tr>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Modelo</th>
+            <th>Monto</th>
+            <th>Referencia</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @if (Model != null && Model.Any())
+        {
+            foreach (var pago in Model)
+            {
+                <tr>
+
+                    <td>@pago.FechaPago.ToString("dd/MM/yyyy hh:mm tt")</td>
+
+                    <td>@pago.ClienteNombre</td>
+
+                    <td>@pago.ModeloUnas</td>
+
+                    <td>$@pago.Monto.ToString("0.00")</td>
+
+                    <td>@pago.TransaccionId</td>
+
+                    <td>
+
+                        <a asp-action="Editar"
+                           asp-route-id="@pago.Id"
+                           class="btn btn-sm text-white"
+                           style="background:#f48fb1;">
+                            Editar
+                        </a>
+
+                        <a asp-action="Eliminar"
+                           asp-route-id="@pago.Id"
+                           class="btn btn-sm text-white"
+                           style="background:#e91e63;"
+                           onclick="return confirm('¿Seguro que quieres eliminar este pago?');">
+                            Eliminar
+                        </a>
+
+                    </td>
+
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    No hay pagos registrados hoy
+                </td>
+            </tr>
+        }
+
+    </tbody>
+
+</table>

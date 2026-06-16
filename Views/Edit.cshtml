@@ -1,0 +1,107 @@
+@model TropiNailsPro.Models.ModeloUnas
+@{
+ViewData["Title"] = "Editar Modelo de Uñas";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+
+```
+<input type="hidden" asp-for="Id" />
+
+<!-- ===== NOMBRE ===== -->
+<div class="form-group mb-3">
+    <label asp-for="Nombre" class="form-label"></label>
+    <input asp-for="Nombre" class="form-control" />
+    <span asp-validation-for="Nombre" class="text-danger"></span>
+</div>
+
+<!-- ===== DESCRIPCIÓN ===== -->
+<div class="form-group mb-3">
+    <label asp-for="Descripcion" class="form-label"></label>
+    <textarea asp-for="Descripcion" class="form-control"></textarea>
+    <span asp-validation-for="Descripcion" class="text-danger"></span>
+</div>
+
+<!-- ===== PRECIO ===== -->
+<div class="form-group mb-3">
+    <label asp-for="Precio" class="form-label"></label>
+    <input asp-for="Precio" class="form-control" />
+    <span asp-validation-for="Precio" class="text-danger"></span>
+</div>
+
+<!-- ===== IMAGEN ACTUAL ===== -->
+@if (!string.IsNullOrEmpty(Model.ImagenUrl))
+{
+    <div class="mb-3 text-center">
+        <label class="form-label">Imagen actual</label><br />
+        <img src="@Model.ImagenUrl"
+             style="max-width:200px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.2);" />
+    </div>
+}
+
+<!-- ===== SUBIR ARCHIVO ===== -->
+<div class="form-group mb-3">
+    <label class="form-label">📂 Subir nueva imagen</label>
+
+    <input asp-for="ImagenArchivo"
+           type="file"
+           class="form-control"
+           accept="image/*"
+           onchange="previewImagen(event)" />
+</div>
+
+<div class="text-center mb-2">
+    <strong>— O —</strong>
+</div>
+
+<!-- ===== URL ===== -->
+<div class="form-group mb-3">
+    <label asp-for="ImagenUrl" class="form-label"></label>
+
+    <input asp-for="ImagenUrl"
+           class="form-control"
+           oninput="previewUrl(this.value)" />
+
+    <span asp-validation-for="ImagenUrl" class="text-danger"></span>
+</div>
+
+<!-- ===== PREVIEW ===== -->
+<div class="mb-3 text-center">
+    <img id="preview"
+         style="max-width:220px; display:none; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.2);" />
+</div>
+
+<!-- ===== BOTONES ===== -->
+<button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
+<a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+```
+
+</form>
+
+@section Scripts {
+@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+```
+<script>
+    function previewImagen(event) {
+        const img = document.getElementById('preview');
+        img.src = URL.createObjectURL(event.target.files[0]);
+        img.style.display = 'block';
+    }
+
+    function previewUrl(url) {
+        const img = document.getElementById('preview');
+
+        if (url && url.length > 5) {
+            img.src = url;
+            img.style.display = 'block';
+        } else {
+            img.style.display = 'none';
+        }
+    }
+</script>
+```
+
+}

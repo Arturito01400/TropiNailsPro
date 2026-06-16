@@ -1,0 +1,84 @@
+@model TropiNailsPro.Models.Cita
+
+@{
+    ViewData["Title"] = "Eliminar Cita";
+}
+
+<h2 class="mb-4 text-danger">🗑 Eliminar Cita</h2>
+
+<div class="card shadow p-4 border-0 rounded-4 mb-4 bg-light">
+
+    <h5 class="mb-3 text-warning">
+        ¿Estás seguro de que deseas eliminar esta cita?
+    </h5>
+
+    <hr />
+
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <strong>👩 Clienta:</strong>
+            @Model.NombreClienta
+        </div>
+
+        <div class="col-md-6">
+            <strong>💅 Servicio:</strong>
+            @Model.Servicio
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <div class="col-md-6">
+            <strong>📅 Fecha:</strong>
+            @Model.Fecha.ToString("dd/MM/yyyy")
+        </div>
+
+        <div class="col-md-6">
+            <strong>⏰ Hora:</strong>
+            @Model.Hora.ToString(@"hh\:mm")
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ============================= -->
+<!-- FORMULARIO ELIMINAR -->
+<!-- ============================= -->
+
+<form asp-action="DeleteConfirmed" method="post">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="d-flex gap-2">
+
+        <button type="submit" class="btn btn-danger">
+            🗑 Confirmar Eliminación
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">
+            ↩ Cancelar
+        </a>
+
+    </div>
+
+</form>
+
+
+
+@section Scripts {
+
+    <!-- SignalR opcional (solo escucha eventos, NO intercepta submit) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/onlineHub")
+            .build();
+
+        connection.start()
+            .then(() => console.log("✅ SignalR conectado desde Delete"))
+            .catch(err => console.error(err));
+    </script>
+}

@@ -1,0 +1,94 @@
+@using TropiNailsPro.Models
+@model IEnumerable<TropiNailsPro.Models.Historia>
+
+@{
+    ViewData["Title"] = "Mis Historias";
+}
+
+<div class="container mt-4">
+
+    <h2 class="text-pink mb-4">
+        <i class="bi bi-clock-history"></i> @ViewData["Title"]
+    </h2>
+
+    <a class="btn btn-pink mb-4" asp-action="Create">
+        <i class="bi bi-plus-circle"></i> Subir Nueva Historia
+    </a>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-warning">
+            No tienes historias aún.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+
+            @foreach (var historia in Model)
+            {
+                <div class="col-md-3 mb-4">
+
+                    <div class="card shadow-sm border-0">
+
+                        @if (historia.Tipo == TipoArchivo.Imagen)
+                        {
+                            <img src="@historia.RutaArchivo"
+                                 class="card-img-top"
+                                 alt="Historia"
+                                 style="height:200px; object-fit:cover;">
+                        }
+                        else if (historia.Tipo == TipoArchivo.Video)
+                        {
+                            <video class="card-img-top"
+                                   style="height:200px; object-fit:cover;"
+                                   controls>
+                                <source src="@historia.RutaArchivo">
+                            </video>
+                        }
+
+                        <div class="card-body">
+
+                            <p class="card-text">
+                                <strong>Tipo:</strong> @historia.Tipo
+                            </p>
+
+                            <p class="card-text">
+                                <strong>Subida:</strong>
+                                @historia.FechaSubida.ToString("dd/MM/yyyy HH:mm")
+                            </p>
+
+                            <p class="card-text">
+                                <strong>Expira:</strong>
+                                @historia.FechaExpira.ToString("dd/MM/yyyy HH:mm")
+                            </p>
+
+                            <div class="d-flex justify-content-between">
+
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="Edit"
+                                   asp-route-id="@historia.Id">
+
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+
+                                <a class="btn btn-sm btn-outline-danger"
+                                   asp-action="Delete"
+                                   asp-route-id="@historia.Id">
+
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>

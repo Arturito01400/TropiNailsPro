@@ -1,0 +1,124 @@
+@{
+ViewData["Title"]="Pagos Premium";
+Layout="~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+
+<div class="text-center mb-5">
+
+<h1>⭐ Función Premium</h1>
+
+<h3 class="mt-4">
+Desbloquea el módulo Control de Pagos
+</h3>
+
+<p class="lead mt-3">
+Tu plan actual es Básico.
+Actualiza a Premium para usar gestión de pagos,
+control de deudas y reportes financieros avanzados.
+</p>
+
+</div>
+
+
+
+<div class="row g-4 text-center">
+
+<div class="col-md-4">
+<div class="card shadow border-0 p-4 h-100">
+
+<h1>💰</h1>
+
+<h4>
+Control de Pagos
+</h4>
+
+<p>
+Registra pagos,
+abonos,
+deudas pendientes
+y seguimiento de clientas.
+</p>
+
+</div>
+</div>
+
+
+
+<div class="col-md-4">
+<div class="card shadow border-0 p-4 h-100">
+
+<h1>📈</h1>
+
+<h4>
+Reportes Financieros Pro
+</h4>
+
+<p>
+Ingresos diarios,
+mensuales,
+estadísticas
+y rendimiento financiero.
+</p>
+
+</div>
+</div>
+
+
+
+<div class="col-md-4">
+<div class="card shadow border-0 p-4 h-100">
+
+<h1>🚀</h1>
+
+<h4>
+Automatización
+</h4>
+
+<p>
+Recordatorios de pagos,
+seguimiento automático
+y funciones exclusivas Premium.
+</p>
+
+</div>
+</div>
+
+</div>
+
+
+
+<div class="text-center mt-5">
+
+<h2>
+Plan Premium desde
+</h2>
+
+<h1 class="fw-bold text-success">
+US$15/mes
+</h1>
+
+<p class="text-muted">
+Acceso ilimitado a todos los módulos premium
+</p>
+
+
+<a asp-controller="Renovar"
+asp-action="Auth"
+class="btn btn-outline-dark">
+Suscribirme Ahora
+</a>
+
+
+<br/><br/>
+
+<a asp-controller="Dashboard"
+asp-action="Index"
+class="btn btn-outline-dark">
+Volver al Panel
+</a>
+
+</div>
+
+</div>

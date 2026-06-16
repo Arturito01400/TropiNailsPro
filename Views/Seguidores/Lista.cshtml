@@ -1,0 +1,190 @@
+@model List<TropiNailsPro.Models.Usuario>
+
+<style>
+/* TODO TU CSS IGUAL */
+body{
+    background: linear-gradient(135deg,#f5f7fb,#fff0f6);
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+}
+
+.container-seguidores{
+    max-width:700px;
+    margin:50px auto;
+    padding:10px;
+}
+
+.card{
+    background:white;
+    border-radius:18px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    padding:25px;
+}
+
+.titulo{
+    text-align:center;
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:20px;
+    color:#222;
+}
+
+.subtitulo{
+    text-align:center;
+    font-size:13px;
+    color:gray;
+    margin-bottom:25px;
+}
+
+.usuario{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+}
+
+.usuario:last-child{
+    border-bottom:none;
+}
+
+.info{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.avatar{
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #ff4da6;
+    box-shadow:0 0 0 2px #ffe3f1;
+}
+
+.btn-seguir{
+    background:#ff4da6;
+    color:white;
+    border:none;
+    padding:7px 16px;
+    border-radius:25px;
+    font-size:13px;
+    cursor:pointer;
+}
+
+.btn-volver{
+    display:block;
+    margin-top:25px;
+    text-align:center;
+    padding:10px;
+    border-radius:12px;
+    background:#111;
+    color:white;
+    text-decoration:none;
+}
+</style>
+
+<div class="container-seguidores">
+<div class="card">
+
+<div class="titulo">👥 Seguidores</div>
+<div class="subtitulo">Personas que siguen este perfil</div>
+
+@if(Model == null || Model.Count == 0)
+{
+    <p style="text-align:center;color:gray;">
+        Este usuario aún no tiene seguidores 💔
+    </p>
+}
+else
+{
+    @foreach(var user in Model)
+    {
+        // 🔥 SUPER NORMALIZADOR (ANTI BUG TOTAL)
+        string foto = user.FotoPerfil ?? "";
+
+        foto = foto.Trim().Replace("\\","/");
+
+        if (
+            string.IsNullOrWhiteSpace(foto) ||
+            foto.ToLower() == "null" ||
+            foto.ToLower() == "undefined" ||
+            foto.Contains("C:/") ||
+            foto.Contains("D:/")
+        )
+        {
+            foto = "/img/user-default.png";
+        }
+        else
+        {
+            if (!foto.StartsWith("/") && !foto.StartsWith("http"))
+            {
+                foto = "/" + foto;
+            }
+
+            if (!foto.Contains("/uploads/") && !foto.Contains("/img/") && !foto.StartsWith("http"))
+            {
+                foto = "/img/user-default.png";
+            }
+        }
+
+        <div class="usuario">
+
+            <div class="info">
+
+                <!-- 🔥 FOTO + NOMBRE CLICKABLE (MEJOR UX) -->
+                <a href="/Catalogos/Perfil/@user.Id"
+                   style="display:flex;align-items:center;gap:12px;text-decoration:none;color:#222;">
+
+                    <img src="@foto"
+                         class="avatar"
+                         onerror="this.onerror=null;this.src='/img/user-default.png';" />
+
+                    <div class="nombre">
+                        @user.Nombre
+                    </div>
+
+                </a>
+
+            </div>
+
+            <button class="btn-seguir"
+                    onclick="seguirUsuario(@user.Id,this)">
+                Seguir
+            </button>
+
+        </div>
+    }
+}
+
+<a class="btn-volver" href="/Feed/Index">
+⬅ Volver al feed
+</a>
+
+</div>
+</div>
+
+<script>
+async function seguirUsuario(usuarioId, btn){
+    if(!usuarioId) return;
+
+    try{
+        const res = await fetch("/Seguidores/ToggleSeguir?seguidoId=" + usuarioId, {
+            method:"POST"
+        });
+
+        const data = await res.json();
+
+        if(data.siguiendo){
+            btn.innerText = "Siguiendo";
+            btn.style.background = "#444";
+        }else{
+            btn.innerText = "Seguir";
+            btn.style.background = "#ff4da6";
+        }
+
+    }catch(e){
+        console.error("Error siguiendo:", e);
+    }
+}
+</script>

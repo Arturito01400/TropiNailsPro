@@ -1,0 +1,249 @@
+@model dynamic
+
+<div class="chat-container">
+
+<div class="chat-header">
+<h2>💬 Chats</h2>
+</div>
+
+@if(Model == null || Model.Count == 0)
+{
+<div class="no-chats">
+No tienes conversaciones todavía.
+</div>
+}
+else
+{
+<div class="chat-list" id="chatList">
+
+@foreach(var c in Model)
+{
+
+<a asp-controller="Chat" asp-action="Index" asp-route-usuario="@c.Usuario"
+   class="chat-item @(c.NoLeidos > 0 ? "no-leido" : "")"
+   data-usuario="@c.Usuario">
+
+<div class="avatar">
+💅
+<span class="online-dot" id="online-@c.Usuario"></span>
+</div>
+
+<div class="chat-info">
+
+<div class="chat-top">
+<span class="chat-name">@c.Usuario</span>
+<span class="chat-time">@c.Fecha.ToString("HH:mm")</span>
+</div>
+
+<div class="chat-last">
+@(
+    c.Tipo == "imagen" ? "📷 Imagen" :
+    c.Tipo == "audio" ? "🎤 Audio" :
+    c.Tipo == "archivo" ? "📎 Archivo" :
+    c.UltimoMensaje
+)
+</div>
+
+</div>
+
+@if(c.NoLeidos > 0)
+{
+<div class="chat-badge" id="badge-@c.Usuario">
+@c.NoLeidos
+</div>
+}
+
+</a>
+
+}
+
+</div>
+}
+
+</div>
+
+<style>
+
+body{
+background:#f4f6fb;
+font-family:Segoe UI;
+}
+
+.chat-container{
+max-width:550px;
+margin:auto;
+margin-top:30px;
+background:white;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,.1);
+overflow:hidden;
+}
+
+.chat-header{
+padding:18px;
+background:#ff4da6;
+color:white;
+font-size:18px;
+}
+
+.chat-list{
+display:flex;
+flex-direction:column;
+}
+
+.chat-item{
+display:flex;
+align-items:center;
+padding:15px;
+border-bottom:1px solid #eee;
+text-decoration:none;
+color:black;
+transition:0.2s;
+position:relative;
+}
+
+.chat-item:hover{
+background:#f7f7f7;
+}
+
+/* 🔥 NUEVO: MENSAJE NO LEÍDO */
+.no-leido{
+background:#fff0f5;
+}
+
+/* AVATAR */
+.avatar{
+width:45px;
+height:45px;
+border-radius:50%;
+background:#ff4da6;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:20px;
+margin-right:12px;
+position:relative;
+}
+
+/* 🔥 ONLINE DOT */
+.online-dot{
+position:absolute;
+bottom:2px;
+right:2px;
+width:10px;
+height:10px;
+background:#4CAF50;
+border-radius:50%;
+display:none;
+}
+
+.chat-info{
+flex:1;
+}
+
+.chat-top{
+display:flex;
+justify-content:space-between;
+}
+
+.chat-name{
+font-weight:600;
+}
+
+.chat-time{
+font-size:12px;
+color:gray;
+}
+
+.chat-last{
+font-size:13px;
+color:#666;
+margin-top:4px;
+}
+
+.chat-badge{
+background:#ff4da6;
+color:white;
+border-radius:20px;
+padding:4px 8px;
+font-size:12px;
+}
+
+.no-chats{
+padding:30px;
+text-align:center;
+color:gray;
+}
+
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script>
+
+// ==============================
+// 🔥 SIGNALR PARA TIEMPO REAL
+// ==============================
+const connection = new signalR.HubConnectionBuilder()
+.withUrl("/chatHub")
+.build();
+
+// ==============================
+// 🔥 USUARIO ONLINE
+// ==============================
+connection.on("UsuarioConectado", (user)=>{
+const dot = document.getElementById("online-" + user);
+if(dot) dot.style.display = "block";
+});
+
+connection.on("UsuarioDesconectado", (user)=>{
+const dot = document.getElementById("online-" + user);
+if(dot) dot.style.display = "none";
+});
+
+// ==============================
+// 🔥 NUEVO MENSAJE → ACTUALIZA LISTA
+// ==============================
+connection.on("RecibirMensaje", (msg)=>{
+
+const user = msg.remitente;
+let item = document.querySelector(`[data-usuario='${user}']`);
+
+if(item){
+
+// 🔥 ACTUALIZA TEXTO
+let last = item.querySelector(".chat-last");
+
+if(msg.tipo === "imagen") last.innerText = "📷 Imagen";
+else if(msg.tipo === "audio") last.innerText = "🎤 Audio";
+else if(msg.tipo === "archivo") last.innerText = "📎 Archivo";
+else last.innerText = msg.contenido;
+
+// 🔥 BADGE
+let badge = document.getElementById("badge-" + user);
+
+if(badge){
+badge.innerText = parseInt(badge.innerText) + 1;
+}else{
+const nuevo = document.createElement("div");
+nuevo.className = "chat-badge";
+nuevo.id = "badge-" + user;
+nuevo.innerText = "1";
+item.appendChild(nuevo);
+}
+
+// 🔥 MARCAR COMO NO LEÍDO
+item.classList.add("no-leido");
+
+// 🔥 SUBIR ARRIBA
+const list = document.getElementById("chatList");
+list.prepend(item);
+
+}
+
+});
+
+connection.start();
+
+</script>

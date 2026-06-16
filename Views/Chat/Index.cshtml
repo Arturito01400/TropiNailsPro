@@ -1,0 +1,2230 @@
+@{
+    ViewData["BodyClass"] = "chat-page";
+}
+
+@{
+    var destino = ViewBag.UsuarioDestino ?? "";
+    var usuarioActual = Context.Session.GetString("UsuarioNombre") ?? "";
+}
+
+<style>
+
+/* ===================================================== */
+/* 🌸 TROPINAILS PRO CHAT */
+/* FIX RESPONSIVE FINAL */
+/* ===================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+    background:#f5f7fb;
+}
+
+/* ===================================================== */
+/* 🔥 VARIABLES GLOBALES */
+/* ===================================================== */
+
+:root{
+    --top-navbar-height:105px;
+}
+
+/* ===================================================== */
+/* CONTENEDOR GENERAL */
+/* ===================================================== */
+
+.chat-container{
+
+    width:100%;
+    max-width:none;
+
+    height:calc(100dvh - var(--top-navbar-height));
+
+    margin:0;
+
+    margin-top:var(--top-navbar-height);
+
+    display:flex;
+
+    overflow:hidden;
+
+    background:#fff;
+
+    box-shadow:none;
+
+    border-radius:0;
+
+    position:fixed;
+
+    left:0;
+    right:0;
+    bottom:0;
+}
+
+/* ===================================================== */
+/* SIDEBAR */
+/* ===================================================== */
+
+.chat-sidebar{
+    width:320px;
+    min-width:320px;
+
+    background:#fff;
+
+    border-right:1px solid #ececec;
+
+    display:flex;
+    flex-direction:column;
+
+    overflow:hidden;
+
+    height:100%;
+}
+
+.sidebar-header{
+    padding:18px;
+
+    background:#ff4fb0;
+
+    color:#fff;
+
+    font-size:22px;
+    font-weight:700;
+
+    flex-shrink:0;
+}
+
+.sidebar-search{
+    padding:12px;
+    border-bottom:1px solid #f1f1f1;
+
+    flex-shrink:0;
+}
+
+.sidebar-search input{
+    width:100%;
+
+    border:none;
+    outline:none;
+
+    background:#f3f5f8;
+
+    padding:12px 14px;
+
+    border-radius:14px;
+
+    font-size:14px;
+}
+
+#listaConversaciones{
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:10px;
+
+    min-height:0;
+}
+
+/* ===================================================== */
+/* ITEMS */
+/* ===================================================== */
+
+.conversacion{
+    display:flex;
+    align-items:center;
+
+    gap:10px;
+
+    padding:12px;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    margin-bottom:5px;
+
+    position:relative;
+}
+
+.conversacion:hover{
+    background:#fff0f7;
+}
+
+.conversacion::before{
+    content:"💅";
+    font-size:18px;
+}
+
+/* ===================================================== */
+/* CHAT */
+/* ===================================================== */
+
+.chat-main{
+    flex:1;
+
+    display:flex;
+    flex-direction:column;
+
+    overflow:hidden;
+
+    background:#efeae2;
+
+    position:relative;
+
+    min-width:0;
+
+    height:100%;
+}
+
+/* ===================================================== */
+/* HEADER CHAT */
+/* ===================================================== */
+
+.chat-header{
+    height:72px;
+
+    min-height:72px;
+
+    background:#fff;
+
+    border-bottom:1px solid #ececec;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 15px;
+
+    flex-shrink:0;
+
+    position:relative;
+
+    z-index:20;
+}
+
+.chat-header-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    min-width:0;
+}
+
+.chat-avatar{
+    width:46px;
+    height:46px;
+
+    border-radius:50%;
+
+    position:relative;
+
+    overflow:visible;
+
+    flex-shrink:0;
+
+    background:#ddd;
+}
+
+.chat-avatar img{
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:50%;
+}
+
+.chat-online{
+
+    position:absolute;
+
+    width:12px;
+    height:12px;
+
+    border-radius:50%;
+
+    background:#25d366;
+
+    border:2px solid #fff;
+
+    right:-1px;
+    bottom:-1px;
+
+    z-index:999;
+}
+
+.chat-user-info{
+    min-width:0;
+}
+
+.chat-user-info h3{
+    font-size:15px;
+    color:#222;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.chat-user-info span{
+    font-size:12px;
+    color:#777;
+}
+
+.chat-header-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    flex-shrink:0;
+}
+
+.chat-header-actions button{
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+
+    background:#f3f5f8;
+
+    color:#444;
+
+    font-size:17px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* ===================================================== */
+/* ESCRIBIENDO */
+/* ===================================================== */
+
+.typing{
+    display:none;
+
+    align-items:center;
+
+    min-height:35px;
+
+    padding:8px 15px;
+
+    background:#fff;
+
+    color:#666;
+
+    font-size:13px;
+
+    border-bottom:1px solid #ececec;
+
+    flex-shrink:0;
+}
+
+/* ===================================================== */
+/* BODY */
+/* ===================================================== */
+
+.chat-body{
+    flex:1;
+
+    min-height:0;
+
+    overflow-y:auto;
+    overflow-x:hidden;
+
+    padding:15px;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:10px;
+
+    padding-bottom:20px;
+}
+
+/* ===================================================== */
+/* MENSAJES */
+/* ===================================================== */
+
+.msg{
+    max-width:320px;
+
+    padding:8px 10px;
+
+    border-radius:14px;
+
+    word-wrap:break-word;
+
+    position:relative;
+
+    font-size:14px;
+
+    line-height:1.4;
+}
+
+.mio{
+    align-self:flex-end;
+
+    background:#ff4fb0;
+
+    color:#fff;
+
+    border-bottom-right-radius:5px;
+}
+
+.otro{
+    align-self:flex-start;
+
+    background:#fff;
+
+    color:#222;
+
+    border-bottom-left-radius:5px;
+}
+
+/* ===================================================== */
+/* MENSAJE ELIMINADO */
+/* ===================================================== */
+
+.msg-eliminado{
+    opacity:.7;
+    font-style:italic;
+}
+
+/* ===================================================== */
+/* IMAGENES */
+/* ===================================================== */
+
+.msg-imagen{
+    background:transparent !important;
+
+    padding:0 !important;
+
+    border:none !important;
+
+    box-shadow:none !important;
+}
+
+.img-wrapper{
+    max-width:260px;
+
+    overflow:hidden;
+
+    border-radius:14px;
+
+    display:block;
+}
+
+.chat-img{
+    width:100%;
+
+    display:block;
+
+    object-fit:cover;
+
+    border:none !important;
+    outline:none !important;
+    box-shadow:none !important;
+
+    border-radius:14px;
+
+    cursor:pointer;
+}
+
+/* ===================================================== */
+/* 🎤 AUDIO PRO */
+/* ===================================================== */
+
+.msg-audio{
+    background:#fff;
+    padding:10px 12px !important;
+    border-radius:18px !important;
+    min-width:260px;
+    max-width:320px;
+}
+
+.mio.msg-audio{
+    background:#ff4fb0;
+}
+
+.msg-audio audio{
+    width:100%;
+    height:42px;
+
+    border-radius:12px;
+
+    outline:none;
+}
+
+/* ===================================================== */
+/* 📎 ARCHIVO PRO */
+/* ===================================================== */
+
+.msg-archivo{
+    padding:0 !important;
+    overflow:hidden;
+}
+
+.file-card{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    padding:14px;
+
+    min-width:260px;
+    max-width:320px;
+
+    border-radius:18px;
+
+    text-decoration:none;
+
+    transition:.2s;
+}
+
+.mio .file-card{
+    background:#ff4fb0;
+    color:#fff;
+}
+
+.otro .file-card{
+    background:#fff;
+    color:#222;
+}
+
+.file-card:hover{
+    transform:scale(1.02);
+}
+
+.file-icon{
+    width:48px;
+    height:48px;
+
+    border-radius:14px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:24px;
+
+    background:rgba(255,255,255,.25);
+
+    flex-shrink:0;
+}
+
+.file-info{
+    flex:1;
+    overflow:hidden;
+}
+
+.file-name{
+    font-weight:600;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.file-download{
+    font-size:12px;
+    opacity:.8;
+    margin-top:3px;
+}
+/* ===================================================== */
+/* FOOTER */
+/* ===================================================== */
+
+.msg-footer{
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:4px;
+
+    margin-top:4px;
+
+    font-size:11px;
+
+    opacity:.75;
+}
+
+/* ===================================================== */
+/* AUDIO */
+/* ===================================================== */
+
+.msg audio{
+    width:240px;
+    max-width:100%;
+}
+
+/* ===================================================== */
+/* INPUT */
+/* ===================================================== */
+
+.chat-input{
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:10px;
+
+    background:#fff;
+
+    border-top:1px solid #ececec;
+
+    flex-shrink:0;
+
+    width:100%;
+
+    min-height:70px;
+
+    padding-bottom:max(10px, env(safe-area-inset-bottom));
+}
+
+.chat-input input{
+    flex:1;
+
+    border:none;
+    outline:none;
+
+    background:#f3f5f8;
+
+    border-radius:25px;
+
+    padding:13px 15px;
+
+    font-size:14px;
+
+    min-width:0;
+}
+
+/* ===================================================== */
+/* BOTONES */
+/* ===================================================== */
+
+button{
+    border:none;
+    cursor:pointer;
+}
+
+#btnEmoji,
+#btnArchivo,
+#btnGrabar{
+    width:42px;
+    height:42px;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    font-size:18px;
+
+    flex-shrink:0;
+}
+
+#btnEnviar{
+    background:#ff4fb0;
+
+    color:#fff;
+
+    padding:11px 16px;
+
+    border-radius:18px;
+
+    font-weight:600;
+
+    flex-shrink:0;
+}
+
+/* ===================================================== */
+/* BOTONES LLAMADAS */
+/* ===================================================== */
+
+.chat-actions{
+    display:flex;
+
+    gap:10px;
+
+    padding:10px;
+
+    background:#fff;
+
+    border-top:1px solid #ececec;
+
+    flex-shrink:0;
+
+    width:100%;
+
+    padding-bottom:max(10px, env(safe-area-inset-bottom));
+}
+
+.chat-actions button{
+    width:44px;
+    height:44px;
+
+    border-radius:50%;
+
+    background:#ff4fb0;
+
+    color:#fff;
+
+    font-size:20px;
+
+    flex-shrink:0;
+}
+
+/* ===================================================== */
+/* EMOJIS */
+/* ===================================================== */
+
+#emojiPanel{
+    display:none;
+
+    position:absolute;
+
+    right:10px;
+    bottom:90px;
+
+    width:300px;
+    height:220px;
+
+    overflow-y:auto;
+
+    background:#fff;
+
+    border-radius:15px;
+
+    padding:10px;
+
+    box-shadow:0 4px 15px rgba(0,0,0,.10);
+
+    z-index:99999;
+}
+
+.emoji{
+    display:inline-block;
+
+    font-size:24px;
+
+    padding:5px;
+
+    cursor:pointer;
+}
+
+/* ===================================================== */
+/* SCROLL */
+/* ===================================================== */
+
+.chat-body::-webkit-scrollbar,
+#listaConversaciones::-webkit-scrollbar,
+#emojiPanel::-webkit-scrollbar{
+    width:6px;
+}
+
+.chat-body::-webkit-scrollbar-thumb,
+#listaConversaciones::-webkit-scrollbar-thumb,
+#emojiPanel::-webkit-scrollbar-thumb{
+    background:#d4d7dd;
+    border-radius:20px;
+}
+
+/* ===================================================== */
+/* RESPONSIVE */
+/* ===================================================== */
+
+@@media (max-width:768px){
+
+    .chat-sidebar{
+        width:85px;
+        min-width:85px;
+    }
+
+    .chat-header-actions button{
+        width:34px;
+        height:34px;
+    }
+}
+
+@@media (max-width:480px){
+
+    .chat-sidebar{
+        width:58px;
+        min-width:58px;
+    }
+
+    .chat-header{
+        height:56px;
+        min-height:56px;
+        padding:0 6px;
+    }
+
+    .chat-avatar{
+        width:30px;
+        height:30px;
+    }
+
+    .chat-online{
+        width:8px;
+        height:8px;
+    }
+
+    .chat-header-actions button{
+        width:26px;
+        height:26px;
+        font-size:11px;
+    }
+
+    .msg{
+        max-width:92%;
+        font-size:12px;
+    }
+}
+
+.msg-archivo{
+    background:transparent !important;
+    padding:0 !important;
+    border:none !important;
+}
+
+.file-modern{
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    width:300px;
+
+    padding:12px;
+
+    border-radius:18px;
+
+    backdrop-filter:blur(10px);
+
+    transition:.25s;
+}
+
+.mio .file-modern{
+    background:#ff4fb0;
+    color:white;
+}
+
+.otro .file-modern{
+    background:white;
+    color:#222;
+}
+
+.file-modern:hover{
+    transform:translateY(-2px);
+}
+
+.file-modern-icon{
+
+    width:55px;
+    height:55px;
+
+    border-radius:14px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:28px;
+
+    background:rgba(255,255,255,.25);
+
+    flex-shrink:0;
+}
+
+.file-modern-info{
+    flex:1;
+    overflow:hidden;
+}
+
+.file-modern-name{
+
+    font-weight:600;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.file-modern-sub{
+
+    font-size:12px;
+
+    opacity:.85;
+
+    margin-top:4px;
+}
+
+.file-modern-open{
+
+    background:white;
+
+    color:#ff4fb0;
+
+    text-decoration:none;
+
+    padding:8px 12px;
+
+    border-radius:12px;
+
+    font-size:12px;
+
+    font-weight:600;
+}
+
+.msg-video{
+    background:transparent !important;
+    padding:0 !important;
+}
+
+.chat-video{
+
+    width:280px;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    display:block;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+.msg-archivo{
+    display:block;
+    width:100%;
+    min-height:80px;
+}
+
+.file-modern{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    width:300px;
+    min-height:80px;
+
+    padding:12px;
+
+    border-radius:18px;
+
+    box-sizing:border-box;
+}
+
+.mio .file-modern{
+    background:#ff4fb0;
+    color:white;
+}
+
+.otro .file-modern{
+    background:white;
+    color:#222;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+.file-modern-icon{
+    width:50px;
+    height:50px;
+
+    flex-shrink:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:26px;
+
+    border-radius:12px;
+
+    background:rgba(255,255,255,.2);
+}
+
+.file-modern-info{
+    flex:1;
+    min-width:0;
+}
+
+.file-modern-name{
+    font-weight:600;
+
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.file-modern-sub{
+    font-size:12px;
+    opacity:.8;
+}
+
+.file-modern-open{
+    text-decoration:none;
+
+    padding:8px 12px;
+
+    border-radius:10px;
+
+    background:white;
+
+    color:#ff4fb0;
+
+    font-weight:600;
+
+    flex-shrink:0;
+}
+
+.msg{
+    position:relative;
+}
+
+.msg{
+    position:relative;
+    padding-right:40px !important;
+}
+
+.hora-mensaje {
+    font-size: 11px;
+    margin-top: 5px;
+    text-align: right;
+    color: #000000; /* Esto hace que el texto sea negro */
+    opacity: 1;      /* Esto elimina la transparencia para que se vea nítido */
+}
+
+</style>
+
+<div class="chat-container">
+
+    <div class="chat-sidebar">
+
+        <div class="sidebar-header">
+            💬 Chats
+        </div>
+
+        <div class="sidebar-search">
+            <input
+                type="text"
+                id="buscarContacto"
+                placeholder="Buscar...">
+        </div>
+
+        <div id="listaConversaciones"></div>
+
+    </div>
+
+    <div class="chat-main">
+
+        <div class="typing" id="typingStatus"></div>
+
+        <div id="chatBody" class="chat-body"></div>
+
+        <div id="emojiPanel"></div>
+
+        <div class="chat-input">
+
+            <button id="btnEmoji">😊</button>
+
+            <input
+                id="txtMensaje"
+                type="text"
+                placeholder="Escribe un mensaje..."
+                autocomplete="off"
+            />
+
+            <button id="btnEnviar">
+                Enviar
+            </button>
+
+            <button id="btnArchivo">
+                📂
+            </button>
+
+            <button id="btnGrabar">
+                🎤
+            </button>
+
+            <input type="file" id="fileInput" hidden>
+
+        </div>
+
+        <div class="chat-actions">
+
+            <button onclick="llamarAudio()">📞</button>
+
+            <button onclick="llamarVideo()">🎥</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<audio id="msgSound"
+src="https://actions.google.com/sounds/v1/cartoon/pop.ogg">
+</audio>
+
+<audio
+    id="ringtone"
+    loop
+    preload="auto"
+    src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg">
+</audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script src="/js/calls.js"></script>
+
+<script>
+
+let destino = "@destino";
+
+const usuarioActual = "@usuarioActual";
+
+const chatBody =
+document.getElementById("chatBody");
+
+const txtMensaje =
+document.getElementById("txtMensaje");
+
+const fileInput =
+document.getElementById("fileInput");
+
+const panel =
+document.getElementById("emojiPanel");
+
+/* ===================================================== */
+/* SIGNALR */
+/* ===================================================== */
+
+const connection =
+new signalR.HubConnectionBuilder()
+.withUrl("/chatHub")
+.withAutomaticReconnect()
+.build();
+
+async function iniciarConexion(){
+
+    try{
+
+        await connection.start();
+
+        console.log("✅ SignalR conectado");
+
+    }catch(error){
+
+        console.error(error);
+
+        setTimeout(
+            iniciarConexion,
+            2000
+        );
+    }
+}
+
+iniciarConexion();
+
+/* ===================================================== */
+/* AGREGAR MENSAJES */
+/* ===================================================== */
+
+function agregarMensaje(
+    texto,
+    mio,
+    tipo = "texto",
+    mensajeId = 0,
+    fecha = null
+){
+
+    console.log("🔥 AGREGAR MENSAJE:", {
+        texto,
+        tipo,
+        mensajeId
+    });
+
+    const existe =
+    document.querySelector(
+        `[data-id="${mensajeId}"]`
+    );
+
+    if(existe && mensajeId !== 0)
+        return;
+
+    let div =
+    document.createElement("div");
+
+    div.className =
+    "msg " +
+    (mio ? "mio" : "otro");
+
+    div.dataset.id = mensajeId;
+
+    tipo =
+    (tipo || "")
+    .toString()
+    .toLowerCase()
+    .trim();
+
+let horaTexto = "";
+
+if(fecha){
+
+    let d = new Date(fecha);
+
+    horaTexto =
+    d.toLocaleTimeString(
+        [],
+        {
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    );
+}
+
+    /* ================================================= */
+    /* 🚫 ELIMINADO */
+    /* ================================================= */
+
+    if(tipo === "eliminado"){
+
+        div.classList.add(
+            "msg-eliminado"
+        );
+
+        div.innerHTML =
+        "🚫 Este mensaje fue eliminado";
+
+        chatBody.appendChild(div);
+
+        scrollChat();
+
+        return;
+    }
+
+    /* ================================================= */
+    /* 🖼️ IMAGEN */
+    /* ================================================= */
+
+    if(
+        tipo.includes("imagen")
+        ||
+        texto.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+    ){
+
+        div.classList.add(
+            "msg-imagen"
+        );
+
+        div.innerHTML = `
+            <div class="img-wrapper">
+
+                <img
+                    src="${texto}"
+                    class="chat-img"
+                    onclick="abrirImagen('${texto}')"
+                >
+
+            </div>
+        `;
+    }
+
+    /* ================================================= */
+    /* 🎤 AUDIO */
+    /* ================================================= */
+
+    else if(
+        tipo.includes("audio")
+        ||
+        texto.match(/\.(webm|mp3|wav|ogg)$/i)
+    ){
+
+        div.classList.add(
+            "msg-audio"
+        );
+
+        div.innerHTML = `
+            <div class="audio-card">
+
+                <audio controls preload="metadata">
+                    <source src="${texto}">
+                </audio>
+
+            </div>
+        `;
+    }
+
+
+/* ================================================= */
+/* 🎥 VIDEO */
+/* ================================================= */
+
+else if(
+    texto.match(/\.(mp4|webm|mov|avi)$/i)
+){
+
+    div.classList.add(
+        "msg-video"
+    );
+
+    div.innerHTML = `
+        <video
+            controls
+            preload="metadata"
+            class="chat-video">
+
+            <source src="${texto}">
+
+        </video>
+    `;
+}
+    /* ================================================= */
+/* 📎 ARCHIVOS */
+/* ================================================= */
+
+else if(
+    tipo.includes("archivo")
+    ||
+    texto.toLowerCase().includes("/uploads/")
+){
+
+    div.classList.add(
+        "msg-archivo"
+    );
+
+    let nombreArchivo =
+    texto.split("/").pop();
+
+    div.innerHTML = `
+        <div class="file-modern">
+
+            <div class="file-modern-icon">
+                📄
+            </div>
+
+            <div class="file-modern-info">
+
+                <div class="file-modern-name">
+                    ${nombreArchivo}
+                </div>
+
+                <div class="file-modern-sub">
+                    Documento adjunto
+                </div>
+
+            </div>
+
+            <a
+                href="${texto}"
+                target="_blank"
+                class="file-modern-open">
+
+                Abrir
+
+            </a>
+
+        </div>
+    `;
+}
+
+    /* ================================================= */
+    /* 💬 TEXTO */
+    /* ================================================= */
+
+    else{
+
+        const textoMsg =
+        document.createElement("div");
+
+        textoMsg.innerText = texto;
+
+        div.appendChild(textoMsg);
+    }
+
+    /* ================================================= */
+    /* MENU */
+    /* ================================================= */
+
+    if(tipo !== "eliminado"){
+
+    let menu =
+    document.createElement("span");
+
+    menu.innerHTML = "⋮";
+
+    menu.style.cursor = "pointer";
+
+    menu.style.float = "right";
+
+    menu.style.fontWeight = "bold";
+
+    menu.style.marginLeft = "10px";
+
+    menu.style.color = "#fff";
+
+    menu.style.background = "rgba(0,0,0,0.75)";
+
+    menu.style.borderRadius = "50%";
+
+    menu.style.width = "24px";
+
+    menu.style.height = "24px";
+
+    menu.style.display = "flex";
+
+    menu.style.alignItems = "center";
+
+    menu.style.justifyContent = "center";
+
+    menu.style.boxShadow = "0 2px 8px rgba(0,0,0,0.5)";
+
+    menu.style.position = "absolute";
+
+    menu.style.position = "relative";
+menu.style.float = "none";
+menu.style.display = "inline-flex";
+menu.style.marginTop = "5px";
+
+    menu.style.zIndex = "999";
+
+        menu.onclick = async function(e){
+
+            e.stopPropagation();
+
+            let opcion =
+            prompt(
+                "1 Eliminar para mí\n2 Eliminar para todos"
+            );
+
+            if(opcion === "1"){
+
+                try{
+
+                    await connection.invoke(
+                        "EliminarSoloParaMi",
+                        mensajeId
+                    );
+
+                    div.remove();
+
+                }catch(error){
+
+                    console.error(error);
+                }
+            }
+
+            if(opcion === "2"){
+
+                try{
+
+                    await connection.invoke(
+                        "EliminarMensaje",
+                        mensajeId
+                    );
+
+                }catch(error){
+
+                    console.error(error);
+                }
+            }
+        };
+
+        div.appendChild(menu);
+
+}
+
+
+if(horaTexto){
+
+    const horaDiv =
+    document.createElement("div");
+
+    horaDiv.className = "hora-mensaje";
+    horaDiv.innerText = horaTexto;
+
+    div.appendChild(horaDiv);
+}
+    chatBody.appendChild(div);
+
+    scrollChat();
+}
+
+/* ===================================================== */
+/* ENVIAR TEXTO */
+/* ===================================================== */
+
+async function enviarTexto(){
+
+    let texto =
+    txtMensaje.value.trim();
+
+    if(!texto)
+        return;
+
+    try{
+
+        await connection.invoke(
+            "EnviarMensaje",
+            destino,
+            texto,
+            "texto"
+        );
+
+        txtMensaje.value = "";
+
+    }catch(error){
+
+        console.error(error);
+    }
+}
+
+document.getElementById(
+    "btnEnviar"
+).onclick = enviarTexto;
+
+txtMensaje.addEventListener(
+    "keydown",
+    function(e){
+
+        if(
+            e.key === "Enter"
+            &&
+            !e.shiftKey
+        ){
+
+            e.preventDefault();
+
+            enviarTexto();
+        }
+    }
+);
+
+/* ===================================================== */
+/* TYPING */
+/* ===================================================== */
+
+txtMensaje.addEventListener(
+    "input",
+    async()=>{
+
+        try{
+
+            await connection.invoke(
+                "Typing",
+                destino
+            );
+
+        }catch{}
+    }
+);
+
+connection.on(
+    "MostrarTyping",
+    ()=>{
+
+        let t =
+        document.getElementById(
+            "typingStatus"
+        );
+
+        t.style.display = "block";
+
+        t.innerHTML =
+        "✍️ escribiendo...";
+
+        setTimeout(
+            ()=> t.style.display = "none",
+            1500
+        );
+    }
+);
+
+/* ===================================================== */
+/* RECIBIR MENSAJES */
+/* ===================================================== */
+
+connection.on(
+    "RecibirMensaje",
+    (msg)=>{
+
+        console.log(
+            "🔥 MENSAJE RECIBIDO:",
+            msg
+        );
+
+        if(
+            (
+                msg.remitente === usuarioActual
+                &&
+                msg.destinatario === destino
+            )
+            ||
+            (
+                msg.remitente === destino
+                &&
+                msg.destinatario === usuarioActual
+            )
+        ){
+
+            agregarMensaje(
+    msg.contenido,
+    msg.remitente === usuarioActual,
+    msg.tipo,
+    msg.id,
+    msg.fecha
+);
+        }
+
+        document.getElementById(
+            "msgSound"
+        )?.play();
+    }
+);
+
+/* ===================================================== */
+/* MENSAJE ELIMINADO */
+/* ===================================================== */
+
+connection.on(
+    "MensajeEliminado",
+    (mensajeId)=>{
+
+        const mensaje =
+        document.querySelector(
+            `[data-id="${mensajeId}"]`
+        );
+
+        if(mensaje){
+
+            mensaje.innerHTML =
+            "🚫 Este mensaje fue eliminado";
+
+            mensaje.classList.add(
+                "msg-eliminado"
+            );
+        }
+
+        cargarHistorial();
+    }
+);
+
+/* ===================================================== */
+/* SOLO PARA MI */
+/* ===================================================== */
+
+connection.on(
+    "MensajeEliminadoSoloParaMi",
+    (mensajeId)=>{
+
+        const mensaje =
+        document.querySelector(
+            `[data-id="${mensajeId}"]`
+        );
+
+        if(mensaje){
+
+            mensaje.remove();
+        }
+    }
+);
+
+/* ===================================================== */
+/* HISTORIAL */
+/* ===================================================== */
+
+async function cargarHistorial(){
+
+    if(!destino)
+        return;
+
+    try{
+
+        let res =
+        await fetch(
+            `/Chat/ObtenerMensajes?conUsuario=${destino}`
+        );
+
+        let result =
+        await res.json();
+
+        console.log(
+            "🔥 HISTORIAL:",
+            result
+        );
+
+        chatBody.innerHTML = "";
+
+        (result.data || [])
+        .forEach(m=>{
+
+            agregarMensaje(
+    m.contenido,
+    m.remitente === usuarioActual,
+    m.tipo,
+    m.id,
+    m.fecha
+);
+        });
+
+    }catch(error){
+
+        console.error(error);
+    }
+}
+
+/* ===================================================== */
+/* CONVERSACIONES */
+/* ===================================================== */
+
+async function cargarConversaciones(){
+
+    try{
+
+        let res =
+        await fetch(
+            "/Chat/ObtenerConversaciones"
+        );
+
+        let data =
+        await res.json();
+
+        let cont =
+        document.getElementById(
+            "listaConversaciones"
+        );
+
+        cont.innerHTML = "";
+
+        data.forEach(c=>{
+
+            let div =
+            document.createElement("div");
+
+            div.className =
+            "conversacion";
+
+            div.innerText =
+            c.usuario;
+
+            div.onclick = ()=>{
+
+                window.location =
+                "/Chat/Index?usuario=" +
+                c.usuario;
+            };
+
+            cont.appendChild(div);
+        });
+
+    }catch(error){
+
+        console.error(error);
+    }
+}
+
+/* ===================================================== */
+/* BUSCAR */
+/* ===================================================== */
+
+document.getElementById(
+    "buscarContacto"
+)?.addEventListener(
+    "keyup",
+    function(){
+
+        let filtro =
+        this.value.toLowerCase();
+
+        document.querySelectorAll(
+            ".conversacion"
+        )
+        .forEach(c=>{
+
+            c.style.display =
+            c.innerText
+            .toLowerCase()
+            .includes(filtro)
+            ? "block"
+            : "none";
+        });
+    }
+);
+
+/* ===================================================== */
+/* ARCHIVOS */
+/* ===================================================== */
+
+document.getElementById(
+"btnArchivo"
+).onclick = ()=>{
+
+    let menu =
+    prompt(
+        "1 Imagen\n2 Documento"
+    );
+
+    fileInput.accept =
+    menu === "1"
+    ? "image/*"
+    : "*";
+
+    fileInput.click();
+};
+
+fileInput.onchange =
+async()=>{
+
+    let file =
+    fileInput.files[0];
+
+    if(!file)
+        return;
+
+    let formData =
+    new FormData();
+
+    formData.append(
+        "archivo",
+        file
+    );
+
+    formData.append(
+        "destinatario",
+        destino
+    );
+
+    try{
+
+        const response =
+        await fetch(
+            "/Chat/SubirArchivo",
+            {
+                method:"POST",
+                body:formData
+            }
+        );
+
+        if(!response.ok){
+
+            throw new Error(
+                "Error subiendo archivo"
+            );
+        }
+
+        const result =
+await response.json();
+
+console.log(
+    "🔥 ARCHIVO SUBIDO:",
+    result
+);
+
+agregarMensaje(
+    result.url,
+    true,
+    result.tipo,
+    result.id || Date.now()
+);
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+            "❌ Error enviando archivo"
+        );
+    }
+
+    fileInput.value = "";
+};
+
+/* ===================================================== */
+/* 🎤 NOTA DE VOZ */
+/* ===================================================== */
+
+let mediaRecorder;
+
+let audioChunks = [];
+
+let grabando = false;
+
+document.getElementById(
+    "btnGrabar"
+).onclick = async function(){
+
+    try{
+
+        if(!grabando){
+
+            const stream =
+            await navigator.mediaDevices.getUserMedia({
+                audio:true
+            });
+
+            mediaRecorder =
+            new MediaRecorder(
+                stream,
+                {
+                    audioBitsPerSecond:16000
+                }
+            );
+
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = e => {
+
+                if(e.data.size > 0){
+
+                    audioChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = async()=>{
+
+                const audioBlob =
+                new Blob(
+                    audioChunks,
+                    {
+                        type:"audio/webm"
+                    }
+                );
+
+                const formData =
+                new FormData();
+
+                formData.append(
+                    "audio",
+                    audioBlob,
+                    "nota-voz.webm"
+                );
+
+                formData.append(
+                    "destinatario",
+                    destino
+                );
+
+                try{
+
+                    const response =
+                    await fetch(
+                        "/Chat/SubirNotaVoz",
+                        {
+                            method:"POST",
+                            body:formData
+                        }
+                    );
+
+                    if(!response.ok){
+
+                        throw new Error(
+                            "Error enviando nota de voz"
+                        );
+                    }
+
+                    const result =
+                    await response.json();
+
+                    agregarMensaje(
+                        result.url,
+                        true,
+                        "audio",
+                        result.id || Date.now()
+                    );
+
+                }catch(error){
+
+                    console.error(error);
+                }
+            };
+
+            mediaRecorder.start();
+
+            grabando = true;
+
+            this.innerHTML = "⏹️";
+
+            return;
+        }
+
+        mediaRecorder.stop();
+
+        grabando = false;
+
+        this.innerHTML = "🎤";
+
+    }catch(err){
+
+        console.error(err);
+    }
+};
+
+/* ===================================================== */
+/* 📞 LLAMADAS */
+/* ===================================================== */
+
+/* ===================================================== */
+/* EMOJIS */
+/* ===================================================== */
+
+const emojis = [
+
+/* 😀 Caritas */
+"😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇",
+"🙂","🙃","😉","😍","🥰","😘","😗","😙","😚","😋",
+"😛","😜","🤪","😝","🤑","🤗","🤭","🤫","🤔","🤐",
+"😐","😑","😶","😏","😒","🙄","😬","🤥","😔","😪",
+"🤤","😴","😷","🤒","🤕","🤢","🤮","🤧","🥵","🥶",
+"😎","🤓","🧐","🥳","😤","😭","😢","😡","🤬","😱",
+
+/* 👍 Gestos */
+"👍","👎","👌","✌️","🤞","🤟","🤘","🤙",
+"👋","👏","🙌","👐","🤲","🙏","💪","✍️",
+
+/* ❤️ Corazones */
+"❤️","🩷","🧡","💛","💚","🩵","💙","💜",
+"🖤","🤍","🤎","💔","❣️","💕","💞","💓",
+"💗","💖","💘","💝",
+
+/* 🌸 Flores */
+"🌹","🌺","🌻","🌷","💐","🌸","🪷","🍀",
+
+/* 🎉 Celebración */
+"🎉","🎊","🎈","🎂","🥂","🍾","🎁","🏆",
+
+/* 💅 Belleza */
+"💅","💄","👑","💎","👜","👠","🩷",
+
+/* 🔥 Símbolos */
+"🔥","✨","⭐","🌟","💯","✔️","✅","❌","⚠️",
+
+/* 🐶 Animales */
+"🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼",
+"🐨","🐯","🦁","🐸","🐵","🐧","🐦","🦋",
+
+/* 🍔 Comida */
+"🍎","🍉","🍇","🍓","🍒","🍕","🍔","🍟",
+"🌭","🥪","🌮","🍩","🍪","🎂","☕","🥤",
+
+/* 🚗 Transporte */
+"🚗","🚕","🚌","🚎","🏍️","✈️","🚀","🚢",
+
+/* ⚽ Deportes */
+"⚽","🏀","🏈","⚾","🎾","🏐","🥊","🏆",
+
+/* 🎵 Música */
+"🎵","🎶","🎤","🎧","🎸","🥁","🎹",
+
+/* 🌎 Naturaleza */
+"☀️","🌤️","⛅","🌧️","⛈️","❄️","🌈",
+"🌙","⭐","🌍","🌎","🌏",
+
+/* 🙈 Monitos */
+"🙈","🙉","🙊","🐵","🐒",
+
+/* 🤗 Expresiones */
+"🤗","🤭","🫢","🫣","🤫","🤔","🫡",
+"🤨","😐","😑","😶","🫥","😶‍🌫️",
+"😏","😒","🙄","😬","😮‍💨","🤥",
+
+/* 😲 Sorpresa */
+"😳","🥺","😦","😧","😨","😰","😥",
+"😢","😭","😱","😖","😣","😞","😓",
+
+/* 😡 Enojo */
+"😠","😡","🤬","👿","💢",
+
+/* 🤣 Diversión */
+"😹","😸","😺","😻","😼","😽",
+"🙃","😜","🤪","😝",
+
+/* 👋 Manos */
+"👋","🤚","🖐️","✋","🖖","👌",
+"🤌","🤏","✌️","🤞","🫰","🤟",
+"🤘","🤙","👈","👉","👆","👇",
+"☝️","👍","👎","👊","✊","🤛",
+"🤜","👏","🙌","👐","🤲","🙏",
+
+/* 👨 Personas */
+"👶","🧒","👦","👧","🧑","👨",
+"👩","🧔","👴","👵","👱","🙍",
+"🙎","🙅","🙆","💁","🙋","🧏",
+"🤦","🤷","👮","🕵️","💂","👷",
+"🤴","👸","🦸","🦹","🧙","🧝",
+
+/* 💑 Amor */
+"💋","💌","💘","💝","💖","💗",
+"💓","💕","💞","💟","❣️","❤️‍🔥",
+"❤️‍🩹","💑","👩‍❤️‍👨","👨‍❤️‍👨",
+"👩‍❤️‍👩",
+
+/* 🎂 Eventos */
+"🎂","🎉","🎊","🎁","🎈","🥳",
+"🍰","🍾","🥂",
+
+/* 💼 Objetos */
+"📱","💻","⌚","📷","🎥","📺",
+"🎮","🎧","🎤","🔋","💡","📚",
+"✏️","🖊️","📎","💰","💳",
+
+/* 🚨 Símbolos */
+"✔️","✅","☑️","❌","❎","⚠️",
+"🚫","🔴","🟢","🟡","🔵","🟣",
+"⚫","⚪","🔔","🔕",
+
+/* 🌍 Lugares */
+"🏠","🏡","🏢","🏥","🏫","🏖️",
+"🏝️","🌋","⛰️","🗽","🗼",
+
+/* 🐾 Más animales */
+"🐕","🐈","🐇","🦄","🐴","🦓",
+"🦒","🐘","🦏","🦛","🐼","🐨",
+"🐯","🦁","🐮","🐷","🐸","🐙",
+"🦋","🐝","🐞","🕷️",
+
+/* 🍕 Más comida */
+"🍔","🍟","🌭","🍕","🌮","🌯",
+"🍗","🍖","🍣","🍜","🍩","🍪",
+"🍫","🍬","🍭","🍺","🥤","🧃",
+
+/* ⚽ Deportes */
+"⚽","🏀","🏈","⚾","🎾","🏐",
+"🏉","🥎","🎱","🏓","🏸","🥊",
+"🥋","🏆","🥇","🥈","🥉"
+
+];
+
+emojis.forEach(e=>{
+
+    let span =
+    document.createElement(
+        "span"
+    );
+
+    span.className =
+    "emoji";
+
+    span.innerText = e;
+
+    span.onclick = ()=>{
+
+        txtMensaje.value += e;
+
+        panel.style.display = "none";
+
+        txtMensaje.focus();
+    };
+
+    panel.appendChild(span);
+});
+
+document.addEventListener(
+    "click",
+    function(e){
+
+        const btnEmoji =
+        document.getElementById(
+            "btnEmoji"
+        );
+
+        if(
+            !panel.contains(e.target)
+            &&
+            e.target !== btnEmoji
+        ){
+
+            panel.style.display = "none";
+        }
+    }
+);
+
+document.getElementById(
+    "btnEmoji"
+).onclick = ()=>{
+
+    panel.style.display =
+    panel.style.display == "block"
+    ? "none"
+    : "block";
+};
+
+/* ===================================================== */
+/* UTILIDADES */
+/* ===================================================== */
+
+function scrollChat(){
+
+    chatBody.scrollTop =
+    chatBody.scrollHeight;
+}
+
+function abrirImagen(url){
+
+    let modal =
+    document.createElement("div");
+
+    modal.style.position = "fixed";
+
+    modal.style.top = "0";
+
+    modal.style.left = "0";
+
+    modal.style.width = "100%";
+
+    modal.style.height = "100%";
+
+    modal.style.background =
+    "rgba(0,0,0,0.85)";
+
+    modal.style.display = "flex";
+
+    modal.style.alignItems = "center";
+
+    modal.style.justifyContent = "center";
+
+    modal.style.zIndex = "99999";
+
+    modal.innerHTML = `
+        <img
+            src="${url}"
+            style="
+                max-width:90%;
+                max-height:90%;
+                border-radius:15px;
+                box-shadow:0 10px 30px rgba(0,0,0,.4);
+            ">
+    `;
+
+    modal.onclick =
+    ()=> modal.remove();
+
+    document.body.appendChild(modal);
+}
+
+/* ===================================================== */
+/* INICIAR */
+/* ===================================================== */
+
+cargarConversaciones();
+
+cargarHistorial();
+
+</script>

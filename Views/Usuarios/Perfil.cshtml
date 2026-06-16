@@ -1,0 +1,111 @@
+@model TropiNailsPro.Models.Usuario
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+    var foto = !string.IsNullOrEmpty(Model.FotoPerfil) ? Model.FotoPerfil : "/img/user-default.png";
+    if (!foto.StartsWith("/")) foto = "/" + foto;
+}
+
+<div class="perfil-container">
+
+    <!-- ===== CABECERA PERFIL ===== -->
+    <div class="perfil-card shadow">
+
+        <div class="perfil-header">
+
+            <!-- FOTO GRANDE -->
+            <div class="foto-wrapper">
+                <input type="file" id="inputFotoPerfil" hidden accept="image/*" />
+
+                <img id="fotoGrande"
+                     src="@foto"
+                     class="foto-grande"
+                     onerror="this.src='/img/user-default.png'" />
+            </div>
+
+            <!-- DATOS -->
+            <div class="perfil-info">
+                <h3>@Model.Nombre</h3>
+                <span class="text-muted">@Model.Email</span>
+
+                <div class="stats">
+                    <div>
+                        <b>-</b>
+                        <span>Citas</span>
+                    </div>
+                    <div>
+                        <b>-</b>
+                        <span>Clientes</span>
+                    </div>
+                    <div>
+                        <b>-</b>
+                        <span>Servicios</span>
+                    </div>
+                </div>
+
+                <a asp-action="Perfil" class="btn btn-pink mt-3">
+                    ✏️ Editar datos
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== GALERÍA TIPO INSTAGRAM ===== -->
+    <h5 class="mt-5 mb-3">Mis trabajos</h5>
+
+    <div class="galeria">
+        <div class="empty">
+            Aún no has subido imágenes 📸
+        </div>
+    </div>
+</div>
+
+<style>
+.perfil-container { max-width: 900px; margin: auto; }
+.perfil-card { background: white; border-radius: 20px; padding: 30px; }
+.perfil-header { display: flex; gap: 30px; align-items: center; flex-wrap: wrap; }
+.foto-wrapper { position: relative; }
+.foto-grande { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 5px solid #e91e63; cursor: pointer; transition: .3s; }
+.foto-grande:hover { transform: scale(1.05); }
+.perfil-info h3 { margin-bottom: 5px; }
+.stats { display: flex; gap: 30px; margin-top: 15px; }
+.stats div { text-align: center; }
+.stats b { display: block; font-size: 20px; color: #e91e63; }
+.btn-pink { background: #e91e63; color: white; border-radius: 25px; }
+.btn-pink:hover { background: #d81b60; }
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.empty { background: #fff; border-radius: 12px; padding: 40px; text-align: center; color: #888; }
+</style>
+
+<script>
+const fotoGrande = document.getElementById("fotoGrande");
+const inputFoto = document.getElementById("inputFotoPerfil");
+
+// Al hacer click sobre la foto
+fotoGrande.onclick = () => inputFoto.click();
+
+inputFoto.onchange = async () => {
+    if (!inputFoto.files[0]) return;
+
+    const formData = new FormData();
+    formData.append("foto", inputFoto.files[0]);
+
+    try {
+        const res = await fetch("/Perfil/ActualizarFoto", {
+            method: "POST",
+            body: formData
+        });
+
+        if (!res.ok) throw new Error("Error al subir la foto");
+
+        const ruta = await res.text();
+
+        // Actualiza la foto en tiempo real
+        fotoGrande.src = ruta + "?t=" + new Date().getTime();
+
+    } catch (err) {
+        alert("No se pudo actualizar la foto. Intenta nuevamente.");
+        console.error(err);
+    }
+};
+</script>

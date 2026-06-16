@@ -1,0 +1,141 @@
+@model TropiNailsPro.Models.Manicurista
+
+@{
+    ViewData["Title"] = "Suscripción Vencida";
+
+    // ✅ Variable temporal para evitar errores de solo lectura
+    var manicurista = Model ?? new TropiNailsPro.Models.Manicurista
+    {
+        NombreNegocio = "Tu negocio",
+        FechaVencimiento = DateTime.UtcNow
+    };
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@ViewData["Title"] - TropiNails Pro</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+body {
+    background: linear-gradient(to right, #ffe6e6, #ffd6d6);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.card-vencida {
+    max-width: 500px;
+    margin: 80px auto;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    background-color: #ffffff;
+}
+
+.card-vencida h2 {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.btn-renovar {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 12px 25px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.btn-renovar:hover {
+    transform: translateY(-2px);
+}
+
+.text-muted {
+    font-size: 0.9rem;
+}
+
+.plan-box{
+    background:#fff0f6;
+    padding:15px;
+    border-radius:12px;
+    margin-top:20px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card card-vencida shadow">
+
+        <h2 class="text-center mb-4">
+            ¡Suscripción Vencida!
+        </h2>
+
+        <p class="text-center">
+            Hola
+            <strong>
+                @manicurista.NombreNegocio
+            </strong>,
+            tu suscripción venció el
+            <strong>
+                @manicurista.FechaVencimiento.ToString("dd/MM/yyyy")
+            </strong>.
+        </p>
+
+        <p class="text-center text-muted mb-4">
+            Para seguir usando TropiNailsPro y que tus clientas puedan agendar citas,
+            necesitas renovar tu suscripción.
+        </p>
+
+        <!-- 🔥 PLAN ÚNICO -->
+        <div class="plan-box text-center">
+
+            <h4>
+                💎 Plan Profesional
+            </h4>
+
+            <h3 style="color:#e91e63;">
+                USD $10.20 / mes
+            </h3>
+
+            <p class="text-muted">
+                ✔ Acceso completo a TropiNails Pro
+            </p>
+
+            <p class="text-muted">
+                ✔ Chat en tiempo real
+            </p>
+
+            <p class="text-muted">
+                ✔ Gestión de citas y clientas
+            </p>
+
+            <p class="text-muted">
+                ✔ Publicaciones y red social
+            </p>
+
+        </div>
+
+        <div class="text-center mt-4">
+
+            <a asp-action="Renovar"
+               class="btn btn-danger btn-renovar">
+
+                Renovar Suscripción Ahora
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

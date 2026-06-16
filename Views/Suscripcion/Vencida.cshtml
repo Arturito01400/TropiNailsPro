@@ -1,0 +1,278 @@
+@model TropiNailsPro.Models.Manicurista
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Suscripción Vencida";
+    var emailSeguro = Model?.Usuario?.Email ?? "";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>@ViewData["Title"] - TropiNails Pro</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,#ff80ab,#e91e63,#ffb6d5);
+    font-family:'Segoe UI',sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.card-suscripcion{
+    width:100%;
+    max-width:520px;
+    background:#fff;
+    border-radius:28px;
+    padding:40px 35px;
+    box-shadow:0 20px 60px rgba(0,0,0,.18);
+    text-align:center;
+}
+
+.logo-icon{
+    width:90px;height:90px;margin:0 auto 20px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#ff4f93,#e91e63);
+    display:flex;align-items:center;justify-content:center;
+    font-size:42px;color:#fff;
+}
+
+h1{color:#e91e63;font-size:2rem;font-weight:800;margin-bottom:15px;}
+.texto{color:#555;font-size:15px;line-height:1.7;margin-bottom:15px;}
+.nombre{color:#e91e63;font-weight:700;}
+
+.plan-card{
+    margin-top:30px;
+    background:linear-gradient(135deg,#fff0f6,#ffe4ef);
+    border-radius:22px;
+    padding:25px;
+    border:2px solid #ffd0e3;
+}
+
+.plan-badge{
+    display:inline-block;
+    padding:8px 18px;
+    border-radius:50px;
+    background:#e91e63;
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+}
+
+.precio{font-size:2.8rem;font-weight:800;color:#e91e63;}
+
+.payment-box{
+    margin-top:25px;
+    padding:20px;
+    border-radius:18px;
+    background:#fff;
+    border:1px solid #f1f1f1;
+}
+
+#paypal-button-container{
+    display:flex;
+    justify-content:center;
+    margin-bottom:15px;
+}
+
+#card-name-field-container,
+#card-number-field-container,
+#card-expiry-field-container,
+#card-cvv-field-container{
+    min-height:45px;
+    margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card-suscripcion">
+
+    <div class="logo-icon">💅</div>
+
+    <h1>Suscripción Vencida</h1>
+
+    <p class="texto">Hola <span class="nombre">@(Model?.NombreNegocio ?? "Manicurista")</span></p>
+
+    <div class="plan-card">
+
+        <div class="plan-badge">PLAN ÚNICO OFICIAL</div>
+        <div class="precio">$10.20 USD</div>
+
+        <div class="payment-box">
+
+            <div id="paypal-button-container"></div>
+
+            <div id="card-form">
+                <div id="card-name-field-container"></div>
+                <div id="card-number-field-container"></div>
+                <div id="card-expiry-field-container"></div>
+                <div id="card-cvv-field-container"></div>
+
+                <button id="card-button"
+                        class="btn w-100 mt-3"
+                        style="background:#111;color:#fff;border-radius:14px;padding:14px;">
+                    💳 Pagar con Tarjeta
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- FIX IMPORTANTE: enable-funding + intent -->
+<script src="https://www.paypal.com/sdk/js?client-id=AUWEvAb4p4QCtC2Q9xDlfQGdiy0xesKxxBbdsSn3XoZBBiLW-h1BYKICL8OUD3EIfc1d3prWUdceSAwy&currency=USD&components=buttons,card-fields&intent=capture&enable-funding=card"></script>
+
+<script>
+const emailUsuario = '@emailSeguro';
+
+let cardFields = null;
+let isProcessing = false;
+
+/* =========================
+   PAYPAL BUTTONS
+========================= */
+paypal.Buttons({
+    createOrder: function () {
+        return fetch('/api/paypal/crear-orden', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailUsuario })
+        })
+        .then(res => res.json())
+        .then(data => data.id);
+    },
+
+    onApprove: function (data) {
+        return fetch('/api/paypal/confirmar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderID: data.orderID,
+                email: emailUsuario
+            })
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.ok) {
+                window.location.href = '/Dashboard/Index';
+            } else {
+                alert(result.message || "Error al confirmar pago");
+            }
+        });
+    }
+
+}).render('#paypal-button-container');
+
+
+/* =========================
+   CARD FIELDS (FIX ESTABLE)
+========================= */
+window.addEventListener("load", async function () {
+
+    if (!window.paypal || !paypal.CardFields) {
+        console.warn("CardFields no disponible en esta cuenta o entorno");
+        return;
+    }
+
+    try {
+        const createOrderFn = async () => {
+            const res = await fetch('/api/paypal/crear-orden', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailUsuario })
+            });
+
+            const data = await res.json();
+
+            if (!data.id) throw new Error("OrderID inválido");
+
+            return data.id;
+        };
+
+        cardFields = paypal.CardFields({
+            createOrder: createOrderFn,
+
+            onApprove: async (data) => {
+                const res = await fetch('/api/paypal/confirmar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        orderID: data.orderID,
+                        email: emailUsuario
+                    })
+                });
+
+                const result = await res.json();
+
+                if (result.ok) {
+                    window.location.href = '/Dashboard/Index';
+                } else {
+                    alert(result.message || "Error en pago");
+                }
+            },
+
+            onError: (err) => {
+                console.error("PayPal Error:", err);
+            }
+        });
+
+        await cardFields.NameField().render("#card-name-field-container");
+        await cardFields.NumberField().render("#card-number-field-container");
+        await cardFields.ExpiryField().render("#card-expiry-field-container");
+        await cardFields.CVVField().render("#card-cvv-field-container");
+
+    } catch (e) {
+        console.error("Error inicializando CardFields:", e);
+    }
+});
+
+
+/* =========================
+   BOTÓN TARJETA FIX
+========================= */
+document.getElementById("card-button").addEventListener("click", async () => {
+
+    if (!cardFields) {
+        alert("Tarjeta aún no está lista");
+        return;
+    }
+
+    if (isProcessing) return;
+
+    try {
+        isProcessing = true;
+
+        const btn = document.getElementById("card-button");
+        btn.disabled = true;
+        btn.innerText = "Procesando...";
+
+        await cardFields.submit();
+
+    } catch (err) {
+        console.error(err);
+        alert("Error procesando tarjeta");
+
+    } finally {
+        isProcessing = false;
+
+        const btn = document.getElementById("card-button");
+        btn.disabled = false;
+        btn.innerText = "💳 Pagar con Tarjeta";
+    }
+});
+</script>
+
+</body>
+</html>

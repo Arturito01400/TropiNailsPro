@@ -1,0 +1,253 @@
+@{
+    ViewData["Title"] = "Actualizar a Premium";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+
+html,body{
+height:100%;
+margin:0;
+padding:0;
+font-family:'Segoe UI',sans-serif;
+}
+
+/* Fondo adaptable */
+.premium-page{
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+background:linear-gradient(
+135deg,
+#f8fbff,
+#eef4ff,
+#ffffff
+);
+}
+
+/* Tarjeta principal responsive */
+.premium-box{
+width:100%;
+max-width:1100px;
+background:white;
+border-radius:35px;
+padding:clamp(25px,5vw,70px);
+box-shadow:0 20px 70px rgba(0,0,0,.08);
+text-align:center;
+}
+
+/* Badge */
+.plan-badge{
+display:inline-block;
+background:#fff3cd;
+color:#8a6300;
+padding:12px 28px;
+border-radius:50px;
+font-weight:700;
+font-size:clamp(.8rem,2vw,1rem);
+margin-bottom:25px;
+}
+
+/* Titulo adaptable */
+.title-premium{
+font-size:clamp(2rem,6vw,4rem);
+font-weight:800;
+margin-bottom:20px;
+}
+
+/* texto */
+.subtitle{
+max-width:700px;
+margin:auto;
+font-size:clamp(1rem,2vw,1.3rem);
+color:#666;
+line-height:1.7;
+}
+
+/* Cards beneficios */
+.features{
+margin-top:60px;
+display:grid;
+grid-template-columns:
+repeat(auto-fit,minmax(280px,1fr));
+gap:30px;
+}
+
+.feature-card{
+background:#fafcff;
+padding:35px;
+border-radius:25px;
+transition:.35s;
+}
+
+.feature-card:hover{
+transform:translateY(-10px);
+box-shadow:0 12px 35px rgba(0,0,0,.08);
+}
+
+.icon{
+font-size:55px;
+margin-bottom:20px;
+}
+
+.feature-card h3{
+font-size:1.5rem;
+font-weight:700;
+}
+
+.feature-card p{
+color:#666;
+line-height:1.6;
+}
+
+/* botones */
+.buttons{
+margin-top:60px;
+display:flex;
+flex-wrap:wrap;
+gap:20px;
+justify-content:center;
+}
+
+.btn-upgrade{
+background:linear-gradient(
+90deg,
+#ffb300,
+#ffcc00
+);
+padding:18px 40px;
+border-radius:50px;
+text-decoration:none;
+font-weight:800;
+font-size:1.1rem;
+color:#000;
+box-shadow:0 10px 25px rgba(255,193,7,.35);
+}
+
+.btn-back{
+border:2px solid #d0d0d0;
+padding:18px 40px;
+border-radius:50px;
+text-decoration:none;
+font-weight:700;
+color:#333;
+}
+
+/* precio */
+.price-box{
+margin-top:55px;
+padding:30px;
+background:#f4f8ff;
+border-radius:30px;
+}
+
+.price{
+font-size:clamp(2rem,5vw,3rem);
+font-weight:800;
+color:#0d6efd;
+}
+
+@@media(max-width:600px){
+
+.feature-card{
+padding:25px;
+}
+
+.buttons{
+flex-direction:column;
+}
+
+.btn-upgrade,
+.btn-back{
+width:100%;
+}
+
+}
+
+</style>
+
+
+<section class="premium-page">
+
+<div class="premium-box">
+
+<div class="plan-badge">
+⭐ Función Premium
+</div>
+
+<h1 class="title-premium">
+Desbloquea el módulo Inventario
+</h1>
+
+<p class="subtitle">
+Tu plan actual es Básico.
+Actualiza a Premium para usar inventario inteligente,
+reportes avanzados y automatizaciones exclusivas.
+</p>
+
+
+<div class="features">
+
+<div class="feature-card">
+<div class="icon">
+📦
+</div>
+<h3>Inventario Smart</h3>
+<p>
+Controla stock, productos,
+entradas y salidas.
+</p>
+</div>
+
+<div class="feature-card">
+<div class="icon">
+📈
+</div>
+<h3>Reportes Pro</h3>
+<p>
+Ventas, estadísticas
+y rendimiento.
+</p>
+</div>
+
+<div class="feature-card">
+<div class="icon">
+🚀
+</div>
+<h3>Automatización</h3>
+<p>
+Funciones avanzadas
+solo para Premium.
+</p>
+</div>
+
+</div>
+
+
+<h1 class="fw-bold text-success">
+US$15/mes
+</h1>
+
+
+<div class="buttons">
+
+<a asp-controller="Renovar"
+   asp-action="Auth"
+    class="btn-back">
+Suscribirme Ahora
+</a>
+
+
+<a asp-controller="Dashboard"
+   asp-action="Index"
+   class="btn-back">
+Volver al Panel
+</a>
+
+</div>
+
+</div>
+
+</section>

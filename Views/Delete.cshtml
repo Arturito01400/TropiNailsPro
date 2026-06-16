@@ -1,0 +1,14 @@
+@model TropiNailsPro.Models.ModeloUnas
+@{
+    ViewData["Title"] = "Eliminar Modelo";
+}
+
+<h3>¿Deseas eliminar el modelo <strong>@Model.Nombre</strong>?</h3>
+
+<img src="@Model.ImagenUrl" class="img-fluid mb-3" style="max-height: 300px;" />
+
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="/ModelosUnas" class="btn btn-secondary">Cancelar</a>
+</form>

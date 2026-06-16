@@ -1,0 +1,181 @@
+/* =====================================================
+   CONFIGURACIÓN GENERAL
+===================================================== */
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+  position: relative;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin-bottom: 60px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  background-image: url('https://i.pinimg.com/736x/4e/b2/00/4eb2009165ccd469ddd050e234764890.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  /* 🔥 FIX CLAVE → evita repintados continuos */
+  background-attachment: scroll;
+
+  background-position: center;
+
+  color: #fff;
+}
+
+
+/* =====================================================
+   CONTENEDORES BLANCOS TRANSLÚCIDOS
+===================================================== */
+
+.container,
+.card,
+form {
+  background-color: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  color: #000;
+
+  /* 🔥 ELIMINADO → animation causaba tembladera */
+  /* animation: fadeIn 0.6s ease-in-out; */
+}
+
+
+/* =====================================================
+   BOTONES GENERALES
+===================================================== */
+
+.btn {
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 10px 20px;
+
+  /* 🔥 quitamos transform global */
+  transition: opacity 0.25s ease;
+}
+
+.btn:hover {
+  opacity: 0.95;
+}
+
+
+/* =====================================================
+   NAVBAR
+===================================================== */
+
+.navbar {
+  border-bottom: 2px solid #f5b6e1;
+  backdrop-filter: blur(6px);
+}
+
+.nav-link {
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.nav-link:hover {
+  color: #dc0073 !important;
+}
+
+
+/* =====================================================
+   PERFIL USUARIO
+===================================================== */
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 30px;
+}
+
+.user-menu:hover {
+  background: #ffe3f1;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e91e63;
+}
+
+.dropdown-menu {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.logout-item {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+
+/* =====================================================
+   TEXTOS
+===================================================== */
+
+h1, h2, h3, h4, h5 {
+  color: #202020;
+}
+
+
+/* =====================================================
+   FORMULARIOS
+===================================================== */
+
+.form-control,
+.form-select {
+  border-radius: 10px;
+}
+
+.form-control:focus {
+  border-color: #f28ecb;
+  box-shadow: 0 0 0 0.25rem rgba(242, 142, 203, 0.25);
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.footer {
+  position: relative;
+  width: 100%;
+  line-height: 60px;
+  margin-top: 40px;
+}
+
+
+/* =====================================================
+   BOTÓN FLOTANTE PAGO
+===================================================== */
+
+.floating-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+}
+
+.floating-button img {
+  width: 50px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.floating-button img:hover {
+  transform: scale(1.1);
+}

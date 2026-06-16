@@ -1,0 +1,101 @@
+@model TropiNailsPro.Models.Pago
+
+@{
+    ViewData["Title"] = "Registrar Pago";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+
+.pago-container{
+max-width:700px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+.titulo-pago{
+text-align:center;
+margin-bottom:25px;
+color:#e91e63;
+font-weight:bold;
+}
+
+.form-control{
+border-radius:10px;
+}
+
+.btn-modern{
+border-radius:25px;
+padding:10px 25px;
+font-weight:bold;
+}
+
+.btn-guardar{
+background:#e91e63;
+color:white;
+border:none;
+}
+
+.btn-guardar:hover{
+background:#c2185b;
+color:white;
+}
+
+.btn-cancelar{
+background:#6c757d;
+color:white;
+border:none;
+}
+
+.btn-cancelar:hover{
+background:#5a6268;
+}
+
+</style>
+
+
+<div class="pago-container">
+
+<h2 class="titulo-pago">💰 Registrar Pago</h2>
+
+<form asp-action="Crear" method="post">
+
+<div class="mb-3">
+<label class="form-label">Nombre de la Clienta</label>
+<input asp-for="ClienteNombre" class="form-control" required />
+</div>
+
+<div class="mb-3">
+<label class="form-label">Modelo de Uñas</label>
+<input asp-for="ModeloUnas" class="form-control" required />
+</div>
+
+<div class="mb-3">
+<label class="form-label">Monto</label>
+<input asp-for="Monto" type="number" step="0.01" class="form-control" required />
+</div>
+
+<div class="mb-3">
+<label class="form-label">ID de Transacción</label>
+<input asp-for="TransaccionId" class="form-control" />
+</div>
+
+<div class="text-center mt-4">
+
+<button type="submit" class="btn btn-modern btn-guardar">
+💾 Guardar Pago
+</button>
+
+<a asp-controller="Pagos" asp-action="Lista"
+class="btn btn-modern btn-cancelar">
+❌ Cancelar
+</a>
+
+</div>
+
+</form>
+
+</div>

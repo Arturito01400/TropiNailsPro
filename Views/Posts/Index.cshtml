@@ -1,0 +1,219 @@
+@model List<TropiNailsPro.Models.UserPost>
+
+@{
+    ViewData["Title"] = "Mis publicaciones";
+}
+
+<style>
+/* ======================================
+   FEED PROFESIONAL TIPO INSTAGRAM
+====================================== */
+
+.feed-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.feed-title{
+    font-weight:700;
+    color:#e91e63;
+}
+
+.btn-nuevo{
+    background:#e91e63;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:25px;
+    font-weight:600;
+    box-shadow:0 5px 12px rgba(233,30,99,.3);
+    transition:.2s;
+}
+
+.btn-nuevo:hover{
+    background:#d81b60;
+    transform:scale(1.05);
+}
+
+/* GRID */
+.grid-posts{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:20px;
+}
+
+/* CARD */
+.post-card{
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 8px 22px rgba(0,0,0,.08);
+    transition:.25s;
+}
+
+.post-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 16px 35px rgba(0,0,0,.15);
+}
+
+/* IMAGE */
+.post-img{
+    width:100%;
+    height:260px;
+    object-fit:cover;
+}
+
+/* BODY */
+.post-body{
+    padding:14px 16px;
+}
+
+.post-desc{
+    font-size:14px;
+    margin-bottom:6px;
+    color:#444;
+}
+
+.post-date{
+    font-size:12px;
+    color:#999;
+}
+
+/* ACTIONS */
+.post-actions{
+    display:flex;
+    justify-content:space-between;
+    margin-top:12px;
+}
+
+.btn-edit{
+    background:#ffc107;
+    border:none;
+    border-radius:12px;
+    padding:5px 14px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.btn-delete{
+    background:#dc3545;
+    color:white;
+    border:none;
+    border-radius:12px;
+    padding:5px 14px;
+    font-size:13px;
+    font-weight:600;
+}
+
+/* EMPTY */
+.empty-box{
+    text-align:center;
+    padding:70px 20px;
+    color:#888;
+    font-size:18px;
+    background:white;
+    border-radius:20px;
+    box-shadow:0 6px 15px rgba(0,0,0,.05);
+}
+
+/* ALERT */
+.alert{
+    border-radius:15px;
+}
+</style>
+
+
+
+<!-- ======================================
+HEADER
+====================================== -->
+
+<div class="feed-header">
+    <h3 class="feed-title">📸 Mis trabajos / Galería</h3>
+
+    <a asp-action="Create" class="btn-nuevo">
+        + Subir foto
+    </a>
+</div>
+
+
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success text-center fw-semibold">
+        @TempData["Mensaje"]
+    </div>
+}
+
+
+
+<!-- ======================================
+SIN POSTS
+====================================== -->
+
+@if (!Model.Any())
+{
+    <div class="empty-box">
+        Aún no has subido publicaciones ✨ <br />
+        Presiona <b>“Subir foto”</b> para comenzar.
+    </div>
+}
+else
+{
+    <!-- ======================================
+    GRID POSTS
+    ====================================== -->
+
+    <div class="grid-posts">
+
+        @foreach (var item in Model)
+        {
+            <div class="post-card">
+
+                <!-- 🔥 lazy loading = más rápido -->
+                <img src="@item.FotoUrl"
+                     class="post-img"
+                     loading="lazy" />
+
+                <div class="post-body">
+
+                    @if (!string.IsNullOrEmpty(item.Descripcion))
+                    {
+                        <div class="post-desc">
+                            @item.Descripcion
+                        </div>
+                    }
+
+                    <div class="post-date">
+                        @item.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                    </div>
+
+                    <div class="post-actions">
+
+                        <a asp-action="Edit"
+                           asp-route-id="@item.Id"
+                           class="btn-edit">
+                            ✏ Editar
+                        </a>
+
+                        <form asp-action="Delete"
+                              asp-route-id="@item.Id"
+                              method="post"
+                              onsubmit="return confirm('¿Eliminar esta publicación?')">
+
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit" class="btn-delete">
+                                🗑 Eliminar
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+}

@@ -1,0 +1,19 @@
+@model TropiNailsPro.Models.Catalogo
+
+@{
+    ViewData["Title"] = "Eliminar Catálogo";
+}
+
+<h2 class="text-danger mb-4">@ViewData["Title"]</h2>
+
+<div class="alert alert-warning">
+    <p>¿Estás seguro que deseas eliminar este catálogo?</p>
+    <p><strong>Tipo:</strong> @Model.Tipo</p>
+    <p><strong>Subida:</strong> @Model.FechaSubida.ToString("dd/MM/yyyy HH:mm")</p>
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

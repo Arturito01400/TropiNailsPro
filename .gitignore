@@ -1,0 +1,28 @@
+# Configuración sensible
+appsettings.Development.json
+
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# Logs
+*.log
+
+# Archivos de usuario
+*.user
+*.suo
+
+# Publicaciones
+publish/
+
+# Temporales
+temp/
+tmp/
+
+# FFmpeg
+ffmpeg/
+
+# Node
+node_modules/
+

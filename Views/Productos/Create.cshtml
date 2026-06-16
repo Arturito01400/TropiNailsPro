@@ -1,0 +1,146 @@
+@model TropiNailsPro.Models.Producto
+
+@{
+    ViewData["Title"] = "Agregar Producto";
+    var producto = Model ?? new TropiNailsPro.Models.Producto();
+
+    var imagenPath = string.IsNullOrEmpty(producto.ImagenUrl)
+                     ? Url.Content("~/uploads/default-product.png")
+                     : Url.Content("~/" + producto.ImagenUrl);
+}
+
+<style>
+.card-producto { max-width: 750px; margin:auto; border-radius:18px; box-shadow:0 8px 25px rgba(0,0,0,0.12); transform: translateZ(0); backface-visibility: hidden; }
+.preview-img { width:150px; height:150px; border-radius:12px; object-fit:cover; border:2px dashed #ddd; cursor:pointer; display:block; }
+.switch { width:22px; height:22px; margin-left:10px; }
+.total-box { background:#f8f9fa; padding:12px; border-radius:10px; font-weight:bold; text-align:center; font-size:1.1rem; }
+.card, input, textarea, img { transform: translateZ(0); backface-visibility: hidden; }
+</style>
+
+<div class="card card-producto p-4">
+    <h3 class="text-center mb-4">🛍️ Nuevo Producto</h3>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+        <div class="text-center mb-4">
+            <label class="fw-bold">Imagen del producto</label><br />
+
+            <img id="preview"
+                 src="@imagenPath"
+                 class="preview-img mb-2"
+                 onclick="document.getElementById('imagen').click()" />
+
+            <input type="file"
+                   name="imagen"
+                   id="imagen"
+                   accept="image/png, image/jpeg, image/jpg, image/webp"
+                   hidden
+                   onchange="previewImage(event)" />
+
+            <div class="text-muted small">Haz clic en la imagen para cambiarla</div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="Nombre"></label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="Categoria"></label>
+                <input asp-for="Categoria" class="form-control" placeholder="Gel, Acrílico, Lima..." />
+            </div>
+
+            <div class="col-12 mb-3">
+                <label asp-for="Descripcion"></label>
+                <textarea asp-for="Descripcion" class="form-control"></textarea>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="CodigoBarras"></label>
+                <input asp-for="CodigoBarras" class="form-control" />
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label asp-for="Cantidad"></label>
+                <input asp-for="Cantidad" type="number" class="form-control" id="cantidad" />
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label asp-for="StockMinimo"></label>
+                <input asp-for="StockMinimo" type="number" class="form-control" />
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="PrecioUnitario"></label>
+                <input asp-for="PrecioUnitario" type="number" step="0.01" class="form-control" id="precio" />
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Total Inventario</label>
+                <div class="total-box">💰 <span id="total">0.00</span></div>
+            </div>
+
+            <div class="col-md-6 form-check mb-3">
+                <input asp-for="VentaAutomatica" class="form-check-input switch" />
+                <label asp-for="VentaAutomatica" class="form-check-label"></label>
+            </div>
+
+            <div class="col-md-6 form-check mb-3">
+                <input asp-for="PermitirStockNegativo" class="form-check-input switch" />
+                <label asp-for="PermitirStockNegativo" class="form-check-label"></label>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <button type="submit" class="btn btn-success px-4">💾 Guardar</button>
+            <a asp-action="Index" class="btn btn-secondary px-4">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts{
+<script>
+
+// ===============================
+// PREVIEW IMAGEN EN TIEMPO REAL
+// ===============================
+function previewImage(event) {
+    const input = event.target;
+    const preview = document.getElementById('preview');
+
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+        };
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+
+// ===============================
+// TOTAL AUTOMÁTICO EN VIVO
+// ===============================
+const cantidadInput = document.getElementById("cantidad");
+const precioInput = document.getElementById("precio");
+const totalSpan = document.getElementById("total");
+
+function calcularTotal() {
+    const cantidad = parseFloat(cantidadInput.value) || 0;
+    const precio = parseFloat(precioInput.value) || 0;
+    const total = cantidad * precio;
+    totalSpan.innerText = total.toFixed(2);
+}
+
+cantidadInput.addEventListener("input", calcularTotal);
+precioInput.addEventListener("input", calcularTotal);
+
+calcularTotal();
+
+</script>
+}

@@ -1,0 +1,571 @@
+@{
+    ViewData["Title"] = "Dashboard Clienta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var nombre = ViewBag.UsuarioNombre as string ?? "Clienta";
+
+    int manicuristaId = 0;
+
+    if (ViewBag.ManicuristaId != null)
+    {
+        int.TryParse(
+            ViewBag.ManicuristaId.ToString(),
+            out manicuristaId);
+    }
+
+    var citasHoyBase =
+        ViewBag.CitasHoy as List<TropiNailsPro.Models.Cita> ?? new();
+
+    var citasMananaBase =
+        ViewBag.CitasManana as List<TropiNailsPro.Models.Cita> ?? new();
+
+    var citasFuturasBase =
+        ViewBag.CitasFuturas as List<TropiNailsPro.Models.Cita> ?? new();
+
+    var modelosBase =
+        ViewBag.ModelosUnas as List<TropiNailsPro.Models.ModeloUnas> ?? new();
+
+    var feedBase =
+        ViewBag.Feed as List<TropiNailsPro.Models.Publicacion> ?? new();
+
+
+
+    // =====================================================
+    // 📅 CITAS (YA FILTRADAS DESDE EL CONTROLLER)
+    // =====================================================
+
+    var citasHoy = citasHoyBase;
+    var citasManana = citasMananaBase;
+    var futuras = citasFuturasBase;
+
+    // =====================================================
+    // 💅 MODELOS Y FEED
+    // =====================================================
+
+    var modelos = modelosBase
+        .Where(m => m.ManicuristaId == manicuristaId)
+        .ToList();
+
+    var feed = feedBase
+        .Where(p => p.ManicuristaId == manicuristaId)
+        .ToList();
+
+    // =====================================================
+    // 🔐 VALIDACIÓN
+    // =====================================================
+
+    bool tieneManicurista = manicuristaId > 0;
+}
+<style>
+
+body{
+    background:linear-gradient(180deg,#fff4fa 0%,#f8faff 50%,#ffffff 100%);
+    font-family:'Segoe UI',sans-serif;
+    min-height:100vh;
+}
+
+.container{
+    max-width:1200px;
+}
+
+/* ===================================== */
+/* HEADER PREMIUM */
+/* ===================================== */
+
+.dashboard-header{
+    text-align:center;
+    padding:40px 20px;
+    border-radius:30px;
+    margin-bottom:25px;
+
+    background:#ff3f7f;
+
+    color:white;
+
+    box-shadow:none !important;
+
+    border:none;
+}
+
+.dashboard-header h2{
+    font-weight:800;
+    font-size:2.2rem;
+    margin-bottom:8px;
+    color:white;
+}
+
+.dashboard-header p{
+    margin:0;
+    font-size:1rem;
+    color:white !important;
+    opacity:1;
+}
+
+/* ===================================== */
+/* TITULOS */
+/* ===================================== */
+
+.section-title{
+    text-align:center;
+    font-weight:800;
+    margin:35px 0 25px;
+    color:#ff4b97;
+    font-size:1.5rem;
+}
+
+/* ===================================== */
+/* CITAS */
+/* ===================================== */
+
+.cita-card{
+    background:white;
+    border-radius:22px;
+    padding:18px;
+    margin-bottom:15px;
+
+    text-align:center;
+
+    border-left:6px solid #ff5fa2;
+
+    box-shadow:
+    0 8px 25px rgba(0,0,0,.08);
+
+    transition:.30s;
+}
+
+.cita-card:hover{
+    transform:translateY(-4px);
+
+    box-shadow:
+    0 15px 35px rgba(255,95,162,.20);
+}
+
+.cita-card strong{
+    color:#ff4b97;
+    font-size:1.1rem;
+}
+
+/* ===================================== */
+/* CARDS */
+/* ===================================== */
+
+.card{
+    border:none;
+    border-radius:25px;
+    overflow:hidden;
+
+    background:white;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.08);
+
+    transition:.30s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+/* ===================================== */
+/* FEED */
+/* ===================================== */
+
+.feed-media{
+    width:100%;
+    height:350px;
+    object-fit:cover;
+    display:block;
+}
+
+/* ===================================== */
+/* VIDEO */
+/* ===================================== */
+
+.video-wrapper{
+    position:relative;
+    width:100%;
+    padding-top:56.25%;
+    background:black;
+}
+
+.video-wrapper video{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
+
+/* ===================================== */
+/* MODELOS */
+/* ===================================== */
+
+.modelos-wrapper{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:25px;
+}
+
+.modelo-card{
+    width:320px;
+
+    border-radius:25px;
+    overflow:hidden;
+
+    background:white;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.08);
+
+    transition:.35s ease;
+
+    cursor:pointer;
+}
+
+.modelo-card:hover{
+    transform:
+    translateY(-8px)
+    scale(1.02);
+}
+
+.modelo-media{
+    width:100%;
+    height:340px;
+    object-fit:cover;
+
+    transition:.40s;
+}
+
+.modelo-card:hover .modelo-media{
+    transform:scale(1.08);
+}
+
+.modelo-card .card-body{
+    padding:18px;
+}
+
+.modelo-card strong{
+    color:#ff4b97;
+    font-size:1.05rem;
+}
+
+/* ===================================== */
+/* HR */
+/* ===================================== */
+
+hr{
+    border:none;
+    height:2px;
+
+    background:
+    linear-gradient(
+    to right,
+    transparent,
+    #ffc3de,
+    transparent);
+
+    margin:35px 0;
+}
+
+/* ===================================== */
+/* ANIMACIONES */
+/* ===================================== */
+
+.cita-card,
+.modelo-card,
+.card{
+    animation:fadeUp .5s ease;
+}
+
+@@keyframes fadeUp{
+
+    from{
+        opacity:0;
+        transform:translateY(20px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+/* ===================================== */
+/* RESPONSIVE */
+/* ===================================== */
+
+@@media (max-width: 768px) {
+
+    body, html {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background: #fff5fa;
+    }
+
+    .dashboard-header{
+    text-align:center;
+    padding:35px 20px;
+    border-radius:28px;
+    margin-bottom:25px;
+
+    background:#ff4f87;
+
+    color:white;
+
+    box-shadow:none;
+
+    border:none;
+}
+
+.dashboard-header h2{
+    font-size:2.2rem;
+    font-weight:800;
+    margin-bottom:8px;
+    color:white;
+}
+
+.dashboard-header p{
+    margin:0;
+    font-size:1rem;
+    color:rgba(255,255,255,.90);
+    font-weight:500;
+}
+
+
+
+
+</style>
+
+<div class="container mt-4">
+
+    <!-- 🔥 VALIDACIÓN FINAL -->
+    @if (!tieneManicurista)
+    {
+        <div class="alert alert-danger text-center">
+            ⚠️ Esta cuenta no está correctamente vinculada a una manicurista.
+        </div>
+    }
+    else
+    {
+
+    <!-- HEADER -->
+    <div class="dashboard-header">
+        <h2>👩 Bienvenida, @nombre</h2>
+        <p class="text-muted">🙈Tu espacio de belleza y novedades</p>
+    </div>
+
+    <hr />
+
+    <!-- ================= CITAS ================= -->
+<h4 class="section-title">📅 Mis próximas citas </h4>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        @if (citasHoy.Any() || citasManana.Any() || futuras.Any())
+        {
+
+            <!-- ================= HOY ================= -->
+            @if (citasHoy.Any())
+            {
+                <h5 class="text-center mt-3">📅 Tu Citas </h5>
+
+                foreach (var c in citasHoy)
+                {
+                    <div class="cita-card">
+
+                        <h5>💅 Cita de hoy</h5>
+
+                        <p>
+                            📅 <strong>@c.Fecha.ToString("dddd dd/MM/yyyy")</strong>
+                        </p>
+
+                        <p>
+                            ⏰ @DateTime.Today.Add(c.Hora).ToString("hh:mm tt")
+                        </p>
+
+                        <p>
+                            ✨ @c.Servicio
+                        </p>
+
+                        <span class="badge bg-success">
+                            @c.Estado
+                        </span>
+
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center text-muted">No tienes citas para hoy.</p>
+            }
+
+            <hr />
+
+            <!-- ================= MAÑANA ================= -->
+            @if (citasManana.Any())
+            {
+                <h5 class="text-center mt-3">📅 Citas de mañana</h5>
+
+                foreach (var c in citasManana)
+                {
+                    <div class="cita-card">
+
+                        <h5>💅 Cita de mañana</h5>
+
+                        <p>
+                            📅 <strong>@c.Fecha.ToString("dddd dd/MM/yyyy")</strong>
+                        </p>
+
+                        <p>
+                            ⏰ @DateTime.Today.Add(c.Hora).ToString("hh:mm tt")
+                        </p>
+
+                        <p>
+                            ✨ @c.Servicio
+                        </p>
+
+                        <span class="badge bg-warning">
+                            @c.Estado
+                        </span>
+
+                    </div>
+                }
+            }
+
+            <hr />
+
+            <!-- ================= FUTURAS ================= -->
+            @if (futuras.Any())
+            {
+                <h5 class="text-center mt-3">📅 Próximas citas</h5>
+
+                foreach (var c in futuras)
+                {
+                    <div class="cita-card">
+
+                        <h5>💅 Próxima cita</h5>
+
+                        <p>
+                            📅 <strong>@c.Fecha.ToString("dddd dd/MM/yyyy")</strong>
+                        </p>
+
+                        <p>
+                            ⏰ @DateTime.Today.Add(c.Hora).ToString("hh:mm tt")
+                        </p>
+
+                        <p>
+                            ✨ @c.Servicio
+                        </p>
+
+                        <span class="badge bg-primary">
+                            @c.Estado
+                        </span>
+
+                    </div>
+                }
+            }
+
+        }
+        else
+        {
+            <p class="text-center text-muted">
+                No tienes citas registradas con esta manicurista.
+            </p>
+        }
+
+    </div>
+</div>
+
+<hr />
+
+    <!-- ================= MODELOS ================= -->
+    <h4 class="section-title">💅 Modelos de uñas</h4>
+
+    <div class="modelos-wrapper">
+
+        @foreach (var m in modelos)
+        {
+            <div class="modelo-card">
+
+                @if (!string.IsNullOrEmpty(m.ImagenUrl))
+                {
+                    @if (m.TipoMedia == "video")
+                    {
+                        <video class="modelo-media" controls>
+                            <source src="@m.ImagenUrl" type="video/mp4" />
+                        </video>
+                    }
+                    else
+                    {
+                        <img src="@m.ImagenUrl" class="modelo-media" />
+                    }
+                }
+                else
+                {
+                    <div class="p-5 text-center text-muted">Sin contenido</div>
+                }
+
+                <div class="card-body text-center">
+                    <strong>@m.Nombre</strong>
+                    <br />
+                    <small class="text-muted">@m.Descripcion</small>
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    <hr />
+
+    <!-- ================= FEED ================= -->
+    <h4 class="section-title">💖 Comunidad TropiNails</h4>
+
+    <hr />
+
+
+
+    <div class="row justify-content-center">
+
+        @foreach (var p in feed)
+        {
+            <div class="col-12 col-md-8 mb-4">
+
+                <div class="card">
+
+                    @if (p.TipoMedia == "imagen")
+                    {
+                        <img src="@p.MediaUrl" class="feed-media" />
+                    }
+
+                    @if (p.TipoMedia == "video")
+                    {
+                        <div class="video-wrapper">
+                            <video controls>
+                                <source src="@p.MediaUrl" type="video/mp4" />
+                            </video>
+                        </div>
+                    }
+
+                    <div class="card-body text-center">
+                        <p>@p.Texto</p>
+                        <small class="text-muted">
+                            @p.Fecha.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+    </div>
+
+    }
+
+</div>

@@ -1,0 +1,22 @@
+@model TropiNailsPro.Models.ModeloUnas
+@{
+    ViewData["Title"] = "Confirmar Modelo";
+}
+<div class="container mt-5">
+    <div class="card mx-auto" style="max-width: 500px;">
+        <img src="@Model.ImagenUrl" class="card-img-top" alt="@Model.Nombre">
+        <div class="card-body text-center">
+            <h4>@Model.Nombre</h4>
+            <p>@Model.Descripcion</p>
+            <p class="fw-bold text-success">Total a pagar: RD$ @Model.Precio</p>
+
+            <h5>Selecciona método de pago</h5>
+            <form method="post" action="/Pagos/ProcesarPago">
+                <input type="hidden" name="monto" value="@Model.Precio" />
+                <input type="hidden" name="producto" value="@Model.Nombre" />
+                <button type="submit" class="btn btn-success">Pagar con PayPal</button>
+                <a href="https://wa.me/1XXXXXXXXXX?text=Hola%20quiero%20este%20modelo:%20@Model.Nombre" class="btn btn-outline-info mt-2" target="_blank">Pagar por WhatsApp</a>
+            </form>
+        </div>
+    </div>
+</div>

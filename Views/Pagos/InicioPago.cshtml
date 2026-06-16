@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Pago Online Multibanco";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="card shadow p-4" style="width: 100%; max-width: 550px;">
+        <h3 class="text-center text-primary mb-4">💅 Selecciona tu modelo de uñas</h3>
+
+        <form id="formPago">
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="modelo" id="modelo1" value="Uñas Acrílicas Rosadas" checked>
+                <label class="form-check-label" for="modelo1">💗 Uñas Acrílicas Rosadas</label>
+            </div>
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="modelo" id="modelo2" value="Uñas Gel con Piedras">
+                <label class="form-check-label" for="modelo2">💎 Uñas Gel con Piedras</label>
+            </div>
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="radio" name="modelo" id="modelo3" value="Diseño Personalizado">
+                <label class="form-check-label" for="modelo3">🎨 Diseño Personalizado</label>
+            </div>
+        </form>
+
+        <hr />
+
+        <h4 class="text-center mb-3">💳 Elige cómo pagar</h4>
+
+        <!-- PayPal -->
+        <div id="paypal-button-container" class="mb-3"></div>
+
+        <!-- Otros métodos -->
+        <button class="btn btn-outline-success w-100 mb-2" disabled>
+            🌐 Pagar con Tarjeta Internacional (Stripe) — Próximamente
+        </button>
+
+        <button class="btn btn-outline-info w-100" disabled>
+            🇩🇴 Pagar con Banco Dominicano (Azul/CardNet) — En desarrollo
+        </button>
+    </div>
+</div>
+
+<!-- SDK PayPal (ya con tu Client ID real) -->
+<script src="https://www.paypal.com/sdk/js?client-id=ATAyJ_3URLzxfsEOZDfxqs5y2aC8jQye9B7V4nCq6NNx3DkdvzJewSkk-jfzwvbUTjTNvag9wfZA7_RP&currency=USD"></script>
+
+<script>
+    paypal.Buttons({
+        createOrder: function (data, actions) {
+            const modelo = document.querySelector('input[name="modelo"]:checked').value;
+
+            return actions.order.create({
+                purchase_units: [{
+                    amount: { value: '15.00' },
+                    description: "Modelo seleccionado: " + modelo
+                }]
+            });
+        },
+        onApprove: function (data, actions) {
+            return actions.order.capture().then(function (details) {
+                alert("✅ Pago exitoso de " + details.payer.name.given_name);
+
+                // ✅ Aquí puedes guardar el pago en la base de datos con fetch/AJAX si lo necesitas
+                // fetch("/Pagos/GuardarPago", { method: "POST", body: JSON.stringify(details) });
+
+                window.location.href = "/Pagos/Confirmacion";
+            });
+        },
+        onCancel: function () {
+            alert("⚠️ Pago cancelado por el usuario.");
+        },
+        onError: function (err) {
+            console.error("❌ Error al procesar el pago:", err);
+            alert("Ocurrió un error al procesar el pago.");
+        }
+    }).render('#paypal-button-container');
+</script>

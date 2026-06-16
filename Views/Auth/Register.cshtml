@@ -1,0 +1,364 @@
+@model TropiNailsPro.Models.Usuario
+@{
+    ViewData["Title"] = "Register";
+    Layout = null;
+
+    int? manicuristaId = null;
+    string codigo = Context.Request.Query["codigo"];
+
+    if (int.TryParse(Context.Request.Query["manicuristaId"], out int id))
+    {
+        manicuristaId = id;
+    }
+
+    // 🔥 AHORA FUNCIONA CON ID O CODIGO
+    var esInvitada = manicuristaId.HasValue || !string.IsNullOrWhiteSpace(codigo);
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Registro - TropiNails Pro</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffe6f2, #ffd6eb, #f9f3f2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 430px;
+            padding: 40px 35px;
+            border-radius: 25px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.12);
+        }
+
+        .logo {
+            width: 80px;
+            margin: 0 auto 15px;
+            border-radius: 15px;
+            display:block;
+        }
+
+        h2 {
+            text-align: center;
+            color: #d63384;
+            margin-bottom: 25px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 15px;
+            background: #d63384;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor:pointer;
+            transition:.2s;
+        }
+
+        button:disabled{
+            opacity:.7;
+            cursor:not-allowed;
+        }
+
+        .plan-box {
+            background: #fff0f6;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .hidden {
+            display:none;
+        }
+
+        .links {
+            text-align:center;
+            margin-top:15px;
+            font-size:14px;
+        }
+
+        .invited-box{
+            background:#fff0f6;
+            padding:12px;
+            border-radius:12px;
+            margin-bottom:15px;
+            text-align:center;
+            font-size:14px;
+            color:#d63384;
+            font-weight:600;
+        }
+
+        .password-box{
+            position:relative;
+        }
+
+        .password-box input{
+            padding-right:40px;
+        }
+
+        .toggle-password{
+            position:absolute;
+            right:10px;
+            top:50%;
+            transform:translateY(-50%);
+            cursor:pointer;
+            font-size:18px;
+            color:#888;
+        }
+
+        .error-box{
+            background:#f8d7da;
+            color:#842029;
+            padding:10px;
+            border-radius:10px;
+            margin-bottom:10px;
+            text-align:center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="register-container">
+
+    <img src="@Url.Content("~/images/logo-login.png")" class="logo" />
+
+    <h2>Crear cuenta</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="error-box">
+            @TempData["Error"]
+        </div>
+    }
+
+    @if (ViewBag.ManicuristaNombre != null && !string.IsNullOrWhiteSpace(ViewBag.ManicuristaNombre.ToString()))
+    {
+        <div class="invited-box">
+            💅 Te invitó: @ViewBag.ManicuristaNombre 💅 <br />
+            Regístrate para agendar tu cita 💖
+        </div>
+    }
+
+    <!-- 🔥 FORM -->
+    <form id="formRegistro"
+          asp-controller="Auth"
+          asp-action="Register"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        @if (esInvitada)
+        {
+            <!-- CLIENTA FORZADA -->
+            <input type="hidden" name="tipoRegistro" value="Clienta" />
+
+            <!-- 🔥 SOPORTE DOBLE -->
+            <input type="hidden" name="manicuristaId" value="@ViewBag.ManicuristaId" />
+            <input type="hidden" name="codigo" value="@codigo" />
+        }
+        else
+        {
+            <select id="tipoRegistro" name="tipoRegistro" onchange="cambiarTipo()">
+                <option value="Manicurista">👩‍💼 Soy Manicurista Profesional</option>
+                <option value="Clienta">💅 Soy Clienta</option>
+            </select>
+
+            <input type="hidden" name="manicuristaId" value="" />
+        }
+
+        <div id="planBox" class="plan-box @(esInvitada ? "hidden" : "")">
+
+            <strong>
+                💎 Plan Profesional Único
+            </strong>
+
+            <!-- 🔥 PLAN FIJO -->
+            <input type="hidden"
+                   name="planSeleccionado"
+                   value="Premium" />
+
+            <p style="margin-top:10px;">
+                ✅ Acceso completo a TropiNails Pro
+            </p>
+
+            <p>
+                ✅ 15 días GRATIS de prueba
+            </p>
+
+            <p>
+                ✅ Luego USD $10.20 mensual
+            </p>
+
+        </div>
+
+        <input asp-for="Nombre"
+               placeholder="Nombre completo"
+               required
+               autocomplete="name" />
+
+        <input asp-for="UsuarioLogin"
+               placeholder="Usuario"
+               required
+               autocomplete="username" />
+
+        <input asp-for="Email"
+               type="email"
+               placeholder="Correo"
+               required
+               autocomplete="email" />
+
+        <input asp-for="Telefono"
+               placeholder="Teléfono"
+               required
+               autocomplete="tel" />
+
+        <div class="password-box">
+            <input asp-for="Clave"
+                   type="password"
+                   id="passwordInput"
+                   placeholder="Contraseña"
+                   required
+                   autocomplete="new-password" />
+
+            <span class="toggle-password"
+                  onclick="togglePassword()">👁️</span>
+        </div>
+
+        <!-- 🔥 BOTON NUEVO -->
+        <button type="submit"
+                id="btnRegistro">
+
+            <span id="textoBtn">
+                Registrarme
+            </span>
+
+        </button>
+
+    </form>
+
+    <div class="links">
+        ¿Ya tienes cuenta?
+        <a asp-controller="Auth"
+           asp-action="Login">
+            Iniciar sesión
+        </a>
+    </div>
+
+</div>
+
+<script>
+
+    function cambiarTipo() {
+
+        const tipo =
+            document.getElementById("tipoRegistro");
+
+        const planBox =
+            document.getElementById("planBox");
+
+        if (!tipo) return;
+
+        if (tipo.value === "Clienta") {
+
+            planBox.style.display = "none";
+
+        } else {
+
+            planBox.style.display = "block";
+
+        }
+    }
+
+    cambiarTipo();
+
+    function togglePassword(){
+
+        const input =
+            document.getElementById("passwordInput");
+
+        if(input.type === "password"){
+
+            input.type = "text";
+
+        }else{
+
+            input.type = "password";
+
+        }
+    }
+
+    // =====================================================
+    // 🔥 EVITAR DOBLE REGISTRO
+    // =====================================================
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function(){
+
+        const form =
+            document.getElementById("formRegistro");
+
+        const btn =
+            document.getElementById("btnRegistro");
+
+        const texto =
+            document.getElementById("textoBtn");
+
+        let enviado = false;
+
+        form.addEventListener(
+            "submit",
+            function(e){
+
+            if(enviado){
+
+                e.preventDefault();
+                return;
+
+            }
+
+            enviado = true;
+
+            btn.disabled = true;
+
+            texto.innerText =
+                "Creando cuenta...";
+
+        });
+
+    });
+
+</script>
+
+</body>
+</html>

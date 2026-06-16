@@ -1,0 +1,175 @@
+@model IEnumerable<TropiNailsPro.Models.Notificacion>
+
+@{
+    ViewData["Title"] = "Notificaciones";
+}
+
+<div class="container mt-4">
+
+    <h2 class="text-center text-pink mb-4">
+        🔔 Notificaciones 
+        <span id="contadorNotificaciones" class="badge bg-danger ms-2" style="display:none;">0</span>
+    </h2>
+
+    <div class="text-end mb-3">
+        <a asp-controller="Notificaciones" asp-action="MarcarTodasLeidas" class="btn btn-sm btn-outline-secondary">
+            ✔ Marcar todas como leídas
+        </a>
+    </div>
+
+    <div id="notificacionesContainer">
+        @if (!Model.Any())
+        {
+            <div class="alert alert-light text-center shadow-sm">
+                No tienes notificaciones nuevas.
+            </div>
+        }
+        else
+        {
+            <div class="list-group shadow-sm" id="listaNotificaciones">
+                @foreach (var n in Model)
+                {
+                    <a asp-controller="Notificaciones"
+                       asp-action="MarcarLeida"
+                       asp-route-id="@n.Id"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <div class="fw-bold @(n.Leida ? "text-muted" : "text-dark")">
+                                @n.Mensaje
+                            </div>
+                            <small class="text-muted">
+                                @n.Fecha.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+
+                        @if (!n.Leida)
+                        {
+                            <span class="badge bg-danger">
+                                Nueva
+                            </span>
+                        }
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+</div>
+
+<style>
+.text-pink {
+    color: #e91e63;
+    font-weight: 600;
+}
+
+.list-group-item {
+    border-left: 4px solid #e91e63;
+    transition: all 0.2s;
+    background: #fff5f8;
+}
+
+.list-group-item:hover {
+    background: #ffe6f0;
+    transform: translateX(3px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.badge.bg-danger {
+    background-color: #e91e63 !important;
+}
+</style>
+
+@section Scripts{
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+<script>
+
+    // ===============================
+    // CONTADOR 🔥
+    // ===============================
+    async function cargarContador() {
+        try {
+            const response = await fetch('/Notificaciones/Contador');
+            const cantidad = await response.json();
+
+            const badge = document.getElementById("contadorNotificaciones");
+
+            if (badge) {
+                badge.innerText = cantidad;
+                badge.style.display = cantidad > 0 ? "inline-block" : "none";
+            }
+        } catch (error) {
+            console.error("Error contador:", error);
+        }
+    }
+
+    // ===============================
+    // SIGNALR 🔥
+    // ===============================
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/notificationHub", {
+            transport: signalR.HttpTransportType.WebSockets
+        })
+        .withAutomaticReconnect()
+        .build();
+
+    async function iniciarConexion() {
+        try {
+            await connection.start();
+            console.log("🔔 Conectado a SignalR");
+        } catch (err) {
+            console.error("❌ Error conectando:", err);
+            setTimeout(iniciarConexion, 5000);
+        }
+    }
+
+    iniciarConexion();
+
+    // reconexión
+    connection.onreconnected(() => {
+        console.log("🔄 Reconectado");
+        cargarContador();
+    });
+
+    connection.onclose(() => {
+        console.log("❌ Conexión cerrada");
+    });
+
+    // ===============================
+    // RECIBIR NOTIFICACIÓN 🔥
+    // ===============================
+    connection.on("RecibirNotificacion", (mensaje, url) => {
+
+        let ul = document.getElementById("listaNotificaciones");
+
+        if (!ul) {
+            const container = document.getElementById("notificacionesContainer");
+            container.innerHTML = '<div class="list-group shadow-sm" id="listaNotificaciones"></div>';
+            ul = document.getElementById("listaNotificaciones");
+        }
+
+        const li = document.createElement("a");
+        li.href = url || "#";
+        li.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+            <div>
+                <div class="fw-bold text-dark">${mensaje}</div>
+                <small class="text-muted">${new Date().toLocaleString()}</small>
+            </div>
+            <span class="badge bg-danger">Nueva</span>
+        `;
+
+        ul.prepend(li);
+
+        // 🔥 ACTUALIZAR CONTADOR EN TIEMPO REAL
+        cargarContador();
+    });
+
+    // ===============================
+    // INICIALIZACIÓN
+    // ===============================
+    cargarContador();
+    setInterval(cargarContador, 10000);
+
+</script>
+}

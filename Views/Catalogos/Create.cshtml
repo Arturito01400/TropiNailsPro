@@ -1,0 +1,79 @@
+@model TropiNailsPro.Models.Catalogo
+
+@{
+    ViewData["Title"] = "Subir Catálogo";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            <h2 class="text-pink mb-4">
+                <i class="bi bi-images"></i> @ViewData["Title"]
+            </h2>
+
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+                <!-- Archivo -->
+                <div class="mb-3">
+
+                    <label class="form-label fw-bold">
+                        Archivo (Imagen o Video)
+                    </label>
+
+                    <input type="file"
+                           class="form-control"
+                           name="Archivo"
+                           accept="image/*,video/*"
+                           required />
+
+                    <small class="text-muted">
+                        Solo imágenes o videos.
+                    </small>
+
+                </div>
+
+                <!-- Tipo -->
+                <div class="mb-4">
+
+                    <label class="form-label fw-bold">
+                        Tipo
+                    </label>
+
+                    <select asp-for="Tipo" class="form-select" required>
+
+                        <option value="">Seleccione</option>
+
+                        <!-- VALORES REALES DEL ENUM -->
+                        <option value="foto">
+                            📷 Imagen
+                        </option>
+
+                        <option value="video">
+                            🎬 Video
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- Botones -->
+                <div class="d-flex gap-2">
+
+                    <button type="submit" class="btn btn-pink">
+                        <i class="bi bi-upload"></i> Subir Catálogo
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>

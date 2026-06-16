@@ -1,0 +1,98 @@
+@model IEnumerable<TropiNailsPro.Models.Producto>
+
+@{
+    ViewData["Title"] = "Inventario Moderno";
+}
+
+<style>
+    .inventario-grid { display: grid; grid-template-columns: repeat(auto-fit, 220px); justify-content: center; gap: 18px; margin-top: 20px; }
+    .card-producto { background:#fff; border-radius:18px; box-shadow:0 6px 16px rgba(0,0,0,0.12); overflow:hidden; display:flex; flex-direction:column; width:220px; }
+    .card-producto:hover { box-shadow:0 8px 18px rgba(0,0,0,0.18); }
+    .img-producto { width:220px; height:220px; object-fit:cover; display:block; flex-shrink:0; background:#f3f3f3; }
+    .card-body { padding:12px; flex:1; display:flex; flex-direction:column; }
+    .nombre { font-weight:700; font-size:1rem; }
+    .descripcion { font-size:.85rem; color:#666; min-height:32px; }
+    .precio { font-size:1.1rem; font-weight:bold; margin-top:6px; }
+    .stock-ok { color:#4caf50; font-weight:bold; }
+    .stock-bajo { color:#ff9800; font-weight:bold; }
+    .stock-agotado { color:#f44336; font-weight:bold; }
+    .acciones { margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+    .badge-activo { font-size:0.7rem; padding:3px 8px; border-radius:10px; background:#e0f7fa; color:#00796b; align-self:flex-start; }
+    .resumen { background:#fff; padding:10px 15px; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,.1); margin-bottom:15px; display:flex; justify-content:space-between; font-size:.95rem; }
+    .btn-delete { background:#f44336; color:white; }
+</style>
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="resumen">
+    <div><b>Total Productos:</b> @ViewBag.TotalProductos</div>
+    <div><b>Valor Inventario:</b> @(((decimal)ViewBag.TotalInvertido).ToString("C"))</div>
+    <div><b>Stock Bajo:</b> @ViewBag.StockBajo</div>
+</div>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">➕ Nuevo Producto</a>
+</p>
+
+<div class="inventario-grid">
+@if (Model != null && Model.Any())
+{
+    foreach (var item in Model)
+    {
+        var stockClass = item.Cantidad == 0
+            ? "stock-agotado"
+            : item.Cantidad <= item.StockMinimo
+                ? "stock-bajo"
+                : "stock-ok";
+
+        <div class="card-producto">
+
+            <!-- 🔥 🔥 ARREGLO DEFINITIVO AQUÍ 🔥 🔥 -->
+            <img class="img-producto"
+                 src="@Url.Content("~" + item.ImagenSegura)"
+                 alt="@item.Nombre"
+                 width="220"
+                 height="220" />
+
+            <div class="card-body">
+                <span class="badge-activo">@(item.Activo ? "Activo" : "Inactivo")</span>
+
+                <div class="nombre">@item.Nombre</div>
+                <div class="descripcion">@item.Descripcion</div>
+
+                @if(!string.IsNullOrEmpty(item.Categoria))
+                {
+                    <small>@item.Categoria</small>
+                }
+
+                <div class="precio">@item.PrecioUnitario.ToString("C")</div>
+
+                <div class="@stockClass">
+                    Stock: @item.Cantidad
+                </div>
+
+                <small>Total: @item.TotalCalculado.ToString("C")</small>
+
+                <div class="acciones">
+                    <form asp-action="RegistrarVenta" method="post" style="display:flex;gap:5px;">
+                        <input type="hidden" name="productoId" value="@item.Id" />
+                        <input type="number" name="cantidad" value="1" min="1" style="width:55px;" />
+                        <button class="btn btn-success btn-sm">🛒</button>
+                    </form>
+
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">✏</a>
+
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post"
+                          onsubmit="return confirm('¿Seguro que deseas eliminar este producto?')">
+                        <button type="submit" class="btn btn-delete btn-sm">🗑</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>No tienes productos en tu inventario aún.</p>
+}
+</div>

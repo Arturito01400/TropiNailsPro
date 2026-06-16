@@ -1,0 +1,421 @@
+@model TropiNailsPro.Models.ModeloUnas
+
+@{
+ViewData["Title"]="Editar Modelo de Uñas";
+
+var imagen=
+Model.ImagenSegura;
+
+bool esVideo=
+Model.TipoMedia=="video";
+}
+
+<style>
+
+.card-modelo{
+max-width:850px;
+margin:auto;
+border-radius:22px;
+box-shadow:
+0 12px 30px rgba(0,0,0,.14);
+}
+
+
+.preview-box{
+width:100%;
+max-height:420px;
+overflow:hidden;
+border-radius:18px;
+background:#f6f6f6;
+border:2px dashed #ddd;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+
+.preview-img,
+.preview-video{
+width:100%;
+max-height:420px;
+object-fit:cover;
+}
+
+
+.upload-box{
+padding:20px;
+border:2px dashed #ffc2df;
+background:#fff7fb;
+border-radius:18px;
+}
+
+</style>
+
+
+
+<h2 class="text-warning text-center mb-4">
+✏ @ViewData["Title"]
+</h2>
+
+
+
+<div class="card card-modelo p-4">
+
+<form
+asp-action="Edit"
+method="post"
+enctype="multipart/form-data">
+
+<input
+type="hidden"
+asp-for="Id"/>
+
+
+
+<!-- PREVIEW -->
+
+<div class="text-center mb-4">
+
+<label class="fw-bold">
+Vista previa del modelo
+</label>
+
+
+<div class="preview-box mt-3">
+
+
+@if(esVideo)
+{
+<video
+id="previewVideo"
+class="preview-video"
+controls>
+
+<source
+src="@imagen">
+
+</video>
+
+<img
+id="previewImagen"
+style="display:none;"
+class="preview-img"/>
+
+}
+else
+{
+
+<img
+id="previewImagen"
+src="@imagen"
+class="preview-img"
+alt="@Model.Nombre"/>
+
+<video
+id="previewVideo"
+style="display:none;"
+class="preview-video"
+controls>
+</video>
+
+}
+
+
+</div>
+
+</div>
+
+
+
+
+<!-- NOMBRE -->
+
+<div class="mb-4">
+
+<label
+asp-for="Nombre"
+class="form-label fw-bold">
+</label>
+
+<input
+asp-for="Nombre"
+class="form-control"/>
+
+<span
+asp-validation-for="Nombre"
+class="text-danger">
+</span>
+
+</div>
+
+
+
+
+<!-- DESCRIPCION -->
+
+<div class="mb-4">
+
+<label
+asp-for="Descripcion"
+class="form-label fw-bold">
+</label>
+
+<textarea
+asp-for="Descripcion"
+rows="4"
+class="form-control">
+</textarea>
+
+<span
+asp-validation-for="Descripcion"
+class="text-danger">
+</span>
+
+</div>
+
+
+
+
+<!-- URL -->
+
+<div class="mb-4">
+
+<label
+asp-for="ImagenUrl"
+class="form-label fw-bold">
+
+URL de Imagen
+
+</label>
+
+
+<input
+asp-for="ImagenUrl"
+id="ImagenUrl"
+class="form-control"
+placeholder="https://..."
+oninput="mostrarPreview()"/>
+
+<span
+asp-validation-for="ImagenUrl"
+class="text-danger">
+</span>
+
+</div>
+
+
+
+
+
+<!-- ARCHIVO -->
+
+<div class="mb-4">
+
+<label
+asp-for="ImagenArchivo"
+class="form-label fw-bold">
+
+Subir foto o video
+
+</label>
+
+
+<div class="upload-box">
+
+<input
+asp-for="ImagenArchivo"
+id="ImagenArchivo"
+type="file"
+accept="image/*,video/*"
+class="form-control"
+onchange="mostrarPreview()"/>
+
+<small class="text-muted">
+Puedes reemplazar con imagen o video
+</small>
+
+</div>
+
+</div>
+
+
+
+
+<!-- BOTONES -->
+
+<div class="text-center mt-4">
+
+<button
+type="submit"
+class="btn btn-success px-4">
+
+💾 Guardar Cambios
+
+</button>
+
+
+<a
+asp-action="Index"
+class="btn btn-secondary ms-3">
+
+Cancelar
+
+</a>
+
+</div>
+
+
+</form>
+
+</div>
+
+
+
+
+@section Scripts{
+
+<partial name="_ValidationScriptsPartial"/>
+
+<script>
+
+function mostrarPreview(){
+
+const inputUrl=
+document.getElementById(
+"ImagenUrl"
+);
+
+const inputArchivo=
+document.getElementById(
+"ImagenArchivo"
+);
+
+const img=
+document.getElementById(
+"previewImagen"
+);
+
+const video=
+document.getElementById(
+"previewVideo"
+);
+
+
+
+if(
+inputArchivo.files.length>0
+){
+
+let file=
+inputArchivo.files[0];
+
+
+if(
+file.type.startsWith(
+"image/"
+)
+)
+{
+let reader=
+new FileReader();
+
+reader.onload=function(e){
+
+img.src=
+e.target.result;
+
+img.style.display=
+"block";
+
+video.style.display=
+"none";
+
+};
+
+reader.readAsDataURL(
+file
+);
+
+return;
+}
+
+
+
+if(
+file.type.startsWith(
+"video/"
+)
+)
+{
+let urlVideo=
+URL.createObjectURL(
+file
+);
+
+video.src=
+urlVideo;
+
+video.style.display=
+"block";
+
+img.style.display=
+"none";
+
+return;
+}
+
+}
+
+
+
+
+if(
+inputUrl.value.startsWith(
+"http"
+)
+)
+{
+img.src=
+inputUrl.value;
+
+img.style.display=
+"block";
+
+video.style.display=
+"none";
+
+return;
+}
+
+
+
+/* fallback original */
+
+@if(esVideo)
+{
+<text>
+video.style.display=
+"block";
+
+img.style.display=
+"none";
+</text>
+}
+else
+{
+<text>
+img.src='@imagen';
+
+img.style.display=
+"block";
+
+video.style.display=
+"none";
+</text>
+}
+
+}
+
+</script>
+
+}

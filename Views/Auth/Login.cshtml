@@ -1,0 +1,307 @@
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TropiNails Pro - Iniciar Sesión</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet" />
+
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #cce6ff 0%, #e6f2ff 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-wrapper {
+        background: #fff;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        border-radius: 25px;
+        overflow: hidden;
+        display: flex;
+        max-width: 900px;
+        width: 95%;
+        min-height: 500px;
+    }
+
+    .login-form {
+        padding: 50px 45px;
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-image {
+        width: 50%;
+        background: #e6f2ff;
+    }
+
+    .login-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .logo {
+        width: 85px;
+        display: block;
+        margin: 0 auto 15px;
+        border-radius: 15px;
+    }
+
+    h2.welcome-title {
+        text-align: center;
+        color: #d63341;
+        font-weight: 600;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    h3 {
+        text-align: center;
+        color: #1e90ff;
+        margin-bottom: 30px;
+    }
+
+    input.form-control {
+        border-radius: 15px;
+        height: 48px;
+    }
+
+    .btn-primary {
+        border-radius: 15px;
+        background: #1e90ff;
+        border: none;
+        height: 48px;
+        font-weight: 600;
+    }
+
+    .links {
+        font-size: 14px;
+        margin-top: 10px;
+    }
+
+    .error-message {
+        color: #d32f2f;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .social-icons {
+        margin-top: 25px;
+        text-align: center;
+    }
+
+    .social-link img {
+        width: 36px;
+        height: 36px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        border-radius: 50%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .social-link:hover img {
+        transform: translateY(-5px) scale(1.15);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .social-text {
+        margin-top: 10px;
+        font-size: 14px;
+        color: rgba(0,0,0,0.8);
+    }
+
+    .footer-copy {
+        position: fixed;
+        bottom: 8px;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        color: white;
+        opacity: .9;
+    }
+
+    /* ========================= */
+    /* 📱 RESPONSIVE MOVIL */
+    /* ========================= */
+
+    @@media(max-width: 768px) {
+
+        body{
+            padding:15px;
+            align-items:center;
+        }
+
+        .login-wrapper {
+            flex-direction: column;
+            width: 100%;
+            min-height: auto;
+            border-radius: 20px;
+        }
+
+        .login-form {
+            width: 100%;
+            padding: 35px 25px;
+        }
+
+        .login-image {
+            width: 100%;
+            height: 250px;
+            order: -1;
+        }
+
+        .login-image img{
+            height:100%;
+        }
+
+        h2.welcome-title {
+            font-size: 22px;
+        }
+
+        h3 {
+            font-size: 24px;
+        }
+
+        .footer-copy{
+            position:relative;
+            margin-top:15px;
+            bottom:0;
+        }
+    }
+
+    @@media(max-width: 480px){
+
+        .login-form{
+            padding:30px 18px;
+        }
+
+        .logo{
+            width:70px;
+        }
+
+        h2.welcome-title{
+            font-size:20px;
+        }
+
+        h3{
+            font-size:22px;
+        }
+
+        .social-link img{
+            width:32px;
+            height:32px;
+        }
+
+        .links{
+            font-size:13px;
+        }
+
+    }
+
+</style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+
+        <div class="login-form">
+
+            <img src="@Url.Content("~/images/logo-login.png")" class="logo" />
+
+            <h2 class="welcome-title">Bienvenida a TropiNails Pro</h2>
+
+            <h3>Iniciar Sesión</h3>
+
+            <form asp-controller="Auth" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="text"
+                       name="Identificador"
+                       class="form-control mb-3"
+                       placeholder="Usuario, correo o teléfono"
+                       required />
+
+                <div class="position-relative mb-3">
+                    <input type="password"
+                           id="passwordInput"
+                           name="Clave"
+                           class="form-control pe-5"
+                           placeholder="Contraseña"
+                           required />
+                    <span onclick="togglePassword()"
+                          style="position:absolute; right:15px; top:50%; transform:translateY(-50%); cursor:pointer;">
+                        👁
+                    </span>
+                </div>
+
+                <div class="d-grid mb-2">
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </div>
+
+                <div class="text-center links">
+                    <a asp-controller="Auth" asp-action="RecuperarClave">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                    <br />
+                    <span>¿No tienes cuenta?</span>
+                    <a asp-controller="Auth" asp-action="Register">
+                        Regístrate aquí
+                    </a>
+                </div>
+            </form>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="error-message">@TempData["Error"]</div>
+            }
+
+            <div class="social-icons">
+                <a href="https://instagram.com" target="_blank" class="social-link">
+                    <img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" />
+                </a>
+                <a href="https://facebook.com" target="_blank" class="social-link">
+                    <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" />
+                </a>
+                <a href="https://tiktok.com" target="_blank" class="social-link">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3046/3046125.png" alt="TikTok" />
+                </a>
+                <div class="social-text">
+                    Síguenos en nuestras redes sociales
+                </div>
+            </div>
+
+        </div>
+
+        <div class="login-image">
+            <img src="@Url.Content("~/images/login-decorative.jpg")" />
+        </div>
+
+    </div>
+
+    <div class="footer-copy" style="bottom: 20px; color: #eb0f34;">
+        © 2026 TropiNails Pro. Todos los derechos reservados.
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById("passwordInput");
+            input.type = input.type === "password" ? "text" : "password";
+        }
+    </script>
+
+</body>
+</html>

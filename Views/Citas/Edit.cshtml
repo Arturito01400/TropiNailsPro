@@ -1,0 +1,143 @@
+@model TropiNailsPro.Models.Cita
+
+@{
+    ViewData["Title"] = "Editar Cita";
+}
+
+<style>
+body{
+    background: linear-gradient(135deg,#ffe6f0,#f3e8ff);
+}
+
+.card-cita{
+    max-width:600px;
+    margin:auto;
+    border:none;
+    border-radius:25px;
+    box-shadow:0 15px 35px rgba(0,0,0,.10);
+}
+
+.titulo-cita{
+    color:#8b3dff;
+    font-weight:700;
+}
+
+.form-control, .form-select{
+    border-radius:15px;
+}
+
+.btn-rosa{
+    background:#ff4da6;
+    border:none;
+    border-radius:25px;
+    padding:10px 25px;
+    color:white;
+    font-weight:600;
+}
+
+.btn-rosa:hover{
+    background:#e60073;
+}
+
+.preview-hora{
+    font-size:14px;
+    color:#6c757d;
+    margin-top:5px;
+}
+</style>
+
+<div class="card card-cita p-4 bg-white">
+
+    <h3 class="titulo-cita mb-4 text-center">✏️ Editar Cita</h3>
+
+    <form asp-action="Edit" method="post">
+
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="All" class="alert alert-danger text-center fw-bold"></div>
+
+        <div class="mb-3">
+            <label asp-for="NombreClienta" class="form-label fw-bold"></label>
+            <input asp-for="NombreClienta" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Fecha" class="form-label fw-bold"></label>
+            <input asp-for="Fecha" type="date" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Hora" class="form-label fw-bold"></label>
+            <input asp-for="Hora"
+                   type="time"
+                   step="60"
+                   class="form-control"
+                   id="horaInicio"
+                   required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="DuracionMinutos" class="form-label fw-bold"></label>
+            <select asp-for="DuracionMinutos" class="form-select" id="duracion">
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+                <option value="60">60 min</option>
+                <option value="90">90 min</option>
+                <option value="120">2 horas</option>
+                <option value="180">3 horas</option>
+            </select>
+
+            <div class="preview-hora">
+                ⏰ Finaliza aprox: <span id="horaFinPreview">--:--</span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Servicio" class="form-label fw-bold"></label>
+            <input asp-for="Servicio" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="NotasAdicionales" class="form-label fw-bold"></label>
+            <textarea asp-for="NotasAdicionales" class="form-control"></textarea>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+            <button type="submit" class="btn-rosa">💾 Actualizar</button>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script>
+const horaInput = document.getElementById("horaInicio");
+const duracionInput = document.getElementById("duracion");
+const preview = document.getElementById("horaFinPreview");
+
+function calcularFin(){
+    if(!horaInput.value) return;
+
+    const [h,m] = horaInput.value.split(":").map(Number);
+    const dur = parseInt(duracionInput.value);
+
+    let fecha = new Date(0,0,0,h,m);
+    fecha.setMinutes(fecha.getMinutes() + dur);
+
+    let hh = fecha.getHours().toString().padStart(2,'0');
+    let mm = fecha.getMinutes().toString().padStart(2,'0');
+
+    preview.textContent = `${hh}:${mm}`;
+}
+
+horaInput.addEventListener("input", calcularFin);
+duracionInput.addEventListener("change", calcularFin);
+
+// 🔥 CLAVE en EDIT
+window.addEventListener("load", calcularFin);
+</script>
+}

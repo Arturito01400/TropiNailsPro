@@ -1,0 +1,72 @@
+@model TropiNailsPro.Models.Historia
+
+@{
+    ViewData["Title"] = "Eliminar Historia";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-body">
+
+            <h2 class="text-danger mb-4">
+                <i class="bi bi-trash"></i> @ViewData["Title"]
+            </h2>
+
+            @if (Model != null)
+            {
+                <div class="alert alert-warning">
+
+                    <p class="mb-2">
+                        ⚠️ ¿Estás seguro que deseas eliminar esta historia?
+                    </p>
+
+                    <hr />
+
+                    <p>
+                        <strong>Tipo:</strong> @Model.Tipo
+                    </p>
+
+                    <p>
+                        <strong>Subida:</strong>
+                        @Model.FechaSubida.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+
+                </div>
+
+                <form asp-action="DeleteConfirmed" method="post">
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="d-flex gap-2">
+
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i>
+                            Eliminar Historia
+                        </button>
+
+                        <a asp-action="Index" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+
+                    </div>
+
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    No se encontró la historia.
+                </div>
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Volver
+                </a>
+            }
+
+        </div>
+
+    </div>
+
+</div>
