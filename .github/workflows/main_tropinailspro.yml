@@ -1,4 +1,4 @@
-name: Build and deploy ASP.NET Core app to Azure Web App - tropinailspro
+name: Build and deploy ASP.NET Core app to Azure Web App
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
 
       - name: Build
@@ -44,12 +44,9 @@ jobs:
           name: app
           path: publish
 
-      - name: Zip package
-        run: Compress-Archive -Path publish/* -DestinationPath app.zip
-
-      - name: Deploy to Azure Web App (ZIP deploy)
-        uses: azure/webapps-deploy@v3
+      - name: Deploy to Azure Web App (Kudu ZIP Deploy)
+        uses: Azure/webapps-deploy@v3
         with:
           app-name: tropinailspro
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: app.zip
+          package: publish
