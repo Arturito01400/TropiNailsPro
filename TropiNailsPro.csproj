@@ -25,7 +25,9 @@
 
   <!-- NO publicar uploads -->
   <ItemGroup>
-    <Content Remove="wwwroot\uploads\**" />
-  </ItemGroup>
+  <Content Update="wwwroot\uploads\**\*">
+    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+  </Content>
+</ItemGroup>
 
 </Project>
