@@ -21,10 +21,10 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
+      - name: Build project
         run: dotnet build --configuration Release --no-restore
 
-      - name: Publish
+      - name: Publish project
         run: dotnet publish -c Release -o publish
 
       - name: Upload artifact
@@ -44,7 +44,7 @@ jobs:
           name: app
           path: publish
 
-      - name: Zip package
+      - name: Create deployment package
         run: Compress-Archive -Path publish/* -DestinationPath app.zip
 
       - name: Deploy to Azure Web App
