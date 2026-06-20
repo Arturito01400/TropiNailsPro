@@ -279,9 +279,9 @@ app.UseSession();
 
 app.UseAuthentication();
 
-app.UseMiddleware<SuscripcionMiddleware>();
-
 app.UseAuthorization();
+
+app.UseMiddleware<SuscripcionMiddleware>();
 
 // =============================================
 // 🔥 RUTAS
@@ -295,6 +295,14 @@ app.MapControllerRoute(
         controller = "Notificaciones",
         action = "Index"
     });
+
+app.MapControllerRoute(
+    name: "public",
+    pattern: "{controller}/{action}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.MapControllerRoute(
     name: "public",
