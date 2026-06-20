@@ -281,7 +281,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseMiddleware<SuscripcionMiddleware>();
+//app.UseMiddleware<SuscripcionMiddleware>();
 
 // =============================================
 // 🔥 RUTAS
