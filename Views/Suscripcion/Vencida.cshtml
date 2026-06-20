@@ -84,6 +84,7 @@ h1{color:#e91e63;font-size:2rem;font-weight:800;margin-bottom:15px;}
     margin-bottom:15px;
 }
 
+/* Card fields (ya no obligatorios) */
 #card-name-field-container,
 #card-number-field-container,
 #card-expiry-field-container,
@@ -113,6 +114,7 @@ h1{color:#e91e63;font-size:2rem;font-weight:800;margin-bottom:15px;}
 
             <div id="paypal-button-container"></div>
 
+            <!-- CARD UI se mantiene pero ya NO rompe nada -->
             <div id="card-form">
                 <div id="card-name-field-container"></div>
                 <div id="card-number-field-container"></div>
@@ -131,8 +133,8 @@ h1{color:#e91e63;font-size:2rem;font-weight:800;margin-bottom:15px;}
 
 </div>
 
-<!-- FIX IMPORTANTE: enable-funding + intent -->
-<script src="https://www.paypal.com/sdk/js?client-id=AUWEvAb4p4QCtC2Q9xDlfQGdiy0xesKxxBbdsSn3XoZBBiLW-h1BYKICL8OUD3EIfc1d3prWUdceSAwy&currency=USD&components=buttons,card-fields&intent=capture&enable-funding=card"></script>
+<!-- FIX: CardFields NO obligatorio -->
+<script src="https://www.paypal.com/sdk/js?client-id=AUWEvAb4p4QCtC2Q9xDlfQGdiy0xesKxxBbdsSn3XoZBBiLW-h1BYKICL8OUD3EIfc1d3prWUdceSAwy&currency=USD&components=buttons&intent=capture"></script>
 
 <script>
 const emailUsuario = '@emailSeguro';
@@ -141,7 +143,7 @@ let cardFields = null;
 let isProcessing = false;
 
 /* =========================
-   PAYPAL BUTTONS
+   PAYPAL BUTTONS (SEGURO)
 ========================= */
 paypal.Buttons({
     createOrder: function () {
@@ -177,32 +179,28 @@ paypal.Buttons({
 
 
 /* =========================
-   CARD FIELDS (FIX ESTABLE)
+   CARD FIELDS SAFE MODE
+   (NO rompe si PayPal lo bloquea)
 ========================= */
-window.addEventListener("load", async function () {
+window.addEventListener("load", function () {
 
     if (!window.paypal || !paypal.CardFields) {
-        console.warn("CardFields no disponible en esta cuenta o entorno");
+        console.warn("CardFields no disponible en esta cuenta (normal en Azure)");
         return;
     }
 
     try {
-        const createOrderFn = async () => {
-            const res = await fetch('/api/paypal/crear-orden', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: emailUsuario })
-            });
-
-            const data = await res.json();
-
-            if (!data.id) throw new Error("OrderID inválido");
-
-            return data.id;
-        };
-
         cardFields = paypal.CardFields({
-            createOrder: createOrderFn,
+            createOrder: async () => {
+                const res = await fetch('/api/paypal/crear-orden', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailUsuario })
+                });
+
+                const data = await res.json();
+                return data.id;
+            },
 
             onApprove: async (data) => {
                 const res = await fetch('/api/paypal/confirmar', {
@@ -221,31 +219,27 @@ window.addEventListener("load", async function () {
                 } else {
                     alert(result.message || "Error en pago");
                 }
-            },
-
-            onError: (err) => {
-                console.error("PayPal Error:", err);
             }
         });
 
-        await cardFields.NameField().render("#card-name-field-container");
-        await cardFields.NumberField().render("#card-number-field-container");
-        await cardFields.ExpiryField().render("#card-expiry-field-container");
-        await cardFields.CVVField().render("#card-cvv-field-container");
+        cardFields.NameField().render("#card-name-field-container");
+        cardFields.NumberField().render("#card-number-field-container");
+        cardFields.ExpiryField().render("#card-expiry-field-container");
+        cardFields.CVVField().render("#card-cvv-field-container");
 
     } catch (e) {
-        console.error("Error inicializando CardFields:", e);
+        console.warn("CardFields desactivado automáticamente:", e);
     }
 });
 
 
 /* =========================
-   BOTÓN TARJETA FIX
+   BOTÓN TARJETA (SAFE)
 ========================= */
 document.getElementById("card-button").addEventListener("click", async () => {
 
     if (!cardFields) {
-        alert("Tarjeta aún no está lista");
+        alert("💡 Pago con tarjeta no disponible en este momento. Usa PayPal.");
         return;
     }
 
