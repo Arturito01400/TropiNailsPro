@@ -18,7 +18,8 @@ using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 
 // MYSQL
-var connectionString = builder.Configuration.GetConnectionString("ConexionMysql");
+var connectionString =
+    builder.Configuration.GetConnectionString("ConexionMysql");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {

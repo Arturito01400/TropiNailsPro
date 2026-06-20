@@ -39,351 +39,182 @@ namespace TropiNailsPro.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(
-            string Identificador,
-            string Clave)
-        {
-            var usuario = _context.Usuarios.FirstOrDefault(u =>
-                u.Email == Identificador ||
-                u.Telefono == Identificador ||
-                u.UsuarioLogin == Identificador);
-
-            if (usuario == null ||
-    !PasswordService.Verify(
-        usuario.Clave,
-        Clave))
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Login(
+    string Identificador,
+    string Clave)
 {
-    TempData["Error"] =
-        "Usuario o contraseña incorrectos.";
+    // 🔥 LIMPIEZA DE DATOS
+    Identificador = Identificador?.Trim();
+    Clave = Clave?.Trim();
 
-    return View();
-}
+    // 🔍 BUSCAR USUARIO
+    var usuario = await _context.Usuarios.FirstOrDefaultAsync(u =>
+        u.Email == Identificador ||
+        u.Telefono == Identificador ||
+        u.UsuarioLogin == Identificador);
 
-if (usuario.Rol == "Manicurista")
-{
-    var manicurista = await _context.Manicuristas
-    .FirstOrDefaultAsync(m =>
-        m.UsuarioId == usuario.Id);
-
-if (manicurista == null)
-{
-    TempData["Error"] =
-        "No se encontró la manicurista.";
-
-    return View();
-}
-
-var suscripcion = await _context.Suscripciones
-    .Where(s => s.ManicuristaId == manicurista.Id)
-    .OrderByDescending(s => s.FechaInicio)
-    .FirstOrDefaultAsync();
-
-    var ahora = DateTime.UtcNow;
-
-    bool expirada =
-        suscripcion == null ||
-        !suscripcion.Activa ||
-        suscripcion.Cancelada ||
-        suscripcion.FechaVencimiento <= ahora;
-
-    if (expirada)
-{
-    TempData["Error"] =
-        "Tu suscripción está vencida. Debes renovar para continuar.";
-
-    var claimsVencida = new List<Claim>
+    if (usuario == null)
     {
-        new Claim(
-            ClaimTypes.NameIdentifier,
-            usuario.Id.ToString()),
-
-        new Claim(
-            ClaimTypes.Name,
-            usuario.Nombre ?? ""),
-
-        new Claim(
-            ClaimTypes.Email,
-            usuario.Email ?? ""),
-
-        new Claim(
-            "UsuarioId",
-            usuario.Id.ToString()),
-
-        new Claim(
-            "Rol",
-            usuario.Rol ?? "Clienta")
-    };
-
-    var identityVencida =
-        new ClaimsIdentity(
-            claimsVencida,
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
-    var principalVencida =
-        new ClaimsPrincipal(identityVencida);
-
-    await HttpContext.SignInAsync(
-        CookieAuthenticationDefaults.AuthenticationScheme,
-        principalVencida);
-
-    return RedirectToAction(
-        "Vencida",
-        "Suscripcion");
-}
-}
-
-
-            // =====================================================
-            // FOTO PERFIL ESTABLE
-            // =====================================================
-
-            if (string.IsNullOrWhiteSpace(
-                usuario.FotoPerfil))
-            {
-                usuario.FotoPerfil =
-                    "/img/user-default.png";
-            }
-
-            if (!usuario.FotoPerfil.StartsWith("/"))
-            {
-                usuario.FotoPerfil =
-                    "/" + usuario.FotoPerfil;
-            }
-
-            // =====================================================
-            // 🔥 MANICURISTA ID REAL
-            // =====================================================
-
-            int manicuristaIdFinal = 0;
-
-            if (usuario.Rol == "Manicurista")
-            {
-                // 🔥 BUSCAR MANICURISTA REAL
-                var manicuristaReal =
-    await _context.Manicuristas
-    .FirstOrDefaultAsync(m =>
-        m.UsuarioId == usuario.Id);
-
-                // 🔥 SI NO EXISTE -> CREAR AUTOMATICO
-                if (manicuristaReal == null)
-                {
-                    string codigoGenerado =
-                        Guid.NewGuid()
-                        .ToString("N")
-                        .Substring(0, 10);
-
-                    manicuristaReal =
-new Manicurista
-{
-    UsuarioId = usuario.Id,
-
-    NombreNegocio =
-        string.IsNullOrWhiteSpace(usuario.Nombre)
-        ? "Mi Negocio"
-        : usuario.Nombre,
-
-    CodigoPublico = codigoGenerado,
-
-    Plan = "Prueba",
-
-    FechaInicioPrueba = DateTime.UtcNow,
-
-    FechaVencimiento = DateTime.UtcNow.AddDays(15),
-
-    Activa = true
-};
-
-                    _context.Manicuristas
-                        .Add(manicuristaReal);
-
-                    await _context.SaveChangesAsync();
-                }
-
-                // 🔥 SI EL CODIGO ESTA VACIO -> GENERARLO
-                if (string.IsNullOrWhiteSpace(
-                    manicuristaReal.CodigoPublico))
-                {
-                    manicuristaReal.CodigoPublico =
-                        Guid.NewGuid()
-                        .ToString("N")
-                        .Substring(0, 10);
-
-                    await _context.SaveChangesAsync();
-                }
-
-                manicuristaIdFinal =
-                    manicuristaReal.Id;
-            }
-            else
-{
-    var manicuristaIdReal = await _context.Usuarios
-        .Where(u => u.Id == usuario.Id)
-        .Select(u => u.ManicuristaId)
-        .FirstOrDefaultAsync();
-
-    if (manicuristaIdReal.HasValue && manicuristaIdReal.Value > 0)
-    {
-        manicuristaIdFinal = manicuristaIdReal.Value;
-    }
-    else
-    {
-        TempData["Error"] =
-            "Tu cuenta no está asociada a ninguna manicurista.";
-
+        TempData["Error"] = "Usuario o contraseña incorrectos.";
         return View();
     }
-}
-            
 
-            HttpContext.Session.SetInt32(
-                "UsuarioId",
-                usuario.Id);
+    // 🔐 VALIDAR PASSWORD
+    bool passwordOk = PasswordService.Verify(usuario.Clave, Clave);
 
-            HttpContext.Session.SetString(
-                "UsuarioNombre",
-                usuario.Nombre ?? "");
+    if (!passwordOk)
+    {
+        TempData["Error"] = "Usuario o contraseña incorrectos.";
+        return View();
+    }
 
-            HttpContext.Session.SetString(
-                "UsuarioRol",
-                usuario.Rol ?? "Clienta");
+    // =====================================================
+    // FOTO PERFIL
+    // =====================================================
+    if (string.IsNullOrWhiteSpace(usuario.FotoPerfil))
+        usuario.FotoPerfil = "/img/user-default.png";
 
-            HttpContext.Session.SetInt32(
-                "ManicuristaId",
-                manicuristaIdFinal);
+    if (!usuario.FotoPerfil.StartsWith("/"))
+        usuario.FotoPerfil = "/" + usuario.FotoPerfil;
 
-            HttpContext.Session.SetString(
-                "Rol",
-                usuario.Rol ?? "Clienta");
+    int manicuristaIdFinal = 0;
 
-                HttpContext.Session.SetString(
-    "UsuarioPlan",
-    usuario.Plan ?? "Premium");
+    // =====================================================
+    // MANICURISTA
+    // =====================================================
+    if (usuario.Rol == "Manicurista")
+    {
+        var manicuristaReal = await _context.Manicuristas
+            .FirstOrDefaultAsync(m => m.UsuarioId == usuario.Id);
 
-            // =====================================================
-            // PERFIL
-            // =====================================================
+        if (manicuristaReal == null)
+        {
+            string codigoGenerado = Guid.NewGuid().ToString("N").Substring(0, 10);
 
-            var perfil = await _context.UsuariosPerfil
-                .Include(p => p.Usuario)
-                .FirstOrDefaultAsync(p =>
-                    p.UsuarioId == usuario.Id);
-
-            if (perfil == null)
+            manicuristaReal = new Manicurista
             {
-                bool perfilExiste =
-                    await _context.UsuariosPerfil
-                    .AnyAsync(p =>
-                        p.UsuarioId == usuario.Id);
+                UsuarioId = usuario.Id,
+                NombreNegocio = string.IsNullOrWhiteSpace(usuario.Nombre)
+                    ? "Mi Negocio"
+                    : usuario.Nombre,
+                CodigoPublico = codigoGenerado,
+                Plan = "Prueba",
+                FechaInicioPrueba = DateTime.UtcNow,
+                FechaVencimiento = DateTime.UtcNow.AddDays(15),
+                Activa = true
+            };
 
-                if (!perfilExiste)
-                {
-                    perfil = new UsuarioPerfil
-                    {
-                        UsuarioId = usuario.Id,
-                        Usuario = null,
+            _context.Manicuristas.Add(manicuristaReal);
+            await _context.SaveChangesAsync();
+        }
 
-                        FotoUrl = usuario.FotoPerfil,
+        manicuristaIdFinal = manicuristaReal.Id;
 
-                        Instagram = usuario.Instagram ?? "",
-                        TikTok = usuario.TikTok ?? "",
-                        Facebook = usuario.Facebook ?? "",
-                        WhatsApp = usuario.WhatsApp ?? "",
+        // =====================================================
+        // VALIDACIÓN DE SUSCRIPCIÓN
+        // =====================================================
+        var suscripcion = await _context.Suscripciones
+            .Where(s => s.ManicuristaId == manicuristaReal.Id)
+            .OrderByDescending(s => s.FechaInicio)
+            .FirstOrDefaultAsync();
 
-                        Activo = true
-                    };
+        var ahora = DateTime.UtcNow;
 
-                    _context.UsuariosPerfil.Add(perfil);
+        bool expirada =
+            suscripcion == null ||
+            !suscripcion.Activa ||
+            suscripcion.Cancelada ||
+            suscripcion.FechaVencimiento <= ahora;
 
-                    try
-                    {
-                        await _context.SaveChangesAsync();
-                    }
-                    catch
-                    {
-                        // 🔥 evita romper login
-                    }
-                }
-            }
+        if (expirada)
+        {
+            TempData["Error"] = "Tu suscripción está vencida. Debes renovar para continuar.";
 
-            // =====================================================
-            // FOTO SESSION ESTABLE
-            // =====================================================
-
-            string fotoPerfil = usuario.FotoPerfil;
-
-            if (string.IsNullOrWhiteSpace(
-                fotoPerfil))
+            var claimsVencida = new List<Claim>
             {
-                fotoPerfil =
-                    "/img/user-default.png";
-            }
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
+                new Claim(ClaimTypes.Email, usuario.Email ?? ""),
+                new Claim("UsuarioId", usuario.Id.ToString()),
+                new Claim("Rol", usuario.Rol ?? "Clienta")
+            };
 
-            if (!fotoPerfil.StartsWith("/"))
-            {
-                fotoPerfil =
-                    "/" + fotoPerfil;
-            }
+            var identityVencida = new ClaimsIdentity(
+                claimsVencida,
+                CookieAuthenticationDefaults.AuthenticationScheme);
 
-            HttpContext.Session.SetString(
-                "UsuarioFoto",
-                fotoPerfil);
-
-            // =====================================================
-            // CLAIMS
-            // =====================================================
-
-            // =====================================================
-// CLAIMS
-// =====================================================
-
-var claims = new List<Claim>
-{
-    new Claim(
-        ClaimTypes.NameIdentifier,
-        usuario.Id.ToString()),
-
-    new Claim(
-        ClaimTypes.Name,
-        usuario.Nombre ?? ""),
-
-    new Claim(
-        ClaimTypes.Email,
-        usuario.Email ?? ""),
-
-    new Claim(
-        "UsuarioId",
-        usuario.Id.ToString()),
-
-    new Claim(
-        "Rol",
-        usuario.Rol ?? "Clienta")
-};
-
-            var identity =
-                new ClaimsIdentity(
-                    claims,
-                    CookieAuthenticationDefaults.AuthenticationScheme);
-
-            var principal =
-                new ClaimsPrincipal(identity);
+            var principalVencida = new ClaimsPrincipal(identityVencida);
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    AllowRefresh = true,
-                    ExpiresUtc =
-                        DateTimeOffset.UtcNow
-                        .AddHours(8)
-                });
+                principalVencida);
 
-            return RedirectToAction(
-                "Index",
-                "Dashboard");
+            return RedirectToAction("Vencida", "Suscripcion");
         }
+    }
+
+    // =====================================================
+    // SESSION
+    // =====================================================
+    HttpContext.Session.SetInt32("UsuarioId", usuario.Id);
+    HttpContext.Session.SetString("UsuarioNombre", usuario.Nombre ?? "");
+    HttpContext.Session.SetString("UsuarioRol", usuario.Rol ?? "Clienta");
+    HttpContext.Session.SetInt32("ManicuristaId", manicuristaIdFinal);
+    HttpContext.Session.SetString("Rol", usuario.Rol ?? "Clienta");
+    HttpContext.Session.SetString("UsuarioPlan", usuario.Plan ?? "Premium");
+
+
+// =====================================================
+// FOTO SESSION ESTABLE
+// =====================================================
+
+string fotoPerfil = usuario.FotoPerfil;
+
+if (string.IsNullOrWhiteSpace(fotoPerfil))
+{
+    fotoPerfil = "/img/user-default.png";
+}
+
+if (!fotoPerfil.StartsWith("/"))
+{
+    fotoPerfil = "/" + fotoPerfil;
+}
+
+HttpContext.Session.SetString(
+    "UsuarioFoto",
+    fotoPerfil);
+    // =====================================================
+    // CLAIMS
+    // =====================================================
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+        new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
+        new Claim(ClaimTypes.Email, usuario.Email ?? ""),
+        new Claim("UsuarioId", usuario.Id.ToString()),
+        new Claim("Rol", usuario.Rol ?? "Clienta")
+    };
+
+    var identity = new ClaimsIdentity(
+        claims,
+        CookieAuthenticationDefaults.AuthenticationScheme);
+
+    var principal = new ClaimsPrincipal(identity);
+
+    await HttpContext.SignInAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        principal,
+        new AuthenticationProperties
+        {
+            IsPersistent = true,
+            AllowRefresh = true,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+        });
+
+    return RedirectToAction("Index", "Dashboard");
+}
+
 
         // =====================================================
         // REGISTRO POR LINK
