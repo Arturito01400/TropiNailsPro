@@ -111,48 +111,63 @@ public async Task<IActionResult> Login(
 
         manicuristaIdFinal = manicuristaReal.Id;
 
-        // =====================================================
-        // VALIDACIÓN DE SUSCRIPCIÓN
-        // =====================================================
         var suscripcion = await _context.Suscripciones
-            .Where(s => s.ManicuristaId == manicuristaReal.Id)
-            .OrderByDescending(s => s.FechaInicio)
-            .FirstOrDefaultAsync();
+    .Where(s => s.ManicuristaId == manicuristaReal.Id)
+    .OrderByDescending(s => s.FechaInicio)
+    .FirstOrDefaultAsync();
 
-        var ahora = DateTime.UtcNow;
+var ahora = DateTime.UtcNow;
 
-        bool expirada =
-            suscripcion == null ||
-            !suscripcion.Activa ||
-            suscripcion.Cancelada ||
-            suscripcion.FechaVencimiento <= ahora;
+// 🔥 CASOS
+bool noTieneSuscripcion = suscripcion == null;
 
-        if (expirada)
-        {
-            TempData["Error"] = "Tu suscripción está vencida. Debes renovar para continuar.";
+bool expirada =
+    suscripcion != null &&
+    (
+        !suscripcion.Activa ||
+        suscripcion.Cancelada ||
+        suscripcion.FechaVencimiento <= ahora
+    );
 
-            var claimsVencida = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
-                new Claim(ClaimTypes.Email, usuario.Email ?? ""),
-                new Claim("UsuarioId", usuario.Id.ToString()),
-                new Claim("Rol", usuario.Rol ?? "Clienta")
-            };
+// =====================================================
+// 1. SIN SUSCRIPCIÓN (USUARIO NUEVO)
+// =====================================================
+if (noTieneSuscripcion)
+{
+    TempData["Mensaje"] = "Bienvenido, no tienes suscripción activa aún.";
 
-            var identityVencida = new ClaimsIdentity(
-                claimsVencida,
-                CookieAuthenticationDefaults.AuthenticationScheme);
+    // ✔️ LO DEJAS ENTRAR NORMAL
+    // (NO bloqueas login)
+}
 
-            var principalVencida = new ClaimsPrincipal(identityVencida);
+// =====================================================
+// 2. SUSCRIPCIÓN VENCIDA (BLOQUEAR)
+// =====================================================
+else if (expirada)
+{
+    TempData["Error"] = "Tu suscripción está vencida. Debes renovar para continuar.";
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principalVencida);
+    var claimsVencida = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+        new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
+        new Claim(ClaimTypes.Email, usuario.Email ?? ""),
+        new Claim("UsuarioId", usuario.Id.ToString()),
+        new Claim("Rol", usuario.Rol ?? "Clienta")
+    };
 
-            return RedirectToAction("Vencida", "Suscripcion");
-        }
-    }
+    var identityVencida = new ClaimsIdentity(
+        claimsVencida,
+        CookieAuthenticationDefaults.AuthenticationScheme);
+
+    var principalVencida = new ClaimsPrincipal(identityVencida);
+
+    await HttpContext.SignInAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        principalVencida);
+
+    return RedirectToAction("Vencida", "Suscripcion");
+}
 
     // =====================================================
     // SESSION
