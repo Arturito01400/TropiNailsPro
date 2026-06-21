@@ -112,22 +112,13 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
 {
-    // 🔥 MÁS ESTABLE PARA PAYPAL
     options.IdleTimeout = TimeSpan.FromHours(12);
-
     options.Cookie.HttpOnly = true;
-
     options.Cookie.IsEssential = true;
 
-    options.Cookie.SameSite = SameSiteMode.Lax;
-
-    // 🔥 FIX LOCALHOST + PRODUCCIÓN
-    options.Cookie.SecurePolicy =
-        builder.Environment.IsDevelopment()
-        ?
-        CookieSecurePolicy.SameAsRequest
-        :
-        CookieSecurePolicy.Always;
+    // 🔥 FIX AZURE (sin romper local)
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 // Cultura
@@ -233,6 +224,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.None
+});
 
 // =============================================
 // 🔥 STATIC FILES
