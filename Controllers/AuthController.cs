@@ -172,6 +172,19 @@ else if (expirada)
 
  }   
     
+if (usuario.Rol == "Clienta")
+{
+    Console.WriteLine("===== LOGIN CLIENTA =====");
+    Console.WriteLine("UsuarioId: " + usuario.Id);
+    Console.WriteLine("Nombre: " + usuario.Nombre);
+    Console.WriteLine("ManicuristaId BD: " + usuario.ManicuristaId);
+
+    manicuristaIdFinal =
+        usuario.ManicuristaId ?? 0;
+
+    Console.WriteLine("ManicuristaId Final: " + manicuristaIdFinal);
+}
+
     // =====================================================
     // SESSION
     // =====================================================
