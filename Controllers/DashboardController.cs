@@ -258,9 +258,10 @@ if (string.IsNullOrWhiteSpace(
     await _context.SaveChangesAsync();
 }
 
-// 🔥 LINK FINAL REAL
-registroUnico =
-    $"https://tropinailspro.com/registro?codigo={manicurista.CodigoPublico}";
+// 🔥 LINK FINAL REAL (AZURE + LOCAL + CUALQUIER DOMINIO)
+var baseUrl = $"{Request.Scheme}://{Request.Host}";
+
+registroUnico = $"{baseUrl}/registro?codigo={manicurista.CodigoPublico}";
 
 ViewBag.LinkRegistro = registroUnico;
 

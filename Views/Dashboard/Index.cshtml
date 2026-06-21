@@ -571,23 +571,16 @@ height="100">
 
 <script>
 
-@Html.Raw(
+const datos = @Html.Raw(
     System.Text.Json.JsonSerializer.Serialize(
         ViewBag.GraficaIngresos ?? new List<object>()
     )
-
 );
 
-const labels=
-datos.map(x=>"Mes "+x.Mes);
+const labels = datos.map(x => "Mes " + x.Mes);
+const valores = datos.map(x => x.Total);
 
-const valores=
-datos.map(x=>x.Total);
-
-const ctx=
-document.getElementById(
-'graficaIngresos'
-);
+const ctx = document.getElementById('graficaIngresos').getContext('2d');
 
 new Chart(ctx,{
 type:'line',
