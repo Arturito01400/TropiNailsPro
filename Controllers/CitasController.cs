@@ -56,7 +56,7 @@ namespace TropiNailsPro.Controllers
 
             // para tu sección "Próximos días"
             ViewBag.ProximosDias = citas
-                .Where(c=>c.Fecha.Date >= DateTime.Today)
+                .Where(c => c.Fecha.Date >= GetHoraLocal().Date)
                 .ToList();
 
             return View(citas);
@@ -66,9 +66,10 @@ namespace TropiNailsPro.Controllers
         // CREATE GET
         // ======================================================
         public IActionResult Create()
-        {
-            return View();
-        }
+{
+    ViewBag.HoraLocal = GetHoraLocal().ToString("HH:mm");
+    return View();
+}
 
         // ======================================================
         // CREATE POST
@@ -84,7 +85,7 @@ namespace TropiNailsPro.Controllers
                 return RedirectToAction("Login", "Auth");
 
 
-            if (cita.Fecha.Date < DateTime.Today)
+            if (cita.Fecha.Date < GetHoraLocal().Date)
             {
                 ModelState.AddModelError("",
                 "⚠️ No se pueden registrar citas en fechas pasadas.");
@@ -92,7 +93,7 @@ namespace TropiNailsPro.Controllers
             }
 
             cita.ManicuristaId = manicuristaId.Value;
-cita.FechaRegistro = DateTime.Now;
+cita.FechaRegistro = GetHoraLocal();
 cita.Estado = "Pendiente";
 cita.CreadaPorManicurista = true;
 
@@ -167,12 +168,12 @@ if (clienta != null)
 
 
             await _notificacionService
-            .EnviarNotificacionTiempoReal(
-                cita.NombreClienta,
-                $"Tu manicurista te agendó para " +
-                $"{cita.Fecha:dd/MM/yyyy} " +
-                $"a las {DateTime.Today.Add(cita.Hora):hh:mm tt} 💅"
-            );
+    .EnviarNotificacionTiempoReal(
+        cita.NombreClienta,
+        $"Tu manicurista te agendó para " +
+        $"{cita.Fecha:dd/MM/yyyy} " +
+        $"a las {cita.Hora:hh\\:mm tt} 💅"
+    );
 
 
             return RedirectToAction(nameof(Index));
@@ -215,7 +216,7 @@ if (clienta != null)
                 return RedirectToAction(nameof(Index));
 
 
-            if (cita.Fecha.Date < DateTime.Today)
+            if (cita.Fecha.Date < GetHoraLocal().Date)
             {
                 ModelState.AddModelError("",
                 "⚠️ No se pueden registrar citas en fechas pasadas.");
@@ -357,7 +358,7 @@ if (clienta != null)
                     "Auth");
 
 
-            var hoy = DateTime.Today;
+            var hoy = GetHoraLocal().Date;
 
             var actual =
                 await _context.Citas
@@ -418,5 +419,27 @@ if (clienta != null)
                     "ActualizarCitas",
                     citas);
         }
+  
+  
+  private DateTime GetHoraLocal()
+{
+    var zonaUsuario = HttpContext.Session.GetString("ZonaHoraria");
+
+    if (!string.IsNullOrEmpty(zonaUsuario))
+    {
+        try
+        {
+            var zona = TimeZoneInfo.FindSystemTimeZoneById(zonaUsuario);
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zona);
+        }
+        catch
+        {
+            // si falla la zona, cae a servidor
+        }
+    }
+
+    return DateTime.Now;
+}
+  
     }
 }

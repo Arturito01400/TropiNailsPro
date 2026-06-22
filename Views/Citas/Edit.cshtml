@@ -67,6 +67,7 @@ body{
             <input asp-for="Fecha" type="date" class="form-control" required />
         </div>
 
+        <!-- ✔️ FIX SEGURO DE HORA -->
         <div class="mb-3">
             <label asp-for="Hora" class="form-label fw-bold"></label>
             <input asp-for="Hora"
@@ -74,6 +75,7 @@ body{
                    step="60"
                    class="form-control"
                    id="horaInicio"
+                   value="@(Model.Hora.ToString(@"hh\:mm"))"
                    required />
         </div>
 
@@ -120,7 +122,7 @@ const duracionInput = document.getElementById("duracion");
 const preview = document.getElementById("horaFinPreview");
 
 function calcularFin(){
-    if(!horaInput.value) return;
+    if(!horaInput.value || !duracionInput.value) return;
 
     const [h,m] = horaInput.value.split(":").map(Number);
     const dur = parseInt(duracionInput.value);
@@ -134,10 +136,11 @@ function calcularFin(){
     preview.textContent = `${hh}:${mm}`;
 }
 
+// eventos
 horaInput.addEventListener("input", calcularFin);
 duracionInput.addEventListener("change", calcularFin);
 
-// 🔥 CLAVE en EDIT
+// ✔️ inicializa correctamente en EDIT
 window.addEventListener("load", calcularFin);
 </script>
 }

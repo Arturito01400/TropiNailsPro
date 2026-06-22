@@ -501,7 +501,7 @@ public async Task<IActionResult> Register(
                 : "Clienta";
 
             model.FechaRegistro =
-                DateTime.Now;
+    DateTime.UtcNow;
 
             model.PlanActivo = true;
 

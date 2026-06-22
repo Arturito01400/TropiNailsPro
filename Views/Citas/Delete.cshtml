@@ -34,12 +34,11 @@
 
         <div class="col-md-6">
             <strong>⏰ Hora:</strong>
-            @Model.Hora.ToString(@"hh\:mm")
+            @(Model.Hora.ToString(@"hh\:mm"))
         </div>
     </div>
 
 </div>
-
 
 <!-- ============================= -->
 <!-- FORMULARIO ELIMINAR -->
@@ -65,11 +64,9 @@
 
 </form>
 
-
-
 @section Scripts {
 
-    <!-- SignalR opcional (solo escucha eventos, NO intercepta submit) -->
+    <!-- SignalR opcional -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
     <script>

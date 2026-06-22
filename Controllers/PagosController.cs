@@ -28,7 +28,7 @@ namespace TropiNailsPro.Controllers
                 .OrderByDescending(p => p.FechaPago)
                 .ToListAsync();
 
-            var hoy = DateTime.Today;
+            var hoy = DateTime.UtcNow.Date;
 
             var sumatorias = new
             {
@@ -68,7 +68,7 @@ namespace TropiNailsPro.Controllers
 
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
-            pago.FechaPago = DateTime.Now;
+            pago.FechaPago = DateTime.UtcNow;
 
             if (usuarioId.HasValue)
             {

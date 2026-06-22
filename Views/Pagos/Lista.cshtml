@@ -85,7 +85,7 @@
 
                     <td>$@deuda.Monto.ToString("0.00")</td>
 
-                    <td>@deuda.FechaPago.ToString("dd/MM/yyyy")</td>
+                    <td>@deuda.FechaPago.ToLocalTime().ToString("dd/MM/yyyy")</td>
 
                     <td>
 
@@ -149,7 +149,7 @@
             {
                 <tr>
 
-                    <td>@pago.FechaPago.ToString("dd/MM/yyyy hh:mm tt")</td>
+                    <td>@pago.FechaPago.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
 
                     <td>@pago.ClienteNombre</td>
 

@@ -402,7 +402,7 @@ let botonSiguiente="";
 
 
 if(index===0
-&& new Date(item.Fecha).toDateString()===hoy
+&& new Date(item.Fecha + "T00:00:00").toDateString()===hoy
 && @esManicurista.ToString().ToLower())
 {
 
@@ -534,21 +534,21 @@ hoy.getDate()+1
 
 const citasHoy=
 lista.filter(x=>
-new Date(x.Fecha).toDateString()===hoy.toDateString()
+new Date(x.Fecha + "T00:00:00").toDateString()===hoy.toDateString()
 && x.Estado!=="Finalizado"
 );
 
 
 const citasManana=
 lista.filter(x=>
-new Date(x.Fecha).toDateString()===manana.toDateString()
+new Date(x.Fecha + "T00:00:00").toDateString()===manana.toDateString()
 && x.Estado!=="Finalizado"
 );
 
 
 const futuras=
 lista.filter(x=>
-new Date(x.Fecha) > manana
+new Date(x.Fecha + "T00:00:00") > manana
 && x.Estado!=="Finalizado"
 );
 
@@ -576,7 +576,7 @@ hoy.getFullYear();
 const citasMes=
 lista.filter(x=>{
 const f=
-new Date(x.Fecha);
+new Date(x.Fecha + "T00:00:00");
 
 return f.getMonth()==mesActual
 && f.getFullYear()==anoActual;
@@ -587,7 +587,7 @@ return f.getMonth()==mesActual
 const citasAno=
 lista.filter(x=>{
 const f=
-new Date(x.Fecha);
+new Date(x.Fecha + "T00:00:00");
 
 return f.getFullYear()==anoActual;
 });
