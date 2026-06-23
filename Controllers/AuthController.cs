@@ -19,14 +19,17 @@ namespace TropiNailsPro.Controllers
     {
         private readonly AppDbContext _context;
         private readonly EmailService _emailService;
+        private readonly TimeService _timeService;
 
         public AuthController(
-            AppDbContext context,
-            EmailService emailService)
-        {
-            _context = context;
-            _emailService = emailService;
-        }
+    AppDbContext context,
+    EmailService emailService,
+    TimeService timeService)
+{
+    _context = context;
+    _emailService = emailService;
+    _timeService = timeService;
+}
 
         // =====================================================
         // LOGIN
@@ -100,8 +103,8 @@ public async Task<IActionResult> Login(
                     : usuario.Nombre,
                 CodigoPublico = codigoGenerado,
                 Plan = "Prueba",
-                FechaInicioPrueba = DateTime.UtcNow,
-                FechaVencimiento = DateTime.UtcNow.AddDays(15),
+                FechaInicioPrueba = _timeService.ObtenerHoraLocal(),
+FechaVencimiento = _timeService.ObtenerHoraLocal().AddDays(15),
                 Activa = true
             };
 
@@ -116,7 +119,7 @@ public async Task<IActionResult> Login(
     .OrderByDescending(s => s.FechaInicio)
     .FirstOrDefaultAsync();
 
-var ahora = DateTime.UtcNow;
+var ahora = _timeService.ObtenerHoraLocal();
 
 // 🔥 CASOS
 bool noTieneSuscripcion = suscripcion == null;
@@ -170,7 +173,7 @@ else if (expirada)
 }
 
 
- }   
+    }  
     
 if (usuario.Rol == "Clienta")
 {
@@ -500,8 +503,7 @@ public async Task<IActionResult> Register(
                 ? "Manicurista"
                 : "Clienta";
 
-            model.FechaRegistro =
-    DateTime.UtcNow;
+            model.FechaRegistro = _timeService.ObtenerHoraLocal();
 
             model.PlanActivo = true;
 
@@ -572,9 +574,8 @@ if (model.Rol == "Clienta" &&
 
             Plan = "Prueba",
 
-            FechaInicioPrueba = DateTime.UtcNow,
-
-            FechaVencimiento = DateTime.UtcNow.AddDays(15),
+           FechaInicioPrueba = _timeService.ObtenerHoraLocal(),
+FechaVencimiento = _timeService.ObtenerHoraLocal().AddDays(15),
 
             Activa = true
         };
@@ -589,10 +590,8 @@ if (model.Rol == "Clienta" &&
         {
             ManicuristaId = nuevaManicurista.Id,
 
-            FechaInicio = DateTime.UtcNow,
-
-            FechaVencimiento =
-                DateTime.UtcNow.AddDays(15),
+            FechaInicio = _timeService.ObtenerHoraLocal(),
+FechaVencimiento = _timeService.ObtenerHoraLocal().AddDays(15),
 
             Plan = "Prueba Gratis",
 
@@ -720,8 +719,7 @@ public async Task<IActionResult> RecuperarClave(
 
     usuario.ResetToken = token;
 
-    usuario.TokenExpira =
-        DateTime.Now.AddHours(1);
+    usuario.TokenExpira = _timeService.ObtenerHoraLocal().AddHours(1);
 
     await _context.SaveChangesAsync();
 
@@ -782,7 +780,7 @@ public async Task<IActionResult> CambiarClave(
     var usuario = await _context.Usuarios
         .FirstOrDefaultAsync(u =>
             u.ResetToken == token &&
-            u.TokenExpira > DateTime.Now);
+            u.TokenExpira > _timeService.ObtenerHoraLocal());
 
     if (usuario == null)
     {
@@ -845,7 +843,7 @@ public async Task<IActionResult> CambiarClave(
             u.ResetToken != null &&
             u.ResetToken == model.Token &&
             u.TokenExpira != null &&
-            u.TokenExpira > DateTime.Now);
+            u.TokenExpira > _timeService.ObtenerHoraLocal());
 
     // =====================================================
     // TOKEN INVÁLIDO
@@ -923,5 +921,21 @@ return View(model);
             return RedirectToAction(
                 "Login");
         }
+
+[HttpPost]
+public IActionResult GuardarZonaHoraria(string zona)
+{
+    if (!string.IsNullOrWhiteSpace(zona))
+    {
+        HttpContext.Session.SetString(
+            "ZonaHoraria",
+            zona
+        );
+    }
+
+    return Ok();
+}
+
+
     }
 }

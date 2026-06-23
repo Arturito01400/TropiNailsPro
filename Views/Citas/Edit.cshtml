@@ -75,7 +75,7 @@ body{
                    step="60"
                    class="form-control"
                    id="horaInicio"
-                   value="@(Model.Hora.ToString(@"hh\:mm"))"
+                   value="@(Model.Hora != null ? Model.Hora.ToString(@"hh\:mm") : "")"
                    required />
         </div>
 
@@ -140,7 +140,11 @@ function calcularFin(){
 horaInput.addEventListener("input", calcularFin);
 duracionInput.addEventListener("change", calcularFin);
 
-// ✔️ inicializa correctamente en EDIT
-window.addEventListener("load", calcularFin);
+window.addEventListener("load", function () {
+    if (horaInput.value && duracionInput.value) {
+        calcularFin();
+    }
+});
+
 </script>
 }

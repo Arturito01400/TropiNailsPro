@@ -34,7 +34,7 @@
 
         <div class="col-md-6">
             <strong>⏰ Hora:</strong>
-            @(Model.Hora.ToString(@"hh\:mm"))
+            @(Model.Hora != null ? Model.Hora.ToString(@"hh\:mm") : "00:00")
         </div>
     </div>
 

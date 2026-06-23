@@ -6,6 +6,7 @@ using TropiNailsPro.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using TropiNailsPro.Services;
 
 namespace TropiNailsPro.Controllers
 {
@@ -13,10 +14,13 @@ namespace TropiNailsPro.Controllers
     {
         private readonly AppDbContext _context;
 
-        public PagosController(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly TimeService _timeService;
+
+public PagosController(AppDbContext context, TimeService timeService)
+{
+    _context = context;
+    _timeService = timeService;
+}
 
         // LISTA DE PAGOS
         public async Task<IActionResult> Lista()
@@ -24,18 +28,29 @@ namespace TropiNailsPro.Controllers
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
             var pagos = await _context.Pagos
-                .Where(p => p.UsuarioId == usuarioId)
-                .OrderByDescending(p => p.FechaPago)
-                .ToListAsync();
+    .Where(p => p.UsuarioId == usuarioId)
+    .OrderByDescending(p => p.FechaPago)
+    .ToListAsync();
 
-            var hoy = DateTime.UtcNow.Date;
+var hoy = _timeService.ObtenerHoraLocal().Date;
 
-            var sumatorias = new
-            {
-                Diario = pagos.Where(p => p.FechaPago.Date == hoy).Sum(p => p.Monto),
-                Mensual = pagos.Where(p => p.FechaPago.Month == hoy.Month && p.FechaPago.Year == hoy.Year).Sum(p => p.Monto),
-                Anual = pagos.Where(p => p.FechaPago.Year == hoy.Year).Sum(p => p.Monto)
-            };
+var sumatorias = new
+{
+    Diario = pagos
+        .Where(p => p.FechaPago.Date == hoy)
+        .Sum(p => p.Monto),
+
+    Mensual = pagos
+        .Where(p =>
+            p.FechaPago.Month == hoy.Month &&
+            p.FechaPago.Year == hoy.Year)
+        .Sum(p => p.Monto),
+
+    Anual = pagos
+        .Where(p =>
+            p.FechaPago.Year == hoy.Year)
+        .Sum(p => p.Monto)
+};
 
             ViewBag.Sumatorias = sumatorias;
 
@@ -68,7 +83,7 @@ namespace TropiNailsPro.Controllers
 
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
-            pago.FechaPago = DateTime.UtcNow;
+           pago.FechaPago = _timeService.ObtenerHoraLocal();
 
             if (usuarioId.HasValue)
             {
@@ -121,34 +136,47 @@ namespace TropiNailsPro.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(int id, Pago pago)
-        {
-            if (id != pago.Id)
-                return NotFound();
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Editar(int id, Pago pago)
+{
+    if (id != pago.Id)
+        return NotFound();
 
-            if (!ModelState.IsValid)
-                return View(pago);
+    if (!ModelState.IsValid)
+        return View(pago);
 
-            var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
+    var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
-            if (usuarioId.HasValue)
-            {
-                pago.UsuarioId = usuarioId.Value;
-            }
+    if (!usuarioId.HasValue)
+        return RedirectToAction("Login", "Auth");
 
-            try
-            {
-                _context.Update(pago);
-                await _context.SaveChangesAsync();
-            }
-            catch
-            {
-                return View(pago);
-            }
+    try
+    {
+        var pagoDB = await _context.Pagos
+            .FirstOrDefaultAsync(p => p.Id == id && p.UsuarioId == usuarioId.Value);
 
-            return RedirectToAction(nameof(Lista));
-        }
+        if (pagoDB == null)
+            return NotFound();
+
+        // 👇 SOLO CAMPOS EDITABLES
+        pagoDB.ClienteNombre = pago.ClienteNombre;
+        pagoDB.ModeloUnas = pago.ModeloUnas;
+        pagoDB.Monto = pago.Monto;
+        pagoDB.TransaccionId = pago.TransaccionId;
+
+        // ❌ NO TOCAR FECHA PARA EVITAR PROBLEMAS DE HORA
+        // pagoDB.FechaPago = _timeService.ObtenerHoraLocal();
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Lista));
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+        return View(pago);
+    }
+}
 
 
         // ==============================

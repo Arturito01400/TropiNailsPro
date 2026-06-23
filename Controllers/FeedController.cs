@@ -15,13 +15,16 @@ namespace TropiNailsPro.Controllers
     {
         private readonly AppDbContext _context;
         private readonly PublicacionService _publicacionService;
+        private readonly TimeService _timeService;
 
         public FeedController(
-            AppDbContext context,
-            PublicacionService publicacionService)
+    AppDbContext context,
+    PublicacionService publicacionService,
+    TimeService timeService)
         {
             _context = context;
             _publicacionService = publicacionService;
+            _timeService = timeService;
         }
 
 
@@ -111,8 +114,7 @@ namespace TropiNailsPro.Controllers
                     "Auth"
                 );
 
-            var hace24h =
-                DateTime.Now.AddHours(-24);
+            var hace24h = _timeService.ObtenerHoraLocal().AddHours(-24);
 
             var seguidos =
                 await _context.Seguidores
@@ -152,8 +154,7 @@ namespace TropiNailsPro.Controllers
                            .Where(c => c.Fecha >= hace24h)
                            .Count() * 6)
 
-                        - ((DateTime.Now - p.Fecha)
-                        .TotalHours * 0.5)
+                        - ((_timeService.ObtenerHoraLocal() - p.Fecha).TotalHours * 0.5)
                 })
 
                 .OrderByDescending(p => p.score)
@@ -261,7 +262,7 @@ namespace TropiNailsPro.Controllers
                 .Include(p => p.Usuario)
                 .Include(p => p.Likes)
                 .Include(p => p.Comentarios)
-                .OrderByDescending(p => p.Fecha)
+                .OrderByDescending(p => p.Fecha.ToLocalTime())
                 .Take(30)
                 .AsNoTracking()
                 .ToListAsync();

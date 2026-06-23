@@ -1039,6 +1039,48 @@ box.style.display = "none";
 
 </script>
 
+<script>
+
+(async function () {
+
+    try {
+
+        const zona =
+            Intl.DateTimeFormat()
+                .resolvedOptions()
+                .timeZone;
+
+        await fetch('/Auth/GuardarZonaHoraria', {
+            method: 'POST',
+            headers: {
+                'Content-Type':
+                    'application/x-www-form-urlencoded'
+            },
+            body:
+                'zona=' +
+                encodeURIComponent(zona)
+        });
+
+        console.log(
+            "Zona horaria detectada:",
+            zona
+        );
+
+    }
+    catch (e) {
+
+        console.error(
+            "Error enviando zona horaria",
+            e
+        );
+
+    }
+
+})();
+
+</script>
+
+
 @await RenderSectionAsync(
 "Scripts",
 required:false

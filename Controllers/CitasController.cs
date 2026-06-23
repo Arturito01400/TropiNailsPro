@@ -14,15 +14,18 @@ namespace TropiNailsPro.Controllers
         private readonly AppDbContext _context;
         private readonly IHubContext<OnlineHub> _hub;
         private readonly NotificacionService _notificacionService;
+private readonly TimeService _timeService;
 
         public CitasController(
-            AppDbContext context,
-            IHubContext<OnlineHub> hub,
-            NotificacionService notificacionService)
+    AppDbContext context,
+    IHubContext<OnlineHub> hub,
+    NotificacionService notificacionService,
+    TimeService timeService)
         {
             _context = context;
             _hub = hub;
             _notificacionService = notificacionService;
+            _timeService = timeService;
         }
 
         // ======================================================
@@ -56,7 +59,7 @@ namespace TropiNailsPro.Controllers
 
             // para tu sección "Próximos días"
             ViewBag.ProximosDias = citas
-                .Where(c => c.Fecha.Date >= GetHoraLocal().Date)
+    .Where(c => c.Fecha.Date >= _timeService.ObtenerHoraLocal().Date)
                 .ToList();
 
             return View(citas);
@@ -67,7 +70,7 @@ namespace TropiNailsPro.Controllers
         // ======================================================
         public IActionResult Create()
 {
-    ViewBag.HoraLocal = GetHoraLocal().ToString("HH:mm");
+    ViewBag.HoraLocal = _timeService.ObtenerHoraLocal().ToString("HH:mm");
     return View();
 }
 
@@ -85,7 +88,7 @@ namespace TropiNailsPro.Controllers
                 return RedirectToAction("Login", "Auth");
 
 
-            if (cita.Fecha.Date < GetHoraLocal().Date)
+            if (cita.Fecha.Date < _timeService.ObtenerHoraLocal().Date)
             {
                 ModelState.AddModelError("",
                 "⚠️ No se pueden registrar citas en fechas pasadas.");
@@ -93,7 +96,7 @@ namespace TropiNailsPro.Controllers
             }
 
             cita.ManicuristaId = manicuristaId.Value;
-cita.FechaRegistro = GetHoraLocal();
+cita.FechaRegistro = _timeService.ObtenerHoraLocal();
 cita.Estado = "Pendiente";
 cita.CreadaPorManicurista = true;
 
@@ -216,7 +219,7 @@ if (clienta != null)
                 return RedirectToAction(nameof(Index));
 
 
-            if (cita.Fecha.Date < GetHoraLocal().Date)
+            if (cita.Fecha.Date < _timeService.ObtenerHoraLocal().Date)
             {
                 ModelState.AddModelError("",
                 "⚠️ No se pueden registrar citas en fechas pasadas.");
@@ -294,7 +297,7 @@ if (clienta != null)
                     citaDb.NombreClienta,
                     $"Tu cita fue actualizada para " +
                     $"{citaDb.Fecha:dd/MM/yyyy} " +
-                    $"a las {DateTime.Today.Add(citaDb.Hora):hh:mm tt} ✨"
+                    $"a las {_timeService.ObtenerHoraLocal().Date.Add(citaDb.Hora):hh:mm tt} ✨"
                 );
 
 
@@ -358,7 +361,7 @@ if (clienta != null)
                     "Auth");
 
 
-            var hoy = GetHoraLocal().Date;
+            var hoy = _timeService.ObtenerHoraLocal().Date;
 
             var actual =
                 await _context.Citas
@@ -421,25 +424,7 @@ if (clienta != null)
         }
   
   
-  private DateTime GetHoraLocal()
-{
-    var zonaUsuario = HttpContext.Session.GetString("ZonaHoraria");
-
-    if (!string.IsNullOrEmpty(zonaUsuario))
-    {
-        try
-        {
-            var zona = TimeZoneInfo.FindSystemTimeZoneById(zonaUsuario);
-            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zona);
-        }
-        catch
-        {
-            // si falla la zona, cae a servidor
-        }
-    }
-
-    return DateTime.Now;
-}
+  
   
     }
 }
