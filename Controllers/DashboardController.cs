@@ -38,15 +38,15 @@ Console.WriteLine("Nombre Session: " + nombre);
 Console.WriteLine("================================");
 
 
-    if (string.IsNullOrEmpty(nombre) || usuarioId == null)
-    {
-        TempData["Error"] =
-            "Debes iniciar sesión para acceder al sistema.";
+   if (string.IsNullOrEmpty(nombre) || usuarioId == null)
+{
+    TempData["Error"] =
+        "Debes iniciar sesión para acceder al sistema.";
 
-        return RedirectToAction("Login", "Auth");
-    }
+    return RedirectToAction("Login", "Auth");
+}
 
-    int? manicuristaIdSession =
+int? manicuristaIdSession =
     HttpContext.Session.GetInt32("ManicuristaId");
 
 // Solo validar si NO es clienta
@@ -55,20 +55,14 @@ if (rol != "Clienta" && manicuristaIdSession == null)
     return RedirectToAction("Login", "Auth");
 }
 
-// Si es clienta y no tiene manicurista, permitir flujo
+// 🔥 FIX SEGURO: solo una declaración
 int manicuristaId = manicuristaIdSession ?? 0;
 
-int manicuristaId =
-    manicuristaIdSession.Value;
-    
 Console.WriteLine("======== DASHBOARD ========");
-    Console.WriteLine("UsuarioId: " + usuarioId);
-    Console.WriteLine("ManicuristaId Session: " + manicuristaId);
-    Console.WriteLine("Rol: " + rol);
-    Console.WriteLine("===========================");
-            // ==============================
-            // 🔥 BLOQUE CLIENTA (NO TOCADO)
-            // ==============================
+Console.WriteLine("UsuarioId: " + usuarioId);
+Console.WriteLine("ManicuristaId Session: " + manicuristaId);
+Console.WriteLine("Rol: " + rol);
+Console.WriteLine("===========================");
             // ==============================
 // 🔥 BLOQUE CLIENTA (CORREGIDO)
 // ==============================
