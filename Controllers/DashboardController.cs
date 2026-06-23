@@ -31,6 +31,9 @@ namespace TropiNailsPro.Controllers
     var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
     var rol = HttpContext.Session.GetString("UsuarioRol");
 
+    int? manicuristaIdSession =
+    HttpContext.Session.GetInt32("ManicuristaId");
+
     Console.WriteLine("================================");
 Console.WriteLine("UsuarioId Session: " + usuarioId);
 Console.WriteLine("Rol Session: " + rol);
@@ -38,7 +41,7 @@ Console.WriteLine("Nombre Session: " + nombre);
 Console.WriteLine("================================");
 
 
-   if (string.IsNullOrEmpty(nombre) || usuarioId == null)
+   if (!User.Identity?.IsAuthenticated ?? true)
 {
     TempData["Error"] =
         "Debes iniciar sesión para acceder al sistema.";
@@ -46,12 +49,25 @@ Console.WriteLine("================================");
     return RedirectToAction("Login", "Auth");
 }
 
-int? manicuristaIdSession =
-    HttpContext.Session.GetInt32("ManicuristaId");
+Console.WriteLine("===== DASHBOARD =====");
+Console.WriteLine("Auth: " + User.Identity?.IsAuthenticated);
+Console.WriteLine("UsuarioId Session: " + usuarioId);
+Console.WriteLine("Rol Session: " + rol);
+Console.WriteLine("Nombre Session: " + nombre);
+Console.WriteLine("ManicuristaId Session: " + manicuristaIdSession);
+Console.WriteLine("=====================");
+
+
 
 // Solo validar si NO es clienta
 if (rol != "Clienta" && manicuristaIdSession == null)
 {
+    TempData["Error"] =
+        "No se encontró la sesión de la manicurista.";
+
+    Console.WriteLine(
+        "ERROR: ManicuristaIdSession es NULL");
+
     return RedirectToAction("Login", "Auth");
 }
 
