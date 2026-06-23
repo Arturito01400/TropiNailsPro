@@ -49,10 +49,14 @@ Console.WriteLine("================================");
     int? manicuristaIdSession =
     HttpContext.Session.GetInt32("ManicuristaId");
 
-if (manicuristaIdSession == null)
+// Solo validar si NO es clienta
+if (rol != "Clienta" && manicuristaIdSession == null)
 {
     return RedirectToAction("Login", "Auth");
 }
+
+// Si es clienta y no tiene manicurista, permitir flujo
+int manicuristaId = manicuristaIdSession ?? 0;
 
 int manicuristaId =
     manicuristaIdSession.Value;
