@@ -60,16 +60,16 @@ builder.Services.AddSignalR(options =>
 });
 
 // ================================
-// SERVICIOS (CLEAN)
+// SERVICIOS
 // ================================
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddScoped<PayPalService>();
-builder.Services.AddScoped<TimeService>(); // ✅ agregado correcto
+builder.Services.AddScoped<TimeService>();
 
 builder.Services.AddHttpContextAccessor();
 
-// AUTH
+// AUTH (SIN CAMBIOS ESTRUCTURALES)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -87,7 +87,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
-// SESIÓN
+// SESIÓN (CORREGIDO SOLO PARA AZURE SEGURIDAD)
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
@@ -95,7 +95,9 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(12);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SameSite = SameSiteMode.None;
+
+    // ✔ ESTABLE Y COMPATIBLE CON AZURE
+    options.Cookie.SameSite = SameSiteMode.Lax;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
@@ -174,10 +176,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCookiePolicy(new CookiePolicyOptions
-{
-    MinimumSameSitePolicy = SameSiteMode.None
-});
+// ❌ ELIMINADO: UseCookiePolicy (ROMPE LOGIN EN AZURE)
 
 // STATIC FILES
 app.UseStaticFiles();
@@ -205,13 +204,13 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseRouting();
 app.UseRequestLocalization();
 
-// ORDEN CRÍTICO
+// ORDEN CRÍTICO (LO DEJÉ IGUAL)
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<SuscripcionMiddleware>();
 
-// RUTAS (CLEAN - SIN DUPLICADOS)
+// RUTAS
 app.MapControllerRoute(
     name: "notificaciones",
     pattern: "Notificaciones/{action=Index}/{id?}",

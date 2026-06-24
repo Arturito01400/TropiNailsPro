@@ -104,7 +104,7 @@ public async Task<IActionResult> Login(
                 CodigoPublico = codigoGenerado,
                 Plan = "Prueba",
                 FechaInicioPrueba = _timeService.ObtenerHoraLocal(),
-FechaVencimiento = _timeService.ObtenerHoraLocal().AddDays(15),
+                FechaVencimiento = _timeService.ObtenerHoraLocal().AddDays(15),
                 Activa = true
             };
 
@@ -115,78 +115,74 @@ FechaVencimiento = _timeService.ObtenerHoraLocal().AddDays(15),
         manicuristaIdFinal = manicuristaReal.Id;
 
         var suscripcion = await _context.Suscripciones
-    .Where(s => s.ManicuristaId == manicuristaReal.Id)
-    .OrderByDescending(s => s.FechaInicio)
-    .FirstOrDefaultAsync();
+            .Where(s => s.ManicuristaId == manicuristaReal.Id)
+            .OrderByDescending(s => s.FechaInicio)
+            .FirstOrDefaultAsync();
 
-var ahora = _timeService.ObtenerHoraLocal();
+        var ahora = _timeService.ObtenerHoraLocal();
 
-// 🔥 CASOS
-bool noTieneSuscripcion = suscripcion == null;
+        bool noTieneSuscripcion = suscripcion == null;
 
-bool expirada =
-    suscripcion != null &&
-    (
-        !suscripcion.Activa ||
-        suscripcion.Cancelada ||
-        suscripcion.FechaVencimiento <= ahora
-    );
+        bool expirada =
+            suscripcion != null &&
+            (
+                !suscripcion.Activa ||
+                suscripcion.Cancelada ||
+                suscripcion.FechaVencimiento <= ahora
+            );
 
-// =====================================================
-// 1. SIN SUSCRIPCIÓN (USUARIO NUEVO)
-// =====================================================
-if (noTieneSuscripcion)
-{
-    TempData["Mensaje"] = "Bienvenido, no tienes suscripción activa aún.";
+        // =====================================================
+        // 1. SIN SUSCRIPCIÓN (DEJA PASAR)
+        // =====================================================
+        if (noTieneSuscripcion)
+        {
+            TempData["Mensaje"] = "Bienvenido, no tienes suscripción activa aún.";
+        }
 
-    // ✔️ LO DEJAS ENTRAR NORMAL
-    // (NO bloqueas login)
-}
+        // =====================================================
+        // 2. SUSCRIPCIÓN VENCIDA (BLOQUEAR)
+        // =====================================================
+        else if (expirada)
+        {
+            TempData["Error"] = "Tu suscripción está vencida. Debes renovar para continuar.";
 
-// =====================================================
-// 2. SUSCRIPCIÓN VENCIDA (BLOQUEAR)
-// =====================================================
-else if (expirada)
-{
-    TempData["Error"] = "Tu suscripción está vencida. Debes renovar para continuar.";
+            var claimsVencida = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
+                new Claim(ClaimTypes.Email, usuario.Email ?? ""),
+                new Claim("UsuarioId", usuario.Id.ToString()),
+                new Claim("Rol", usuario.Rol ?? "Clienta")
+            };
 
-    var claimsVencida = new List<Claim>
+            var identityVencida = new ClaimsIdentity(
+                claimsVencida,
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var principalVencida = new ClaimsPrincipal(identityVencida);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principalVencida);
+
+            return RedirectToAction("Vencida", "Suscripcion");
+        }
+    }
+
+    // =====================================================
+    // CLIENTA
+    // =====================================================
+    if (usuario.Rol == "Clienta")
     {
-        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-        new Claim(ClaimTypes.Name, usuario.Nombre ?? ""),
-        new Claim(ClaimTypes.Email, usuario.Email ?? ""),
-        new Claim("UsuarioId", usuario.Id.ToString()),
-        new Claim("Rol", usuario.Rol ?? "Clienta")
-    };
+        Console.WriteLine("===== LOGIN CLIENTA =====");
+        Console.WriteLine("UsuarioId: " + usuario.Id);
+        Console.WriteLine("Nombre: " + usuario.Nombre);
+        Console.WriteLine("ManicuristaId BD: " + usuario.ManicuristaId);
 
-    var identityVencida = new ClaimsIdentity(
-        claimsVencida,
-        CookieAuthenticationDefaults.AuthenticationScheme);
+        manicuristaIdFinal = usuario.ManicuristaId ?? 0;
 
-    var principalVencida = new ClaimsPrincipal(identityVencida);
-
-    await HttpContext.SignInAsync(
-        CookieAuthenticationDefaults.AuthenticationScheme,
-        principalVencida);
-
-    return RedirectToAction("Vencida", "Suscripcion");
-}
-
-
-    }  
-    
-if (usuario.Rol == "Clienta")
-{
-    Console.WriteLine("===== LOGIN CLIENTA =====");
-    Console.WriteLine("UsuarioId: " + usuario.Id);
-    Console.WriteLine("Nombre: " + usuario.Nombre);
-    Console.WriteLine("ManicuristaId BD: " + usuario.ManicuristaId);
-
-    manicuristaIdFinal =
-        usuario.ManicuristaId ?? 0;
-
-    Console.WriteLine("ManicuristaId Final: " + manicuristaIdFinal);
-}
+        Console.WriteLine("ManicuristaId Final: " + manicuristaIdFinal);
+    }
 
     // =====================================================
     // SESSION
@@ -198,28 +194,21 @@ if (usuario.Rol == "Clienta")
     HttpContext.Session.SetString("Rol", usuario.Rol ?? "Clienta");
     HttpContext.Session.SetString("UsuarioPlan", usuario.Plan ?? "Premium");
 
-
-// =====================================================
-// FOTO SESSION ESTABLE
-// =====================================================
-
-string fotoPerfil = usuario.FotoPerfil;
-
-if (string.IsNullOrWhiteSpace(fotoPerfil))
-{
-    fotoPerfil = "/img/user-default.png";
-}
-
-if (!fotoPerfil.StartsWith("/"))
-{
-    fotoPerfil = "/" + fotoPerfil;
-}
-
-HttpContext.Session.SetString(
-    "UsuarioFoto",
-    fotoPerfil);
     // =====================================================
-    // CLAIMS
+    // FOTO SESSION ESTABLE
+    // =====================================================
+    string fotoPerfil = usuario.FotoPerfil;
+
+    if (string.IsNullOrWhiteSpace(fotoPerfil))
+        fotoPerfil = "/img/user-default.png";
+
+    if (!fotoPerfil.StartsWith("/"))
+        fotoPerfil = "/" + fotoPerfil;
+
+    HttpContext.Session.SetString("UsuarioFoto", fotoPerfil);
+
+    // =====================================================
+    // CLAIMS (LOGIN REAL ÚNICO)
     // =====================================================
     var claims = new List<Claim>
     {
