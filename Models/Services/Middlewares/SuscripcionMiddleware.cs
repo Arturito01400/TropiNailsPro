@@ -50,19 +50,25 @@ namespace TropiNailsPro.Middlewares
                 // 🔥 OBTENER SESSION
                 // =====================================================
 
-                int? usuarioId = context.Session.GetInt32("UsuarioId");
+                var usuarioIdClaim = context.User?.FindFirst("UsuarioId")?.Value;
+var rol = context.User?.FindFirst("Rol")?.Value;
 
-                var rol = context.Session.GetString("Rol");
+int usuarioId = 0;
+
+if (!string.IsNullOrEmpty(usuarioIdClaim))
+{
+    int.TryParse(usuarioIdClaim, out usuarioId);
+}
 
                 // =====================================================
                 // 🔥 SI NO HAY ROL -> LOGIN
                 // =====================================================
 
-                if (string.IsNullOrEmpty(rol))
-                {
-                    context.Response.Redirect("/Auth/Login");
-                    return;
-                }
+                if (!context.User.Identity.IsAuthenticated)
+{
+    context.Response.Redirect("/Auth/Login");
+    return;
+}
 
                 // =====================================================
                 // 🔥 CLIENTAS GRATIS
@@ -84,52 +90,14 @@ namespace TropiNailsPro.Middlewares
                     return;
                 }
 
-                // =====================================================
-                // 🔥 RESTAURAR SESSION SI SE PIERDE
-                // =====================================================
-
-                if (!usuarioId.HasValue)
-                {
-                    var email = context.User?.Identity?.Name;
-
-                    if (!string.IsNullOrEmpty(email))
-                    {
-                        var usuario = await db.Manicuristas
-                            .FirstOrDefaultAsync(x => x.Email == email);
-
-                        if (usuario != null)
-                        {
-                            usuarioId = usuario.Id;
-
-                            context.Session.SetInt32(
-                                "UsuarioId",
-                                usuario.Id
-                            );
-
-                            context.Session.SetString(
-                                "Rol",
-                                "Manicurista"
-                            );
-                        }
-                    }
-                }
-
-                // =====================================================
-                // 🔥 SI NO HAY SESSION
-                // =====================================================
-
-                if (!usuarioId.HasValue)
-                {
-                    context.Response.Redirect("/Auth/Login");
-                    return;
-                }
+                
 
                 // =====================================================
                 // 🔥 BUSCAR SUSCRIPCION
                 // =====================================================
 
                 var manicurista = await db.Manicuristas
-    .FirstOrDefaultAsync(x => x.UsuarioId == usuarioId.Value);
+    .FirstOrDefaultAsync(x => x.UsuarioId == usuarioId);
 
 if (manicurista == null)
 {
