@@ -97,8 +97,8 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 
     // ✔ ESTABLE Y COMPATIBLE CON AZURE
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.None;
+options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 // CULTURA
@@ -202,12 +202,15 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.UseRouting();
+
 app.UseRequestLocalization();
 
-// ORDEN CRÍTICO (LO DEJÉ IGUAL)
-app.UseSession();
+// 🔥 ORDEN CORRECTO Y SEGURO EN AZURE
 app.UseAuthentication();
+app.UseSession();
+
 app.UseAuthorization();
+
 app.UseMiddleware<SuscripcionMiddleware>();
 
 // RUTAS
