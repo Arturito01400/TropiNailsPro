@@ -32,79 +32,67 @@ namespace TropiNailsPro.Controllers
     var rol = HttpContext.Session.GetString("UsuarioRol");
 
     int? manicuristaIdSession =
-    HttpContext.Session.GetInt32("ManicuristaId");
+        HttpContext.Session.GetInt32("ManicuristaId");
 
-    Console.WriteLine("================================");
-Console.WriteLine("UsuarioId Session: " + usuarioId);
-Console.WriteLine("Rol Session: " + rol);
-Console.WriteLine("Nombre Session: " + nombre);
-Console.WriteLine("================================");
-
-
-   if (!User.Identity?.IsAuthenticated ?? true)
-{
-    TempData["Error"] =
-        "Debes iniciar sesión para acceder al sistema.";
-
-    return RedirectToAction("Login", "Auth");
-}
-
-Console.WriteLine("===== DASHBOARD =====");
-Console.WriteLine("Auth: " + User.Identity?.IsAuthenticated);
-Console.WriteLine("UsuarioId Session: " + usuarioId);
-Console.WriteLine("Rol Session: " + rol);
-Console.WriteLine("Nombre Session: " + nombre);
-Console.WriteLine("ManicuristaId Session: " + manicuristaIdSession);
-Console.WriteLine("=====================");
-
-
-
-// Solo validar si NO es clienta
-if (rol != "Clienta" && manicuristaIdSession == null)
-{
-    TempData["Error"] =
-        "No se encontró la sesión de la manicurista.";
-
-    Console.WriteLine(
-        "ERROR: ManicuristaIdSession es NULL");
-
-    return RedirectToAction("Login", "Auth");
-}
-
-// 🔥 FIX SEGURO: solo una declaración
-int manicuristaId = manicuristaIdSession ?? 0;
-
-Console.WriteLine("======== DASHBOARD ========");
-Console.WriteLine("UsuarioId: " + usuarioId);
-Console.WriteLine("ManicuristaId Session: " + manicuristaId);
-Console.WriteLine("Rol: " + rol);
-Console.WriteLine("===========================");
-            // ==============================
-// 🔥 BLOQUE CLIENTA (CORREGIDO)
-// ==============================
-if (rol == "Clienta")
-{
-    Console.WriteLine("===== CLIENTA =====");
-    Console.WriteLine("ClienteId: " + usuarioId);
-    Console.WriteLine("ManicuristaId Session: " +
-        HttpContext.Session.GetInt32("ManicuristaId"));
-    Console.WriteLine("Nombre: " + nombre);
-    Console.WriteLine("===================");
-
-    ViewBag.EsClienta = true;
-    ViewBag.UsuarioNombre = nombre;
-
-    DateTime hoyClienta = DateTime.Today;
-
-    if (!usuarioId.HasValue)
+    // 🔥 VALIDACIÓN SEGURA DE SESIÓN
+    if (rol != "Clienta" && !manicuristaIdSession.HasValue)
     {
+        TempData["Error"] = "Sesión de manicurista inválida.";
         return RedirectToAction("Login", "Auth");
     }
 
-    int clienteId = usuarioId.Value;
-    int idManicurista = manicuristaId;
+    // 🔥 VARIABLE SEGURA PARA USO GENERAL
+    int manicuristaId = manicuristaIdSession ?? throw new Exception("ManicuristaId no existe en sesión");
 
-    ViewBag.ManicuristaId = idManicurista;
+    Console.WriteLine("================================");
+    Console.WriteLine("UsuarioId Session: " + usuarioId);
+    Console.WriteLine("Rol Session: " + rol);
+    Console.WriteLine("Nombre Session: " + nombre);
+    Console.WriteLine("ManicuristaId Session: " + manicuristaIdSession);
+    Console.WriteLine("================================");
+
+    if (!User.Identity?.IsAuthenticated ?? true)
+    {
+        TempData["Error"] =
+            "Debes iniciar sesión para acceder al sistema.";
+
+        return RedirectToAction("Login", "Auth");
+    }
+
+    Console.WriteLine("===== DASHBOARD =====");
+    Console.WriteLine("Auth: " + User.Identity?.IsAuthenticated);
+    Console.WriteLine("UsuarioId Session: " + usuarioId);
+    Console.WriteLine("Rol Session: " + rol);
+    Console.WriteLine("Nombre Session: " + nombre);
+    Console.WriteLine("ManicuristaId Session: " + manicuristaIdSession);
+    Console.WriteLine("=====================");
+
+    // ==============================
+    // 🔥 BLOQUE CLIENTA
+    // ==============================
+    if (rol == "Clienta")
+    {
+        Console.WriteLine("===== CLIENTA =====");
+        Console.WriteLine("ClienteId: " + usuarioId);
+        Console.WriteLine("ManicuristaId Session: " +
+            HttpContext.Session.GetInt32("ManicuristaId"));
+        Console.WriteLine("Nombre: " + nombre);
+        Console.WriteLine("===================");
+
+        ViewBag.EsClienta = true;
+        ViewBag.UsuarioNombre = nombre;
+
+        DateTime hoyClienta = DateTime.Today;
+
+        if (!usuarioId.HasValue)
+        {
+            return RedirectToAction("Login", "Auth");
+        }
+
+        int clienteId = usuarioId.Value;
+        int idManicurista = manicuristaId;
+
+        ViewBag.ManicuristaId = idManicurista;
 
     // =====================
     // 📅 CITAS BASE
