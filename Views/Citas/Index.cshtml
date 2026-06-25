@@ -532,25 +532,30 @@ hoy.getDate()+1
 );
 
 
-const citasHoy=
-lista.filter(x=>
-new Date(x.Fecha + "T00:00:00").toDateString()===hoy.toDateString()
-&& x.Estado!=="Finalizado"
+const hoyStr = soloFecha(new Date());
+const mananaStr = soloFecha(manana);
+
+const citasHoy =
+lista.filter(x =>
+soloFecha(x.Fecha) === hoyStr
+&& x.Estado !== "Finalizado"
 );
 
-
-const citasManana=
-lista.filter(x=>
-new Date(x.Fecha + "T00:00:00").toDateString()===manana.toDateString()
-&& x.Estado!=="Finalizado"
+const citasManana =
+lista.filter(x =>
+soloFecha(x.Fecha) === mananaStr
+&& x.Estado !== "Finalizado"
 );
 
-
-const futuras=
-lista.filter(x=>
-new Date(x.Fecha + "T00:00:00") > manana
-&& x.Estado!=="Finalizado"
+const futuras =
+lista.filter(x =>
+soloFecha(x.Fecha) > mananaStr
+&& x.Estado !== "Finalizado"
 );
+
+function soloFecha(dateStr) {
+    return new Date(dateStr).toISOString().split("T")[0];
+}
 
 
 renderTabla("tablaHoy",citasHoy);
