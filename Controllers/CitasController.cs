@@ -169,13 +169,19 @@ if (clienta != null)
             await _notificacionService
             .ActualizarContador(usuario,1);
 
+var horaTexto =
+    DateTime.Today
+    .Add(cita.Hora)
+    .ToString("hh:mm tt");
+
+
 
             await _notificacionService
     .EnviarNotificacionTiempoReal(
         cita.NombreClienta,
         $"Tu manicurista te agendó para " +
         $"{cita.Fecha:dd/MM/yyyy} " +
-        $"a las {cita.Hora:hh\\:mm tt} 💅"
+        $"a las {horaTexto} 💅"
     );
 
 
@@ -292,13 +298,15 @@ if (clienta != null)
                     $"Cita actualizada: {citaDb.NombreClienta} ✏️");
 
 
-            await _notificacionService
-                .EnviarNotificacionTiempoReal(
-                    citaDb.NombreClienta,
-                    $"Tu cita fue actualizada para " +
-                    $"{citaDb.Fecha:dd/MM/yyyy} " +
-                    $"a las {_timeService.ObtenerHoraLocal().Date.Add(citaDb.Hora):hh:mm tt} ✨"
-                );
+            var horaTexto = DateTime.Today
+    .Add(citaDb.Hora)
+    .ToString("hh:mm tt");
+
+await _notificacionService
+    .EnviarNotificacionTiempoReal(
+        citaDb.NombreClienta,
+        $"Tu cita fue actualizada para {citaDb.Fecha:dd/MM/yyyy} a las {horaTexto} ✨"
+    );
 
 
             return RedirectToAction(nameof(Index));
