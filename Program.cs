@@ -211,7 +211,7 @@ app.UseSession();
 
 app.UseAuthorization();
 
-app.UseMiddleware<SuscripcionMiddleware>();
+//app.UseMiddleware<SuscripcionMiddleware>();
 
 // RUTAS
 app.MapControllerRoute(
