@@ -358,7 +358,7 @@ await _notificacionService
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SiguienteCliente()
+        public async Task<IActionResult> SiguienteCliente(int id)
         {
             var manicuristaId =
     HttpContext.Session.GetInt32("ManicuristaId");

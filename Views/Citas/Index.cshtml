@@ -408,7 +408,7 @@ let botonSiguiente="";
 
 
 if(index===0
-&& soloFecha(item.Fecha) === soloFecha(new Date())
+&& soloFecha(item.Fecha) === soloFecha(new Date().toISOString())
 && @esManicurista.ToString().ToLower())
 {
 
@@ -560,7 +560,10 @@ soloFecha(x.Fecha) > mananaStr
 );
 
 function soloFecha(dateStr) {
-    return new Date(dateStr).toLocaleDateString("en-CA");
+    const d = new Date(dateStr);
+    return d.getFullYear() + "-" +
+           String(d.getMonth() + 1).padStart(2, "0") + "-" +
+           String(d.getDate()).padStart(2, "0");
 }
 
 
@@ -594,13 +597,13 @@ return f.getMonth()==mesActual
 });
 
 
-const citasAno=
-lista.filter(x=>{
-const f=
-new Date(x.Fecha + "T00:00:00");
-
-return f.getFullYear()==anoActual;
+const citasAno =
+lista.filter(x => {
+    const f = new Date(x.Fecha);
+    return f.getFullYear() == anoActual;
 });
+
+
 
 
 document.getElementById(
