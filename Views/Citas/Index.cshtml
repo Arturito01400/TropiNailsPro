@@ -408,7 +408,7 @@ let botonSiguiente="";
 
 
 if(index===0
-&& new Date(item.Fecha + "T00:00:00").toDateString()===hoy
+&& soloFecha(item.Fecha) === soloFecha(new Date())
 && @esManicurista.ToString().ToLower())
 {
 
@@ -560,7 +560,7 @@ soloFecha(x.Fecha) > mananaStr
 );
 
 function soloFecha(dateStr) {
-    return new Date(dateStr).toISOString().split("T")[0];
+    return new Date(dateStr).toLocaleDateString("en-CA");
 }
 
 
@@ -586,8 +586,7 @@ hoy.getFullYear();
 
 const citasMes=
 lista.filter(x=>{
-const f=
-new Date(x.Fecha + "T00:00:00");
+const f = new Date(x.Fecha);
 
 return f.getMonth()==mesActual
 && f.getFullYear()==anoActual;
