@@ -303,8 +303,14 @@ Año
 
 document.addEventListener("DOMContentLoaded",function(){
 
-const listaInicial=
+const listaInicial =
 @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+
+console.log("LISTA COMPLETA:", listaInicial);
+
+if (listaInicial.length > 0) {
+    console.log("PRIMERA CITA:", listaInicial[0]);
+}
 
 
 // ORDEN FECHA + HORA TEMPRANA
