@@ -1,3 +1,4 @@
+using TropiNailsPro.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -62,6 +63,11 @@ builder.Services.AddSignalR(options =>
 // ================================
 // SERVICIOS
 // ================================
+
+// Configuración EmailSettings
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddScoped<PayPalService>();

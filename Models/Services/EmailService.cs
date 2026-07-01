@@ -2,16 +2,22 @@ using sib_api_v3_sdk.Api;
 using sib_api_v3_sdk.Client;
 using sib_api_v3_sdk.Model;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using TropiNailsPro.Models;
 
 namespace TropiNailsPro.Services
 {
     public class EmailService
     {
         private readonly IConfiguration _config;
+        private readonly EmailSettings _emailSettings;
 
-        public EmailService(IConfiguration config)
+        public EmailService(
+            IConfiguration config,
+            IOptions<EmailSettings> emailSettings)
         {
             _config = config;
+            _emailSettings = emailSettings.Value;
         }
 
         // ======================================================
@@ -23,8 +29,10 @@ namespace TropiNailsPro.Services
             string cuerpoHtml)
         {
             var apiKey = _config["Brevo:ApiKey"];
-            var senderName = _config["EmailSettings:SenderName"];
-            var senderEmail = _config["EmailSettings:SenderEmail"];
+
+            var senderName = _emailSettings.SenderName;
+
+            var senderEmail = _emailSettings.SenderEmail;
 
             if (string.IsNullOrWhiteSpace(apiKey))
                 throw new Exception("Brevo ApiKey no configurada");
@@ -49,7 +57,6 @@ namespace TropiNailsPro.Services
 
             await apiInstance.SendTransacEmailAsync(email);
         }
-
 
         // ======================================================
         // 🔐 RECUPERACIÓN
