@@ -262,7 +262,7 @@ namespace TropiNailsPro.Controllers
                 .Include(p => p.Usuario)
                 .Include(p => p.Likes)
                 .Include(p => p.Comentarios)
-                .OrderByDescending(p => p.Fecha.ToLocalTime())
+                .OrderByDescending(p => p.Fecha)
                 .Take(30)
                 .AsNoTracking()
                 .ToListAsync();

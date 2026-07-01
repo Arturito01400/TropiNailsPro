@@ -8,17 +8,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
 using Xabe.FFmpeg;
+using TropiNailsPro.Services;
 
 namespace TropiNailsPro.Controllers
 {
     public class PublicacionesController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly TimeService _timeService;
 
-        public PublicacionesController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public PublicacionesController(
+    AppDbContext context,
+    TimeService timeService)
+{
+    _context = context;
+    _timeService = timeService;
+}
 
         public IActionResult Crear()
         {
@@ -156,8 +161,7 @@ namespace TropiNailsPro.Controllers
                 model.UsuarioId =
                     usuarioReal.Id;
 
-                model.Fecha =
-                    DateTime.Now;
+                model.Fecha = _timeService.ObtenerHoraLocal();
 
                 model.ManicuristaId =
                     manicuristaSessionId.Value;
@@ -237,7 +241,7 @@ namespace TropiNailsPro.Controllers
             var comentario = new Comentario
             {
                 Texto = texto,
-                Fecha = DateTime.Now,
+                Fecha = _timeService.ObtenerHoraLocal(),
                 UsuarioId = usuarioId.Value,
                 PublicacionId = publicacionId,
                 ComentarioPadreId = comentarioPadreId
@@ -408,7 +412,7 @@ return Json(data);
                 {
                     PublicacionId = id,
                     UsuarioId = usuario.Id,
-                    Fecha = DateTime.Now
+                    Fecha = _timeService.ObtenerHoraLocal()
                 });
             }
 
