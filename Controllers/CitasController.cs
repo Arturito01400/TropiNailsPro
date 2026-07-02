@@ -374,7 +374,7 @@ await _notificacionService
             var actual =
                 await _context.Citas
                 .FirstOrDefaultAsync(c =>
-                    c.ManicuristaId == manicuristaId &&
+                    c.ManicuristaId == manicuristaId.Value &&
                     c.Fecha.Date == hoy &&
                     c.Estado == "En curso");
 
@@ -385,9 +385,9 @@ await _notificacionService
             var siguiente =
                 await _context.Citas
                 .Where(c =>
-                    c.ManicuristaId == manicuristaId &&
-                    c.Fecha.Date == hoy &&
-                    c.Estado == "Pendiente")
+    c.ManicuristaId == manicuristaId.Value &&
+    c.Fecha.Date == hoy &&
+    c.Estado == "Pendiente")
                 .OrderBy(c => c.Hora)
                 .FirstOrDefaultAsync();
 

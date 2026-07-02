@@ -306,6 +306,8 @@ document.addEventListener("DOMContentLoaded",function(){
 const listaInicial =
 @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
 
+alert("Cantidad de citas: " + listaInicial.length);
+
 console.log("LISTA COMPLETA:", listaInicial);
 
 if (listaInicial.length > 0) {
