@@ -379,6 +379,16 @@ return e;
 
 }
 
+function soloFecha(dateStr){
+
+    const d = new Date(dateStr);
+
+    return d.getFullYear() + "-" +
+           String(d.getMonth() + 1).padStart(2,"0") + "-" +
+           String(d.getDate()).padStart(2,"0");
+
+}
+
 
 
 function renderTabla(id,citas){
@@ -561,12 +571,7 @@ soloFecha(x.Fecha) > mananaStr
 && x.Estado !== "Finalizado"
 );
 
-function soloFecha(dateStr) {
-    const d = new Date(dateStr);
-    return d.getFullYear() + "-" +
-           String(d.getMonth() + 1).padStart(2, "0") + "-" +
-           String(d.getDate()).padStart(2, "0");
-}
+
 
 
 renderTabla("tablaHoy",citasHoy);
