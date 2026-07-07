@@ -30,22 +30,34 @@ private const decimal PRECIO_OFICIAL = 10.20m;
         }
 
         // =====================================================
-        // 🔥 CLIENTE PAYPAL
-        // =====================================================
+// 🔥 CLIENTE PAYPAL
+// =====================================================
 
-        private PayPalHttpClient Client()
-        {
-            var clientId = _config["PayPal:ClientId"];
-            var secret = _config["PayPal:Secret"];
+private PayPalHttpClient Client()
+{
+    var clientId = _config["PayPal:ClientId"];
+    var secret = _config["PayPal:Secret"];
+    var mode = _config["PayPal:Mode"] ?? "sandbox";
 
-            // 🔥 PRODUCCIÓN
-            var environment = new LiveEnvironment(
-                clientId,
-                secret
-            );
+    if (string.IsNullOrWhiteSpace(clientId))
+        throw new Exception("PayPal ClientId no está configurado.");
 
-            return new PayPalHttpClient(environment);
-        }
+    if (string.IsNullOrWhiteSpace(secret))
+        throw new Exception("PayPal Secret no está configurado.");
+
+    PayPalEnvironment environment;
+
+    if (mode.Equals("live", StringComparison.OrdinalIgnoreCase))
+    {
+        environment = new LiveEnvironment(clientId, secret);
+    }
+    else
+    {
+        environment = new SandboxEnvironment(clientId, secret);
+    }
+
+    return new PayPalHttpClient(environment);
+}
 
         // =====================================================
         // 🔥 CREAR ORDEN
