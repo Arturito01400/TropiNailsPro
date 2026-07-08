@@ -28,9 +28,9 @@ namespace TropiNailsPro.Controllers
 
             // 🔥 Traer usuarios con relaciones (sin romper estructura existente)
             var query = _context.Usuarios
-                .Include(u => u.Clientas)
-                .OrderByDescending(u => u.FechaRegistro)
-                .AsQueryable();
+    .Include(u => u.Manicurista)
+    .OrderByDescending(u => u.FechaRegistro)
+    .AsQueryable();
 
             // 🔥 FILTROS (nuevo pero seguro)
             switch (filtro)

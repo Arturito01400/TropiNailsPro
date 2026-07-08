@@ -15,6 +15,10 @@ namespace TropiNailsPro.Models
 [ForeignKey("UsuarioId")]
 public Usuario Usuario { get; set; } = null!;
 
+// 🔥 CLIENTAS REGISTRADAS POR LINK DE ESTA MANICURISTA
+[InverseProperty(nameof(Usuario.Manicurista))]
+public virtual ICollection<Usuario> Clientas { get; set; } = new List<Usuario>();
+
         [Required, MaxLength(150)]
         public string NombreNegocio { get; set; } = "";
 

@@ -91,8 +91,7 @@ public int? ManicuristaId { get; set; }
 [ForeignKey("ManicuristaId")]
 public virtual Manicurista? Manicurista { get; set; }
 
-        // 🔥 CLIENTAS (sin cambio de lógica)
-        public virtual ICollection<Usuario> Clientas { get; set; } = new List<Usuario>();
+    
 
         [StringLength(20)]
         public string Plan { get; set; } = "Basico";
