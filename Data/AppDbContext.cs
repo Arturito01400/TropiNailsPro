@@ -163,10 +163,10 @@ modelBuilder.Entity<Usuario>()
 // MANICURISTA → USUARIO PRINCIPAL
 // ======================================================
 
-modelBuilder.Entity<Manicurista>()
-    .HasOne(m => m.Usuario)
-    .WithOne()
-    .HasForeignKey<Manicurista>(m => m.UsuarioId)
+modelBuilder.Entity<Usuario>()
+    .HasOne<Manicurista>()
+    .WithMany()
+    .HasForeignKey(u => u.ManicuristaId)
     .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Usuario>()

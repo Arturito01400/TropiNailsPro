@@ -88,6 +88,7 @@ public string Clave { get; set; } = string.Empty;
         // 🔥 CLIENTA PERTENECE A UNA MANICURISTA
 public int? ManicuristaId { get; set; }
 
+[ForeignKey("ManicuristaId")]
 public virtual Manicurista? Manicurista { get; set; }
 
         // 🔥 CLIENTAS (sin cambio de lógica)
