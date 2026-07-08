@@ -148,7 +148,7 @@ namespace TropiNailsPro.Data
             // USUARIOS
             // ======================================================
             // ======================================================
-            
+
 // USUARIO CLIENTA → MANICURISTA
 // ======================================================
 
@@ -156,6 +156,17 @@ modelBuilder.Entity<Usuario>()
     .HasOne(u => u.Manicurista)
     .WithMany()
     .HasForeignKey(u => u.ManicuristaId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+
+    // ======================================================
+// MANICURISTA → USUARIO PRINCIPAL
+// ======================================================
+
+modelBuilder.Entity<Manicurista>()
+    .HasOne(m => m.Usuario)
+    .WithOne()
+    .HasForeignKey<Manicurista>(m => m.UsuarioId)
     .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Usuario>()
