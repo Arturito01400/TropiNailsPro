@@ -86,7 +86,7 @@ private readonly TimeService _timeService;
         ViewBag.EsClienta = true;
         ViewBag.UsuarioNombre = nombre;
 
-        DateTime hoyClienta = DateTime.Today;
+        DateTime hoyClienta = _timeService.ObtenerHoraLocal().Date;
 
         if (!usuarioId.HasValue)
         {
