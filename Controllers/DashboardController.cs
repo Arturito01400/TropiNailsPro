@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using TropiNailsPro.Models.ViewModels;
+using TropiNailsPro.Services;
 
 namespace TropiNailsPro.Controllers
 {
@@ -16,14 +17,17 @@ namespace TropiNailsPro.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IHubContext<OnlineHub> _hub;
+private readonly TimeService _timeService;
 
         public DashboardController(
-            AppDbContext context,
-            IHubContext<OnlineHub> hub)
-        {
-            _context = context;
-            _hub = hub;
-        }
+    AppDbContext context,
+    IHubContext<OnlineHub> hub,
+    TimeService timeService)
+{
+    _context = context;
+    _hub = hub;
+    _timeService = timeService;
+}
 
         public async Task<IActionResult> Index()
 {
@@ -386,7 +390,7 @@ Console.WriteLine(
             // ESTADÍSTICAS (SIN TOCAR)
             // ======================
 
-            var hoy = DateTime.Today;
+           var hoy = _timeService.ObtenerHoraLocal().Date;
 
             var ingresosHoy =
                 await _context.Pagos
