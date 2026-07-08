@@ -85,11 +85,11 @@ public string Clave { get; set; } = string.Empty;
         [StringLength(255)]
         public string? WhatsApp { get; set; }
 
-        // 🔥 RELACIÓN CORRECTA (NO TOCAR MÁS)
-        public int? ManicuristaId { get; set; }
+        // 🔥 CLIENTA PERTENECE A UNA MANICURISTA
+public int? ManicuristaId { get; set; }
 
-        [ForeignKey("ManicuristaId")]
-        public Usuario? Manicurista { get; set; }
+[ForeignKey("ManicuristaId")]
+public Manicurista? Manicurista { get; set; }
 
         // 🔥 CLIENTAS (sin cambio de lógica)
         public virtual ICollection<Usuario> Clientas { get; set; } = new List<Usuario>();
