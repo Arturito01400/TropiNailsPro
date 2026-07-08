@@ -510,7 +510,7 @@ if (model.Rol == "Clienta" &&
     if (manicurista != null)
 {
     model.ManicuristaId =
-        manicurista.Id;
+    manicurista.UsuarioId;
 }
 }
 
