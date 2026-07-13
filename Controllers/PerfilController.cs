@@ -40,16 +40,25 @@ namespace TropiNailsPro.Controllers
             _publicacionService = publicacionService;
         }
 
-        // =====================================================
-        // INDEX
-        // =====================================================
-        public async Task<IActionResult> Index()
-        {
-            var usuarioNombre =
-                HttpContext.Session.GetString("UsuarioNombre");
+       // =====================================================
+// INDEX
+// =====================================================
+public async Task<IActionResult> Index()
+{
+    var usuarioNombre =
+        HttpContext.Session.GetString("UsuarioNombre");
 
-            if (string.IsNullOrEmpty(usuarioNombre))
-                return RedirectToAction("Login", "Auth");
+    var usuarioId =
+        HttpContext.Session.GetInt32("UsuarioId");
+
+    Console.WriteLine("==========================");
+    Console.WriteLine("SESION NOMBRE: " + usuarioNombre);
+    Console.WriteLine("SESION ID: " + usuarioId);
+    Console.WriteLine("AUTHENTICATED: " + User.Identity.IsAuthenticated);
+    Console.WriteLine("==========================");
+
+    if (string.IsNullOrEmpty(usuarioNombre))
+        return RedirectToAction("Login", "Auth");
 
             var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(x =>
