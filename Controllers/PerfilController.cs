@@ -40,42 +40,22 @@ namespace TropiNailsPro.Controllers
             _publicacionService = publicacionService;
         }
 
-       // =====================================================
-// INDEX
-// =====================================================
-public async Task<IActionResult> Index()
+        // =====================================================
+        // INDEX
+        // =====================================================
+        public async Task<IActionResult> Index()
 {
-    var usuarioNombre =
-        HttpContext.Session.GetString("UsuarioNombre");
+    var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
-    var usuarioId =
-        HttpContext.Session.GetInt32("UsuarioId");
+    if (usuarioId == null)
+        return RedirectToAction("Login", "Auth");
 
-    Console.WriteLine("==========================");
-    Console.WriteLine("SESION NOMBRE: " + usuarioNombre);
-    Console.WriteLine("SESION ID: " + usuarioId);
-    Console.WriteLine("AUTHENTICATED: " + User.Identity.IsAuthenticated);
-    Console.WriteLine("==========================");
+    var usuario = await _context.Usuarios
+        .FirstOrDefaultAsync(u => u.Id == usuarioId.Value);
 
-    if (string.IsNullOrEmpty(usuarioNombre))
-{
-    return Content("LA SESION ESTA VACIA");
-}
+    if (usuario == null)
+        return RedirectToAction("Login", "Auth");
 
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(x =>
-                    x.Nombre.ToLower() ==
-                    usuarioNombre.Trim().ToLower());
-
-            if (usuario == null)
-            {
-                usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u =>
-                        u.UsuarioLogin == usuarioNombre);
-
-                if (usuario == null)
-                    return RedirectToAction("Login", "Auth");
-            }
 
             // =====================================================
             // FOTO PERFIL ESTABLE
@@ -139,28 +119,18 @@ public async Task<IActionResult> Index()
         // =====================================================
         public async Task<IActionResult> Editar()
         {
-            var usuarioNombre =
-                HttpContext.Session.GetString("UsuarioNombre");
+            var usuarioId =
+    HttpContext.Session.GetInt32("UsuarioId");
 
-            if (string.IsNullOrEmpty(usuarioNombre))
-{
-    return Content("LA SESION ESTA VACIA");
-}
+if (usuarioId == null)
+    return RedirectToAction("Login", "Auth");
 
-            var usuario = await _context.Usuarios
-                .FirstOrDefaultAsync(x =>
-                    x.Nombre.ToLower() ==
-                    usuarioNombre.Trim().ToLower());
+var usuario = await _context.Usuarios
+    .FirstOrDefaultAsync(u => u.Id == usuarioId.Value);
 
-            if (usuario == null)
-            {
-                usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u =>
-                        u.UsuarioLogin == usuarioNombre);
+if (usuario == null)
+    return RedirectToAction("Login", "Auth");
 
-                if (usuario == null)
-                    return RedirectToAction("Login", "Auth");
-            }
 
             // FOTO SEGURA
             if (string.IsNullOrWhiteSpace(usuario.FotoPerfil))
@@ -193,22 +163,17 @@ public async Task<IActionResult> Index()
             Usuario model,
             IFormFile? foto)
         {
-            var usuarioNombre =
-                HttpContext.Session.GetString("UsuarioNombre");
+            var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
-            if (string.IsNullOrEmpty(usuarioNombre))
-{
-    throw new Exception("SESION PERDIDA EN GUARDAR PERFIL");
-}
+if (usuarioId == null)
+    return RedirectToAction("Login", "Auth");
 
             var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(x =>
                     x.Id == model.Id);
 
             if (usuario == null)
-{
-    throw new Exception("USUARIO NO ENCONTRADO ID: " + model.Id);
-}
+                return RedirectToAction("Login", "Auth");
 
             // =====================================================
             // ACTUALIZAR DATOS
@@ -273,14 +238,14 @@ public async Task<IActionResult> Index()
             await _context.SaveChangesAsync();
 
             await _notificacionService
-                .EnviarNotificacionTiempoReal(
-                    usuarioNombre,
-                    "Tu perfil fue actualizado correctamente 👤");
+    .EnviarNotificacionTiempoReal(
+        usuario.Nombre,
+        "Tu perfil fue actualizado correctamente 👤");
 
-            await _notificacionService
-                .ActualizarContador(
-                    usuarioNombre,
-                    1);
+await _notificacionService
+    .ActualizarContador(
+        usuario.Nombre,
+        1);
 
             TempData["Mensaje"] =
                 "Perfil actualizado correctamente";
