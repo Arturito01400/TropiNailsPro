@@ -193,14 +193,18 @@ public async Task<IActionResult> Index()
                 HttpContext.Session.GetString("UsuarioNombre");
 
             if (string.IsNullOrEmpty(usuarioNombre))
-                return RedirectToAction("Login", "Auth");
+{
+    throw new Exception("SESION PERDIDA EN GUARDAR PERFIL");
+}
 
             var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(x =>
                     x.Id == model.Id);
 
             if (usuario == null)
-                return RedirectToAction("Login", "Auth");
+{
+    throw new Exception("USUARIO NO ENCONTRADO ID: " + model.Id);
+}
 
             // =====================================================
             // ACTUALIZAR DATOS
