@@ -58,7 +58,9 @@ public async Task<IActionResult> Index()
     Console.WriteLine("==========================");
 
     if (string.IsNullOrEmpty(usuarioNombre))
-        return RedirectToAction("Login", "Auth");
+{
+    return Content("LA SESION ESTA VACIA");
+}
 
             var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(x =>
@@ -141,7 +143,9 @@ public async Task<IActionResult> Index()
                 HttpContext.Session.GetString("UsuarioNombre");
 
             if (string.IsNullOrEmpty(usuarioNombre))
-                return RedirectToAction("Login", "Auth");
+{
+    return Content("LA SESION ESTA VACIA");
+}
 
             var usuario = await _context.Usuarios
                 .FirstOrDefaultAsync(x =>
