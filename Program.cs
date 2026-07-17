@@ -69,8 +69,8 @@ builder.Services.AddSignalR(options =>
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 
-    builder.Services.Configure<AzureBlobStorageSettings>(
-    builder.Configuration.GetSection("AzureBlobStorage"));
+   builder.Services.Configure<AzureBlobStorageSettings>(
+    builder.Configuration.GetSection("StorageAccount"));
 
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NotificacionService>();
