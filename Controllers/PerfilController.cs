@@ -23,22 +23,25 @@ namespace TropiNailsPro.Controllers
         private readonly IHubContext<AvatarHub> _avatarHub;
         private readonly NotificacionService _notificacionService;
         private readonly PublicacionService _publicacionService;
+        private readonly AzureBlobService _blobService;
 
-        public PerfilController(
-            AppDbContext context,
-            IWebHostEnvironment env,
-            IHubContext<OnlineHub> hub,
-            IHubContext<AvatarHub> avatarHub,
-            NotificacionService notificacionService,
-            PublicacionService publicacionService)
-        {
-            _context = context;
-            _env = env;
-            _hub = hub;
-            _avatarHub = avatarHub;
-            _notificacionService = notificacionService;
-            _publicacionService = publicacionService;
-        }
+       public PerfilController(
+    AppDbContext context,
+    IWebHostEnvironment env,
+    IHubContext<OnlineHub> hub,
+    IHubContext<AvatarHub> avatarHub,
+    NotificacionService notificacionService,
+    PublicacionService publicacionService,
+    AzureBlobService blobService)
+{
+    _context = context;
+    _env = env;
+    _hub = hub;
+    _avatarHub = avatarHub;
+    _notificacionService = notificacionService;
+    _publicacionService = publicacionService;
+    _blobService = blobService;
+}
 
         // =====================================================
         // INDEX
@@ -68,25 +71,30 @@ namespace TropiNailsPro.Controllers
             }
             else
             {
-                if (!usuario.FotoPerfil.StartsWith("/"))
-                {
-                    usuario.FotoPerfil =
-                        "/" + usuario.FotoPerfil;
-                }
+                if (
+    !usuario.FotoPerfil.StartsWith("/") &&
+    !usuario.FotoPerfil.StartsWith("http://") &&
+    !usuario.FotoPerfil.StartsWith("https://")
+)
+{
+    usuario.FotoPerfil =
+        "/" + usuario.FotoPerfil;
+}
 
-                string rutaFisica = Path.Combine(
-                    _env.WebRootPath,
-                    usuario.FotoPerfil.TrimStart('/'));
+                // SOLO VALIDAR FOTOS LOCALES
+if (usuario.FotoPerfil.Contains("/uploads/"))
+{
+    string rutaFisica = Path.Combine(
+        _env.WebRootPath,
+        usuario.FotoPerfil.TrimStart('/'));
 
-                // SOLO VALIDAR SI ES UNA FOTO SUBIDA
-                if (usuario.FotoPerfil.Contains("/uploads/"))
-                {
-                    if (!System.IO.File.Exists(rutaFisica))
-                    {
-                        usuario.FotoPerfil =
-                            "/img/user-default.png";
-                    }
-                }
+    if (!System.IO.File.Exists(rutaFisica))
+    {
+        usuario.FotoPerfil =
+            "/img/user-default.png";
+    }
+}
+
             }
 
             HttpContext.Session.SetString(
@@ -139,11 +147,13 @@ if (usuario == null)
                     "/img/user-default.png";
             }
 
-            if (!usuario.FotoPerfil.StartsWith("/"))
-            {
-                usuario.FotoPerfil =
-                    "/" + usuario.FotoPerfil;
-            }
+           if (!string.IsNullOrWhiteSpace(usuario.FotoPerfil) &&
+    !usuario.FotoPerfil.StartsWith("/") &&
+    !usuario.FotoPerfil.StartsWith("http://") &&
+    !usuario.FotoPerfil.StartsWith("https://"))
+{
+    usuario.FotoPerfil = "/" + usuario.FotoPerfil;
+}
 
             return View(usuario);
         }
@@ -191,47 +201,38 @@ if (usuarioId == null)
             // =====================================================
 
             if (foto != null && foto.Length > 0)
-            {
-                string carpeta = Path.Combine(
-                    _env.WebRootPath,
-                    "uploads",
-                    "perfiles");
+{
+    string extension =
+        Path.GetExtension(foto.FileName)
+        .ToLower();
 
-                if (!Directory.Exists(carpeta))
-                {
-                    Directory.CreateDirectory(carpeta);
-                }
+    string nombreArchivo =
+        Guid.NewGuid() + extension;
 
-                string extension =
-                    Path.GetExtension(foto.FileName);
+    using var stream =
+        foto.OpenReadStream();
 
-                string nombreArchivo =
-                    Guid.NewGuid().ToString() + extension;
+    string urlAzure =
+        await _blobService.SubirArchivoCarpetaAsync(
+            stream,
+            $"perfiles/{usuario.Id}",
+            nombreArchivo,
+            foto.ContentType
+        );
 
-                string rutaArchivo = Path.Combine(
-                    carpeta,
-                    nombreArchivo);
+    usuario.FotoPerfil =
+        urlAzure;
 
-                using (var stream = new FileStream(
-                    rutaArchivo,
-                    FileMode.Create))
-                {
-                    await foto.CopyToAsync(stream);
-                }
+    HttpContext.Session.SetString(
+        "UsuarioFoto",
+        usuario.FotoPerfil);
 
-                usuario.FotoPerfil =
-                    "/uploads/perfiles/" + nombreArchivo;
-
-                HttpContext.Session.SetString(
-                    "UsuarioFoto",
-                    usuario.FotoPerfil);
-
-                await _avatarHub.Clients.All.SendAsync(
-                    "RecibirAvatar",
-                    usuario.Nombre,
-                    usuario.FotoPerfil
-                );
-            }
+    await _avatarHub.Clients.All.SendAsync(
+        "RecibirAvatar",
+        usuario.Nombre,
+        usuario.FotoPerfil
+    );
+}
 
             _context.Usuarios.Update(usuario);
 
