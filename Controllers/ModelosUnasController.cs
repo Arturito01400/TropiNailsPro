@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using TropiNailsPro.Services;
 
 // COMPRESION IMAGEN
 using SixLabors.ImageSharp;
@@ -21,14 +22,17 @@ namespace TropiNailsPro.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly AzureBlobService _blobService;
 
         public ModelosUnasController(
-            AppDbContext context,
-            IWebHostEnvironment env)
-        {
-            _context = context;
-            _env = env;
-        }
+    AppDbContext context,
+    IWebHostEnvironment env,
+    AzureBlobService blobService)
+{
+    _context = context;
+    _env = env;
+    _blobService = blobService;
+}
 
         private int ObtenerUsuarioId()
         {
@@ -413,71 +417,68 @@ private int ObtenerManicuristaId()
 
 
                 //==================================
-                // IMAGEN (COMPRESION ORIGINAL)
-                //==================================
+// IMAGEN AZURE BLOB STORAGE
+//==================================
 
-                string nombre=
-                    Guid.NewGuid()
-                    + ".jpg";
-
-                string ruta=
-                    Path.Combine(
-                        carpeta,
-                        nombre
-                    );
+string nombre =
+    Guid.NewGuid()
+    + ".jpg";
 
 
-                using var image=
-                    await Image.LoadAsync(
-                        modelo
-                        .ImagenArchivo
-                        .OpenReadStream()
-                    );
+using var memoria = new MemoryStream();
 
 
-                image.Mutate(
-                    x=>x.Resize(
-                        new ResizeOptions
-                        {
-                            Mode=
-                            ResizeMode.Max,
-
-                            Size=
-                            new Size(
-                                1000,
-                                1000
-                            )
-                        }
-                    )
-                );
+using var image =
+    await Image.LoadAsync(
+        modelo.ImagenArchivo.OpenReadStream()
+    );
 
 
-                await image.SaveAsync(
-                    ruta,
-                    new JpegEncoder
-                    {
-                        Quality=75
-                    }
-                );
+image.Mutate(
+    x => x.Resize(
+        new ResizeOptions
+        {
+            Mode = ResizeMode.Max,
+            Size = new Size(
+                1000,
+                1000
+            )
+        }
+    )
+);
 
 
-                BorrarImagenLocal(
-                    anterior
-                );
+await image.SaveAsync(
+    memoria,
+    new JpegEncoder
+    {
+        Quality = 75
+    }
+);
 
 
-                modelo.ImagenUrl=
-                    "/uploads/modelos/"
-                    +
-                    nombre;
+memoria.Position = 0;
 
-                modelo.TipoMedia=
-                    "imagen";
 
-                return;
+string urlAzure =
+    await _blobService.SubirArchivoCarpetaAsync(
+        memoria,
+        $"modelos/{modelo.ManicuristaId}",
+        nombre,
+        "image/jpeg"
+    );
+
+
+modelo.ImagenUrl = urlAzure;
+
+
+modelo.TipoMedia =
+    "imagen";
+
+
+return;
+
             }
-
-
 
             //==================================
             // URL EXTERNA

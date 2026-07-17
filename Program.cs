@@ -15,6 +15,7 @@ using Xabe.FFmpeg.Downloader;
 using System.IO;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
+using TropiNailsPro.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,10 +69,14 @@ builder.Services.AddSignalR(options =>
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 
+    builder.Services.Configure<AzureBlobStorageSettings>(
+    builder.Configuration.GetSection("AzureBlobStorage"));
+
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddScoped<PayPalService>();
 builder.Services.AddScoped<TimeService>();
+builder.Services.AddScoped<AzureBlobService>();
 
 builder.Services.AddHttpContextAccessor();
 
