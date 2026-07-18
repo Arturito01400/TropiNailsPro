@@ -7,7 +7,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
-using Xabe.FFmpeg;
 using TropiNailsPro.Services;
 
 namespace TropiNailsPro.Controllers
@@ -15,14 +14,17 @@ namespace TropiNailsPro.Controllers
     public class PublicacionesController : Controller
     {
         private readonly AppDbContext _context;
-        private readonly TimeService _timeService;
+private readonly TimeService _timeService;
+private readonly AzureBlobService _blobService;
 
         public PublicacionesController(
     AppDbContext context,
-    TimeService timeService)
+    TimeService timeService,
+    AzureBlobService blobService)
 {
     _context = context;
     _timeService = timeService;
+    _blobService = blobService;
 }
 
         public IActionResult Crear()
@@ -79,75 +81,42 @@ namespace TropiNailsPro.Controllers
                     return Content("Usuario no encontrado");
 
                 string tipoMedia = "imagen";
-                string mediaUrl = "";
-                int? duracionVideo = null;
+string mediaUrl = "";
 
                 if (mediaArchivo != null
-                    && mediaArchivo.Length > 0)
-                {
-                    var extension =
-                        Path.GetExtension(
-                            mediaArchivo.FileName
-                        ).ToLower();
+    && mediaArchivo.Length > 0)
+{
+    var extension =
+        Path.GetExtension(
+            mediaArchivo.FileName
+        ).ToLower();
 
-                    string[] videos =
-                    {
-                        ".mp4",
-                        ".mov",
-                        ".webm"
-                    };
+    string[] videos =
+    {
+        ".mp4",
+        ".mov",
+        ".webm"
+    };
 
-                    var carpeta =
-                        Path.Combine(
-                            Directory.GetCurrentDirectory(),
-                            "wwwroot/uploads"
-                        );
+    var nombreArchivo =
+        Guid.NewGuid().ToString()
+        + extension;
 
-                    if (!Directory.Exists(carpeta))
-                    {
-                        Directory.CreateDirectory(carpeta);
-                    }
+    using var stream = mediaArchivo.OpenReadStream();
 
-                    var nombreArchivo =
-                        Guid.NewGuid().ToString()
-                        + extension;
+mediaUrl =
+    await _blobService.SubirArchivoCarpetaAsync(
+        stream,
+        $"publicaciones/{usuarioReal.Id}",
+        nombreArchivo,
+        mediaArchivo.ContentType
+    );
 
-                    var rutaCompleta =
-                        Path.Combine(
-                            carpeta,
-                            nombreArchivo
-                        );
-
-                    using (var stream =
-                        new FileStream(
-                            rutaCompleta,
-                            FileMode.Create
-                        ))
-                    {
-                        await mediaArchivo.CopyToAsync(stream);
-                    }
-
-                    mediaUrl =
-                        "/uploads/" + nombreArchivo;
-
-                    tipoMedia =
-                        videos.Contains(extension)
-                        ? "video"
-                        : "imagen";
-
-                    if (tipoMedia == "video")
-                    {
-                        var mediaInfo =
-                            await FFmpeg.GetMediaInfo(
-                                rutaCompleta
-                            );
-
-                        duracionVideo =
-                            (int)mediaInfo
-                            .Duration
-                            .TotalSeconds;
-                    }
-                }
+    tipoMedia =
+        videos.Contains(extension)
+        ? "video"
+        : "imagen";
+}
 
                 model.MediaUrl =
                     mediaUrl ?? "";
@@ -155,8 +124,6 @@ namespace TropiNailsPro.Controllers
                 model.TipoMedia =
                     tipoMedia;
 
-                model.DuracionVideo =
-                    duracionVideo;
 
                 model.UsuarioId =
                     usuarioReal.Id;
@@ -489,11 +456,25 @@ return Json(data);
                 return Unauthorized();
 
             if (publicacion.UsuarioId != usuario.Id)
-                return Forbid();
+    return Forbid();
 
-            _context.Publicaciones.Remove(publicacion);
+if (!string.IsNullOrWhiteSpace(publicacion.MediaUrl))
+{
+    try
+    {
+        await _blobService.EliminarArchivoAsync(
+            publicacion.MediaUrl
+        );
+    }
+    catch
+    {
+        // Opcional: registrar el error en un log.
+    }
+}
 
-            await _context.SaveChangesAsync();
+_context.Publicaciones.Remove(publicacion);
+
+await _context.SaveChangesAsync();
 
             return Ok(new
             {

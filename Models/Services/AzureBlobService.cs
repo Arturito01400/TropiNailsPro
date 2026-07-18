@@ -93,16 +93,28 @@ public async Task<string> SubirArchivoCarpetaAsync(
         // ==========================================
         // ELIMINAR ARCHIVO DE AZURE
         // ==========================================
-        public async Task EliminarArchivoAsync(
-            string nombreArchivo)
-        {
-            var blobClient = _containerClient.GetBlobClient(
-                nombreArchivo
-            );
+        public async Task EliminarArchivoAsync(string archivoUrl)
+{
+    if (string.IsNullOrWhiteSpace(archivoUrl))
+        return;
 
+    var uri = new Uri(archivoUrl);
 
-            await blobClient.DeleteIfExistsAsync();
-        }
+    var partes =
+    uri.AbsolutePath
+        .TrimStart('/')
+        .Split('/', 2);
+
+if (partes.Length < 2)
+    return;
+
+string blobName = partes[1];
+
+    var blobClient =
+        _containerClient.GetBlobClient(blobName);
+
+    await blobClient.DeleteIfExistsAsync();
+}
 
 
         // ==========================================
