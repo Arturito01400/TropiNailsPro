@@ -73,6 +73,8 @@ public async Task<IActionResult> Perfil(int id)
             );
         }
 
+        usuario.FotoPerfil = usuario.FotoPerfilUrl;
+
         // 🔥 PUBLICACIONES
         var publicaciones = await _context.Publicaciones
             .AsNoTracking()

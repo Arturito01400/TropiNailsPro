@@ -52,17 +52,46 @@ namespace TropiNailsPro.Models
         // Imagen guardada en BD (ruta)
         public string? ImagenUrl { get; set; }
 
-        // 🔹 PROPIEDAD NUEVA PARA EVITAR IMÁGENES ROTAS
-        [NotMapped]
-        public string ImagenSegura
+        // 🔹 PROPIEDAD PARA IMÁGENES AZURE + LOCALES
+[NotMapped]
+public string ImagenSegura
+{
+    get
+    {
+        if (string.IsNullOrWhiteSpace(ImagenUrl))
+            return "/img/default-product.png";
+
+
+        var path = ImagenUrl
+            .Replace("\\", "/")
+            .Trim();
+
+
+        if (path.ToLower() == "null" ||
+            path.ToLower() == "undefined")
         {
-            get
-            {
-                if (string.IsNullOrEmpty(ImagenUrl))
-                    return "/uploads/default-product.png"; // ruta de imagen por defecto
-                return "/" + ImagenUrl.Replace("\\", "/");
-            }
+            return "/img/default-product.png";
         }
+
+
+        // 🔥 Imagen guardada en Azure Blob Storage
+        if (path.StartsWith("http://") ||
+            path.StartsWith("https://"))
+        {
+            return path;
+        }
+
+
+        // 🔹 Compatibilidad con imágenes antiguas locales
+        if (!path.StartsWith("/"))
+        {
+            path = "/" + path;
+        }
+
+
+        return path;
+    }
+}
 
         // ======================================================
         // 🆕 NUEVOS CAMPOS PROFESIONALES (AGREGADOS)

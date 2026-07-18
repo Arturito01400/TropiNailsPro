@@ -49,10 +49,12 @@
 
             <!-- 🔥 🔥 ARREGLO DEFINITIVO AQUÍ 🔥 🔥 -->
             <img class="img-producto"
-                 src="@Url.Content("~" + item.ImagenSegura)"
-                 alt="@item.Nombre"
-                 width="220"
-                 height="220" />
+     src="@(item.ImagenSegura.StartsWith("http")
+            ? item.ImagenSegura
+            : Url.Content("~" + item.ImagenSegura))"
+     alt="@item.Nombre"
+     width="220"
+     height="220" />
 
             <div class="card-body">
                 <span class="badge-activo">@(item.Activo ? "Activo" : "Inactivo")</span>

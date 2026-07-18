@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TropiNailsPro.Data;
 using TropiNailsPro.Models;
+using TropiNailsPro.Services;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -12,26 +13,20 @@ namespace TropiNailsPro.Controllers
 {
     public class ProductosController : Controller
     {
-        private readonly AppDbContext _context;
-        private readonly string _uploadPath;
-        private readonly string _defaultImagen = "uploads/default-product.png";
+       private readonly AppDbContext _context;
+private readonly AzureBlobService _blobService;
+private readonly string _defaultImagen = "/img/default-product.png";
+private readonly TimeService _timeService;
 
-        public ProductosController(AppDbContext context)
-        {
-            _context = context;
-
-            // 🔥 crea carpeta automática en wwwroot/uploads
-            _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-            if (!Directory.Exists(_uploadPath))
-                Directory.CreateDirectory(_uploadPath);
-
-            // 🔹 aseguramos que la imagen default exista
-            var defaultPath = Path.Combine(_uploadPath, "default-product.png");
-            if (!System.IO.File.Exists(defaultPath))
-            {
-                using var fs = System.IO.File.Create(defaultPath); // crea un archivo vacío temporal
-            }
-        }
+        public ProductosController(
+    AppDbContext context,
+    AzureBlobService blobService,
+    TimeService timeService)
+{
+    _context = context;
+    _blobService = blobService;
+    _timeService = timeService;
+}
 
         // ======================================================
         // 🔐 SEGURIDAD GLOBAL (TU LÓGICA ORIGINAL INTACTA)
@@ -94,17 +89,17 @@ namespace TropiNailsPro.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Producto producto, IFormFile? imagen)
+        public async Task<IActionResult> Create(Producto producto, IFormFile? imagen)
         {
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
             if (ModelState.IsValid)
             {
                 producto.ManicuristaId = usuarioId!.Value;
-                producto.FechaRegistro = DateTime.Now;
-                producto.FechaActualizacion = DateTime.Now;
+                producto.FechaRegistro = _timeService.ObtenerHoraLocal();
+                producto.FechaActualizacion = _timeService.ObtenerHoraLocal();
 
-                GuardarImagen(producto, imagen);
+                await GuardarImagen(producto, imagen);
 
                 _context.Productos.Add(producto);
                 _context.SaveChanges();
@@ -136,7 +131,7 @@ namespace TropiNailsPro.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Producto producto, IFormFile? imagen)
+        public async Task<IActionResult> Edit(Producto producto, IFormFile? imagen)
         {
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
 
@@ -157,9 +152,9 @@ namespace TropiNailsPro.Controllers
                 existente.CodigoBarras = producto.CodigoBarras;
                 existente.VentaAutomatica = producto.VentaAutomatica;
                 existente.Activo = producto.Activo;
-                existente.FechaActualizacion = DateTime.Now;
+               existente.FechaActualizacion = _timeService.ObtenerHoraLocal();
 
-                GuardarImagen(existente, imagen);
+               await GuardarImagen(existente, imagen);
 
                 _context.SaveChanges();
 
@@ -230,7 +225,7 @@ namespace TropiNailsPro.Controllers
             if (producto.VentaAutomatica)
                 producto.Cantidad -= cantidad;
 
-            producto.FechaActualizacion = DateTime.Now;
+           producto.FechaActualizacion = _timeService.ObtenerHoraLocal();
 
             _context.SaveChanges();
 
@@ -241,40 +236,64 @@ namespace TropiNailsPro.Controllers
         // ======================================================
         // 🔥 UTILIDAD IMAGEN CORREGIDA
         // ======================================================
-        private void GuardarImagen(Producto producto, IFormFile? imagen)
-        {
-            if (imagen == null || imagen.Length == 0)
-                return;
+        private async Task GuardarImagen(
+    Producto producto,
+    IFormFile? imagen)
+{
+    if (imagen == null || imagen.Length == 0)
+        return;
 
-            // Genera un nombre único
-            var fileName = Guid.NewGuid() + Path.GetExtension(imagen.FileName);
+    var extension =
+        Path.GetExtension(imagen.FileName)
+        .ToLower();
 
-            // Ruta física en wwwroot/uploads
-            var path = Path.Combine(_uploadPath, fileName);
+    var nombreArchivo =
+        Guid.NewGuid().ToString()
+        + extension;
 
-            // Guarda el archivo en disco
-            using var stream = new FileStream(path, FileMode.Create);
-            imagen.CopyTo(stream);
+    using var stream =
+        imagen.OpenReadStream();
 
-            // ⚡ Ruta relativa correcta para Razor: "uploads/nombreArchivo.ext"
-            producto.ImagenUrl = "uploads/" + fileName;
-        }
+    string urlAzure =
+        await _blobService.SubirArchivoCarpetaAsync(
+            stream,
+            $"productos/{producto.ManicuristaId}",
+            nombreArchivo,
+            imagen.ContentType
+        );
+
+    producto.ImagenUrl = urlAzure;
+}
 
         // ======================================================
         // 🔹 FUNCIÓN AUXILIAR PARA AJUSTAR RUTA DE IMAGEN
         // ======================================================
         private string AjustarImagen(string? imagenUrl)
-        {
-            if (string.IsNullOrEmpty(imagenUrl))
-                return _defaultImagen;
+{
+    if (string.IsNullOrWhiteSpace(imagenUrl))
+        return _defaultImagen;
 
-            var fileName = Path.GetFileName(imagenUrl);
-            var rutaFisica = Path.Combine(_uploadPath, fileName);
+    var path = imagenUrl.Replace("\\", "/").Trim();
 
-            if (!System.IO.File.Exists(rutaFisica))
-                return _defaultImagen;
+    if (path.ToLower() == "null" ||
+        path.ToLower() == "undefined")
+        return _defaultImagen;
 
-            return "uploads/" + fileName;
-        }
+
+    // Si ya viene desde Azure Blob
+    if (path.StartsWith("http://") ||
+        path.StartsWith("https://"))
+    {
+        return path;
+    }
+
+
+    // Compatibilidad con imágenes antiguas locales
+    if (!path.StartsWith("/"))
+        path = "/" + path;
+
+
+    return path;
+}
     }
 }
