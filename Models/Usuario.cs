@@ -51,27 +51,31 @@ public string Clave { get; set; } = string.Empty;
         public IFormFile? FotoPerfilArchivo { get; set; }
 
         [NotMapped]
-        public string FotoPerfilUrl
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(FotoPerfil))
-                    return "/img/user-default.png";
+public string FotoPerfilUrl
+{
+    get
+    {
+        if (string.IsNullOrWhiteSpace(FotoPerfil))
+            return "/img/user-default.png";
 
-                var path = FotoPerfil.Replace("\\", "/").Trim();
+        var path = FotoPerfil.Replace("\\", "/").Trim();
 
-                if (path.ToLower() == "null" || path.ToLower() == "undefined")
-                    return "/img/user-default.png";
+        if (path.ToLower() == "null" ||
+            path.ToLower() == "undefined")
+            return "/img/user-default.png";
 
-                if (!path.StartsWith("/"))
-                    path = "/" + path;
+        // Si ya es una URL (Azure Blob Storage)
+        if (path.StartsWith("http://") ||
+            path.StartsWith("https://"))
+            return path;
 
-                if (!path.Contains("/uploads/") && !path.Contains("/img/"))
-                    return "/img/user-default.png";
+        // Si es una ruta local
+        if (!path.StartsWith("/"))
+            path = "/" + path;
 
-                return path;
-            }
-        }
+        return path;
+    }
+}
 
         [StringLength(255)]
         public string? Instagram { get; set; }
