@@ -6,11 +6,6 @@
 
     string foto = Model?.FotoPerfilUrl ?? "/img/user-default.png";
 
-    if (!string.IsNullOrWhiteSpace(foto) && !foto.StartsWith("/"))
-    {
-        foto = "/" + foto;
-    }
-
     string nombre = !string.IsNullOrWhiteSpace(Model?.Nombre)
         ? Model.Nombre
         : "Usuario";
@@ -170,11 +165,7 @@
         ? "/img/user-default.png"
         : post.MediaUrl;
 
-    if (!mediaUrl.StartsWith("/"))
-    {
-        mediaUrl = "/" + mediaUrl;
-    }
-
+    
     string tipoMedia =
         string.IsNullOrWhiteSpace(post?.TipoMedia)
         ? "imagen"
@@ -514,9 +505,7 @@ function verComentarios(id){
 
 function compartir(url){
 
-    navigator.clipboard.writeText(
-        window.location.origin + url
-    );
+    navigator.clipboard.writeText(url);
 
     alert("Link copiado");
 }

@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using TropiNailsPro.Data;
 using TropiNailsPro.Models;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 using System.Linq;
 using System;
 using System.IO;
+using TropiNailsPro.Services;
 
 namespace TropiNailsPro.Controllers
 {
@@ -16,11 +14,18 @@ namespace TropiNailsPro.Controllers
     public class CatalogosController : Controller
     {
         private readonly AppDbContext _context;
+private readonly AzureBlobService _blobService;
+private readonly TimeService _timeService;
 
-        public CatalogosController(AppDbContext context)
-        {
-            _context = context;
-        }
+public CatalogosController(
+    AppDbContext context,
+    AzureBlobService blobService,
+    TimeService timeService)
+{
+    _context = context;
+    _blobService = blobService;
+    _timeService = timeService;
+}
 
         // ===============================
         // VER CATALOGOS
@@ -88,11 +93,14 @@ public async Task<IActionResult> Perfil(int id)
                 post.MediaUrl =
                     "/img/user-default.png";
             }
-            else if (!post.MediaUrl.StartsWith("/"))
-            {
-                post.MediaUrl =
-                    "/" + post.MediaUrl;
-            }
+            else if (
+    !post.MediaUrl.StartsWith("/") &&
+    !post.MediaUrl.StartsWith("http://") &&
+    !post.MediaUrl.StartsWith("https://"))
+{
+    post.MediaUrl =
+        "/" + post.MediaUrl;
+}
 
             if (string.IsNullOrWhiteSpace(post.TipoMedia))
             {
@@ -197,79 +205,40 @@ public async Task<IActionResult> Perfil(int id)
                 return View(catalogo);
             }
 
-            string uploadsFolder =
-                Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot/uploads/catalogos"
-                );
+            string extension =
+    Path.GetExtension(Archivo.FileName)
+    .ToLower();
 
-            if (!Directory.Exists(
-                uploadsFolder))
-            {
-                Directory.CreateDirectory(
-                    uploadsFolder
-                );
-            }
+string nombreArchivo =
+    Guid.NewGuid() + extension;
 
-            string fileName =
-                Guid.NewGuid().ToString()
-                + Path.GetExtension(
-                    Archivo.FileName
-                );
+using var stream =
+    Archivo.OpenReadStream();
 
-            string filePath =
-                Path.Combine(
-                    uploadsFolder,
-                    fileName
-                );
+string urlAzure =
+    await _blobService.SubirArchivoCarpetaAsync(
+        stream,
+        $"catalogos/{usuarioId.Value}",
+        nombreArchivo,
+        Archivo.ContentType
+    );
 
-            // 🔥 IMAGEN
-            if (Archivo.ContentType
-                .StartsWith("image"))
-            {
-                using var image =
-                    await Image.LoadAsync(
-                        Archivo.OpenReadStream()
-                    );
+catalogo.RutaArchivo = urlAzure;
 
-                image.Mutate(x =>
-                    x.Resize(new ResizeOptions
-                    {
-                        Size = new Size(1080, 1080),
-                        Mode = ResizeMode.Max
-                    })
-                );
-
-                await image.SaveAsync(filePath);
-
-                catalogo.Tipo =
-                    TipoArchivo.Imagen;
-            }
-            else
-            {
-                using var stream =
-                    new FileStream(
-                        filePath,
-                        FileMode.Create
-                    );
-
-                await Archivo.CopyToAsync(
-                    stream
-                );
-
-                catalogo.Tipo =
-                    TipoArchivo.Video;
-            }
-
-            catalogo.RutaArchivo =
-                "/uploads/catalogos/" + fileName;
+if (Archivo.ContentType.StartsWith("image"))
+{
+    catalogo.Tipo = TipoArchivo.Imagen;
+}
+else
+{
+    catalogo.Tipo = TipoArchivo.Video;
+}
 
             // 🔥 CORRECCION REAL
             catalogo.ManicuristaId =
                 usuarioId.Value;
 
-            catalogo.FechaSubida =
-                DateTime.Now;
+            catalogo.FechaSubida = _timeService.ObtenerHoraLocal();
 
             _context.Catalogos.Add(catalogo);
 
