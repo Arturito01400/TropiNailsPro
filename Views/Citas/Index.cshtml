@@ -80,6 +80,46 @@ font-weight:600;
 display:inline-block;
 }
 
+.btn-organizar{
+
+background:linear-gradient(45deg,#6f42c1,#9b59ff);
+
+border:none;
+
+border-radius:25px;
+
+padding:10px 22px;
+
+color:white;
+
+font-weight:700;
+
+display:inline-flex;
+
+align-items:center;
+
+justify-content:center;
+
+text-decoration:none;
+
+box-shadow:0 8px 18px rgba(111,66,193,.25);
+
+transition:.3s;
+
+}
+
+
+.btn-organizar:hover{
+
+transform:translateY(-3px);
+
+color:white;
+
+background:linear-gradient(45deg,#5a32a3,#8b3dff);
+
+}
+
+
 .btn-mini{
 border-radius:20px;
 padding:6px 12px;
@@ -140,6 +180,7 @@ min-width:900px;
 
 .btn-mini,
 .btn-femenino,
+.btn-organizar,
 .btn-siguiente{
 width:100%;
 margin-top:6px;
@@ -174,10 +215,23 @@ padding:14px;
 
 @if(esManicurista)
 {
+
+<div class="d-flex flex-column flex-md-row gap-3 mb-4">
+
 <a asp-action="Create"
-class="btn btn-femenino mb-4">
+class="btn btn-femenino">
 + Nueva Cita
 </a>
+
+
+<a href="#organizar"
+class="btn btn-organizar">
+❤️ Organizar mis citas
+</a>
+
+
+</div>
+
 }
 
 @Html.AntiForgeryToken()
@@ -217,7 +271,7 @@ Año
 
 </div>
 
-
+<div id="organizar"></div>
 
 <div id="seccionHoy" class="card card-soft p-3 mb-4">
 

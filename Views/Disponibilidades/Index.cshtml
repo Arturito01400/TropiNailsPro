@@ -1,0 +1,232 @@
+@model IEnumerable<TropiNailsPro.Models.Disponibilidad>
+
+@{
+    ViewData["Title"] = "Mis Horarios Disponibles";
+}
+
+<div class="container py-4">
+
+    <!-- Encabezado -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                💅 Mis Horarios Disponibles
+            </h2>
+
+            <p class="text-muted mb-0">
+                Organiza los horarios donde tus clientas podrán reservar citas.
+            </p>
+        </div>
+
+
+        <div class="mt-3 mt-md-0">
+
+            <a asp-action="Create"
+               class="btn btn-primary rounded-pill px-4 shadow-sm">
+
+                <i class="bi bi-plus-circle"></i>
+                Nuevo horario
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    @if (!Model.Any())
+    {
+
+        <!-- Estado vacío -->
+
+        <div class="text-center py-5">
+
+            <div class="display-1">
+                💅
+            </div>
+
+
+            <h4 class="fw-bold mt-3">
+                Aún no tienes horarios creados
+            </h4>
+
+
+            <p class="text-muted">
+                Agrega tus horarios disponibles para que tus clientas puedan agendar contigo.
+            </p>
+
+
+            <a asp-action="Create"
+               class="btn btn-primary rounded-pill px-4">
+
+                Crear mi primer horario
+
+            </a>
+
+        </div>
+
+    }
+    else
+    {
+
+
+        <div class="row g-4">
+
+
+            @foreach (var item in Model)
+            {
+
+                <div class="col-12 col-md-6 col-lg-4">
+
+
+                    <div class="card border-0 shadow-sm h-100 rounded-4">
+
+
+                        <div class="card-body p-4">
+
+
+                            <!-- Fecha -->
+
+                            <div class="mb-3">
+
+                                <h5 class="fw-bold mb-1">
+
+                                    📅
+                                    @item.Fecha.ToString("dddd dd MMMM yyyy",
+                                    new System.Globalization.CultureInfo("es-DO"))
+
+                                </h5>
+
+                            </div>
+
+
+
+                            <!-- Hora -->
+
+                            <div class="d-flex align-items-center mb-3">
+
+                                <div class="fs-3 me-3">
+                                    ⏰
+                                </div>
+
+                                <div>
+
+                                    <small class="text-muted">
+                                        Hora disponible
+                                    </small>
+
+                                    <div class="fw-bold fs-5">
+
+                                        @DateTime.Today
+                                        .Add(item.Hora)
+                                        .ToString("hh:mm tt")
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+
+                            <!-- Estado -->
+
+
+                            @if(item.Disponible)
+                            {
+
+                                <span class="badge bg-success rounded-pill px-3 py-2">
+
+                                    🟢 Disponible
+
+                                </span>
+
+                            }
+                            else
+                            {
+
+                                <span class="badge bg-danger rounded-pill px-3 py-2">
+
+                                    🔴 No disponible
+
+                                </span>
+
+                            }
+
+
+
+
+                            <!-- Nota -->
+
+                            @if(!string.IsNullOrEmpty(item.Nota))
+                            {
+
+                                <div class="mt-3 p-3 bg-light rounded-3">
+
+                                    <small class="text-muted">
+                                        Nota:
+                                    </small>
+
+                                    <div>
+                                        @item.Nota
+                                    </div>
+
+                                </div>
+
+                            }
+
+
+
+                            <hr />
+
+
+
+                            <!-- Botones -->
+
+
+                            <div class="d-flex justify-content-between">
+
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-outline-primary rounded-pill px-3">
+
+                                    ✏️ Editar
+
+                                </a>
+
+
+
+                                <a asp-action="Delete"
+                                   asp-route-id="@item.Id"
+                                   class="btn btn-outline-danger rounded-pill px-3">
+
+                                    🗑 Eliminar
+
+                                </a>
+
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+            }
+
+
+        </div>
+
+
+    }
+
+
+</div>

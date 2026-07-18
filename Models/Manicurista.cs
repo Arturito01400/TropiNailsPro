@@ -12,19 +12,19 @@ namespace TropiNailsPro.Models
         // 🔥 RELACIÓN 1 A 1 CON USUARIO (CLAVE)
         public int UsuarioId { get; set; }
 
-[ForeignKey("UsuarioId")]
-public Usuario Usuario { get; set; } = null!;
+        [ForeignKey("UsuarioId")]
+        public Usuario Usuario { get; set; } = null!;
 
-// 🔥 CLIENTAS REGISTRADAS POR LINK DE ESTA MANICURISTA
-[InverseProperty(nameof(Usuario.Manicurista))]
-public virtual ICollection<Usuario> Clientas { get; set; } = new List<Usuario>();
+        // 🔥 CLIENTAS REGISTRADAS POR LINK DE ESTA MANICURISTA
+        [InverseProperty(nameof(Usuario.Manicurista))]
+        public virtual ICollection<Usuario> Clientas { get; set; } = new List<Usuario>();
 
         [Required, MaxLength(150)]
         public string NombreNegocio { get; set; } = "";
 
         public string Nombre => NombreNegocio;
 
-        [NotMapped] 
+        [NotMapped]
         public string NombreUsuario => NombreNegocio;
 
         // ⚠️ ESTO YA EXISTE EN USUARIO → LO DEJAMOS SOLO POR COMPATIBILIDAD
@@ -57,9 +57,16 @@ public virtual ICollection<Usuario> Clientas { get; set; } = new List<Usuario>()
         [MaxLength(100)]
         public string? Slug { get; set; }
 
+        // 🔥 NUEVO: WhatsApp del negocio
+        [MaxLength(20)]
+        public string? TelefonoNegocio { get; set; }
+
         public ICollection<SuscripcionPago>? Pagos { get; set; }
 
         public ICollection<Cliente>? Clientes { get; set; }
+
+        // 🔥 NUEVO: Horarios disponibles de la manicurista
+        public virtual ICollection<Disponibilidad> Disponibilidades { get; set; } = new List<Disponibilidad>();
 
         public virtual ICollection<Suscripcion> Suscripciones { get; set; } = new List<Suscripcion>();
     }

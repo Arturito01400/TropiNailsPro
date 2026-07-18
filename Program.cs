@@ -39,6 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     );
 });
 
+
 // MVC + JSON
 builder.Services.AddControllersWithViews(options =>
 {

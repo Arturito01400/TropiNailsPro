@@ -33,6 +33,7 @@ namespace TropiNailsPro.Data
         public DbSet<SuscripcionPago> SuscripcionPagos { get; set; }
         public DbSet<Suscripcion> Suscripciones { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
+        public DbSet<Disponibilidad> Disponibilidades { get; set; }
 
         public DbSet<Historia> Historias { get; set; }
         public DbSet<Catalogo> Catalogos { get; set; }
@@ -72,6 +73,7 @@ namespace TropiNailsPro.Data
             modelBuilder.Entity<MensajeEliminadoUsuario>()
     .ToTable("MensajesEliminadosUsuarios");
             modelBuilder.Entity<Cliente>().ToTable("Clientes");
+            modelBuilder.Entity<Disponibilidad>().ToTable("Disponibilidades");
             modelBuilder.Entity<SuscripcionPago>().ToTable("SuscripcionPagos");
             modelBuilder.Entity<Suscripcion>().ToTable("Suscripciones");
             modelBuilder.Entity<Manicurista>().ToTable("Manicuristas");
@@ -133,6 +135,28 @@ namespace TropiNailsPro.Data
 
             modelBuilder.Entity<Cliente>()
                 .HasIndex(c => c.ManicuristaId);
+
+// ======================================================
+// DISPONIBILIDAD → MANICURISTA
+// ======================================================
+
+modelBuilder.Entity<Disponibilidad>()
+    .HasOne(d => d.Manicurista)
+    .WithMany(m => m.Disponibilidades)
+    .HasForeignKey(d => d.ManicuristaId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+modelBuilder.Entity<Disponibilidad>()
+    .HasIndex(d => d.ManicuristaId);
+
+modelBuilder.Entity<Disponibilidad>()
+    .HasIndex(d => new
+    {
+        d.ManicuristaId,
+        d.Fecha
+    });
+
+
 
             // ======================================================
             // PRODUCTO → MANICURISTA
