@@ -76,10 +76,16 @@ public async Task<IActionResult> Login(
     // FOTO PERFIL
     // =====================================================
     if (string.IsNullOrWhiteSpace(usuario.FotoPerfil))
-        usuario.FotoPerfil = "/img/user-default.png";
-
-    if (!usuario.FotoPerfil.StartsWith("/"))
-        usuario.FotoPerfil = "/" + usuario.FotoPerfil;
+{
+    usuario.FotoPerfil = "/img/user-default.png";
+}
+else if (
+    !usuario.FotoPerfil.StartsWith("/") &&
+    !usuario.FotoPerfil.StartsWith("http://") &&
+    !usuario.FotoPerfil.StartsWith("https://"))
+{
+    usuario.FotoPerfil = "/" + usuario.FotoPerfil;
+}
 
     int manicuristaIdFinal = 0;
 
@@ -199,11 +205,17 @@ public async Task<IActionResult> Login(
     // =====================================================
     string fotoPerfil = usuario.FotoPerfil;
 
-    if (string.IsNullOrWhiteSpace(fotoPerfil))
-        fotoPerfil = "/img/user-default.png";
-
-    if (!fotoPerfil.StartsWith("/"))
-        fotoPerfil = "/" + fotoPerfil;
+if (string.IsNullOrWhiteSpace(fotoPerfil))
+{
+    fotoPerfil = "/img/user-default.png";
+}
+else if (
+    !fotoPerfil.StartsWith("/") &&
+    !fotoPerfil.StartsWith("http://") &&
+    !fotoPerfil.StartsWith("https://"))
+{
+    fotoPerfil = "/" + fotoPerfil;
+}
 
     HttpContext.Session.SetString("UsuarioFoto", fotoPerfil);
 
