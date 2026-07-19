@@ -637,6 +637,55 @@ hr{
 
     </div>
 
-    }
 
-</div>
+
+} <!-- FIN ELSE tieneManicurista -->
+
+
+@section Scripts{
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script>
+
+const clienteId = @((Context.Session.GetInt32("UsuarioId") ?? 0));
+
+
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl("/onlineHub?usuario=@nombre")
+    .build();
+
+
+connection.start()
+.then(function(){
+
+    console.log("Cliente conectado SignalR");
+
+    connection.invoke(
+        "UnirseClienta",
+        clienteId
+    );
+
+})
+.catch(function(err){
+
+    console.error(err.toString());
+
+});
+
+
+connection.on(
+"CitaActualizada",
+function(cita){
+
+    console.log("Cita actualizada:", cita);
+
+    alert("💅 Tu cita fue actualizada");
+
+    location.reload();
+
+});
+
+</script>
+
+}

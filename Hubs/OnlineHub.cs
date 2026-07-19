@@ -106,6 +106,18 @@ namespace TropiNailsPro.Hubs
                 });
         }
 
+// =========================================
+// 👩‍🦰 CLIENTAS EN TIEMPO REAL
+// =========================================
+public async Task UnirseClienta(int clientaId)
+{
+    await Groups.AddToGroupAsync(
+        Context.ConnectionId,
+        $"clienta-{clientaId}"
+    );
+}
+
+
         // =========================================
         private async Task EnviarDatos(int manicuristaId)
         {

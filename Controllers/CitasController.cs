@@ -283,6 +283,27 @@ var horaTexto =
 
             await _context.SaveChangesAsync();
 
+            // =====================================
+// 👩‍🦰 ACTUALIZAR CITA EN LA CLIENTA
+// =====================================
+if (citaDb.ClienteId != null)
+{
+    await _hub.Clients
+        .Group($"clienta-{citaDb.ClienteId}")
+        .SendAsync(
+            "CitaActualizada",
+            new
+            {
+                id = citaDb.Id,
+                nombre = citaDb.NombreClienta,
+                fecha = citaDb.Fecha.ToString("dd/MM/yyyy"),
+                hora = citaDb.Hora.ToString(@"hh\:mm"),
+                servicio = citaDb.Servicio,
+                estado = citaDb.Estado
+            }
+        );
+}
+
 
             await EnviarDatosTiempoReal(
                 citaDb.ManicuristaId);
