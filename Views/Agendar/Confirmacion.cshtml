@@ -2,7 +2,6 @@
     ViewData["Title"] = "Reserva Confirmada";
 }
 
-
 <style>
 
 body{
@@ -13,10 +12,9 @@ body{
     );
 }
 
-
 .confirmacion-box{
 
-    max-width:600px;
+    max-width:650px;
     margin:60px auto;
     background:white;
     padding:40px;
@@ -26,13 +24,11 @@ body{
 
 }
 
-
 .icono{
 
     font-size:70px;
 
 }
-
 
 .titulo{
 
@@ -41,15 +37,24 @@ body{
 
 }
 
-
-
 .texto{
 
     font-size:18px;
+    line-height:1.7;
 
 }
 
+.aviso{
 
+    margin-top:20px;
+    padding:18px;
+    border-radius:15px;
+    background:#fff8e6;
+    border:1px solid #ffe08a;
+    color:#8a6d3b;
+    font-weight:600;
+
+}
 
 .btn-whatsapp{
 
@@ -61,10 +66,9 @@ body{
     border-radius:30px;
     text-decoration:none;
     font-weight:bold;
+    transition:.25s;
 
 }
-
-
 
 .btn-whatsapp:hover{
 
@@ -72,7 +76,6 @@ body{
     color:white;
 
 }
-
 
 .btn-inicio{
 
@@ -86,62 +89,64 @@ body{
 
 }
 
+.btn-inicio:hover{
 
-</style>
-
-
-
-<div class="confirmacion-box">
-
-
-<div class="icono">
-💅✨
-</div>
-
-
-<h1 class="titulo">
-¡Reserva enviada!
-</h1>
-
-
-
-<p class="texto">
-
-Tu solicitud de cita fue enviada correctamente.
-
-<br><br>
-
-La manicurista recibirá la notificación y podrá confirmar tu cita.
-
-</p>
-
-
-
-@if(TempData["WhatsApp"] != null)
-{
-
-<a href="@TempData["WhatsApp"]"
-   target="_blank"
-   class="btn-whatsapp">
-
-📲 Escribir por WhatsApp
-
-</a>
+    color:white;
+    background:#bd2d74;
 
 }
 
+</style>
 
+<div class="confirmacion-box">
 
-<br>
+    <div class="icono">
+        💅✨
+    </div>
 
+    <h1 class="titulo">
+        ¡Ya casi terminas tu reserva!
+    </h1>
 
-<a asp-controller="Home"
-   asp-action="Index"
-   class="btn-inicio">
+    <p class="texto">
 
-Volver al inicio
+        Tu solicitud de cita está preparada correctamente. 🎉
 
-</a>
+        <br><br>
 
+        Solo falta un último paso para que la manicurista la reciba.
+
+    </p>
+
+    <div class="aviso">
+
+        📲 Presiona el botón de <strong>WhatsApp</strong> que aparece debajo.
+
+        <br><br>
+
+        Al enviarlo, la manicurista recibirá toda la información de tu cita y podrá comunicarse contigo para confirmarla.
+
+    </div>
+
+    @if(TempData["WhatsApp"] != null)
+    {
+        <a href="@TempData["WhatsApp"]"
+           target="_blank"
+           class="btn-whatsapp">
+
+            💬 Enviar solicitud por WhatsApp
+
+        </a>
+    }
+
+    <br />
+
+    <a asp-controller="Home"
+       asp-action="Index"
+       class="btn-inicio">
+
+        🏠 Volver al inicio
+
+    </a>
 
 </div>

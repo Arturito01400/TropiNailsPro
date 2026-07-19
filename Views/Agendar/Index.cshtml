@@ -4,13 +4,11 @@
     ViewData["Title"] = "Agendar Cita";
 }
 
-
 <style>
 
 body{
     background:linear-gradient(135deg,#ffe6f5,#efe1ff);
 }
-
 
 .agendar-container{
     max-width:900px;
@@ -18,13 +16,12 @@ body{
     padding:30px;
 }
 
-
 .titulo{
     text-align:center;
     color:#d63384;
     font-weight:700;
+    margin-bottom:10px;
 }
-
 
 .horario-card{
 
@@ -32,10 +29,9 @@ body{
     border-radius:20px;
     padding:20px;
     margin-bottom:20px;
-    box-shadow:0 8px 25px rgba(0,0,0,.1);
+    box-shadow:0 8px 25px rgba(0,0,0,.10);
 
 }
-
 
 .hora{
 
@@ -45,7 +41,6 @@ body{
 
 }
 
-
 .btn-reservar{
 
     background:#d63384;
@@ -53,180 +48,135 @@ body{
     border-radius:25px;
     padding:12px 30px;
     border:none;
+    transition:.25s;
 
 }
-
 
 .btn-reservar:hover{
 
     background:#b0266d;
+    color:white;
 
 }
-
 
 </style>
 
-
-
-
 <div class="agendar-container">
 
+    <h1 class="titulo">
+        💅 Agendar tu cita
+    </h1>
 
-<h1 class="titulo">
-💅 Agendar tu cita
-</h1>
+    <p class="text-center">
+        Selecciona un horario disponible
+    </p>
 
+    @if(ViewBag.Mensaje != null)
+    {
+        <div class="alert alert-warning text-center">
+            @ViewBag.Mensaje
+        </div>
+    }
 
-<p class="text-center">
-Selecciona un horario disponible
-</p>
+    @if(Model != null && Model.Any())
+    {
+        @foreach(var item in Model)
+        {
+            <div class="horario-card">
 
+                <div>
 
+                    <h4>
+                        📅 @item.Fecha.ToString("dddd dd MMMM yyyy")
+                    </h4>
 
-@if(ViewBag.Mensaje != null)
-{
-    <div class="alert alert-warning text-center">
-        @ViewBag.Mensaje
-    </div>
-}
+                    <div class="hora">
+                        ⏰ @(DateTime.Today.Add(item.Hora).ToString("hh:mm tt"))
+                    </div>
 
+                    @if(!string.IsNullOrWhiteSpace(item.Nota))
+                    {
+                        <p class="mt-2">
+                            📝 @item.Nota
+                        </p>
+                    }
 
+                </div>
 
-@foreach(var item in Model)
-{
+                <hr />
 
-<div class="horario-card">
+                <form asp-action="Confirmar" method="post">
 
+                    <input type="hidden"
+                           name="DisponibilidadId"
+                           value="@item.Id" />
 
-<div>
+                    <input type="hidden"
+                           name="ManicuristaId"
+                           value="@item.ManicuristaId" />
 
-<h4>
-📅 @item.Fecha.ToString("dddd dd MMMM yyyy")
-</h4>
+                    <input type="hidden"
+                           name="Fecha"
+                           value="@item.Fecha" />
 
+                    <input type="hidden"
+                           name="Hora"
+                           value="@item.Hora" />
 
-<div class="hora">
+                    <div class="mb-3">
 
-⏰ @DateTime.Today.Add(item.Hora)
-.ToString("hh:mm tt")
+                        <label class="form-label">
+                            Nombre completo
+                        </label>
 
-</div>
+                        <input class="form-control"
+                               name="NombreClienta"
+                               required />
 
+                    </div>
 
-@if(!string.IsNullOrEmpty(item.Nota))
-{
-<p>
-📝 @item.Nota
-</p>
-}
+                    <div class="mb-3">
 
+                        <label class="form-label">
+                            Teléfono de WhatsApp
+                        </label>
 
-</div>
+                        <input class="form-control"
+                               name="TelefonoCliente" />
 
+                    </div>
 
+                    <div class="mb-3">
 
-<hr/>
+                        <label class="form-label">
+                            Diseño que deseas 💖
+                        </label>
 
+                        <textarea class="form-control"
+                                  name="Servicio"
+                                  required></textarea>
 
-<form asp-action="Confirmar"
-      method="post">
+                    </div>
 
+                    <div class="mb-3">
 
-<input type="hidden"
-       name="DisponibilidadId"
-       value="@item.Id" />
+                        <label class="form-label">
+                            Notas adicionales
+                        </label>
 
+                        <textarea class="form-control"
+                                  name="NotasAdicionales"></textarea>
 
-<input type="hidden"
-       name="ManicuristaId"
-       value="@item.ManicuristaId" />
+                    </div>
 
+                    <button type="submit" class="btn-reservar">
+                        Confirmar Reserva 💅
+                    </button>
 
-<input type="hidden"
-       name="Fecha"
-       value="@item.Fecha" />
+                </form>
 
-
-<input type="hidden"
-       name="Hora"
-       value="@item.Hora" />
-
-
-
-<div class="mb-3">
-
-<label>
-Nombre completo
-</label>
-
-<input class="form-control"
-       name="NombreClienta"
-       required />
-
-</div>
-
-
-
-
-<div class="mb-3">
-
-<label>
-Teléfono WhatsApp
-</label>
-
-<input class="form-control"
-       name="TelefonoCliente" />
-
-</div>
-
-
-
-
-<div class="mb-3">
-
-<label>
-Diseño que deseas 💖
-</label>
-
-<textarea class="form-control"
-          name="Servicio"
-          required></textarea>
-
-
-</div>
-
-
-
-
-<div class="mb-3">
-
-<label>
-Notas adicionales
-</label>
-
-<textarea class="form-control"
-          name="NotasAdicionales"></textarea>
-
-
-</div>
-
-
-
-
-<button class="btn-reservar">
-
-Confirmar Reserva 💅
-
-</button>
-
-
-</form>
-
-
-</div>
-
-
-}
-
+            </div>
+        }
+    }
 
 </div>

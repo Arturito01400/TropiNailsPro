@@ -156,61 +156,69 @@ namespace TropiNailsPro.Controllers
                     disponibilidad.Manicurista.Usuario.Nombre,
                     $"Nueva solicitud de cita de {cita.NombreClienta} 💅");
 
-            // ==================================================
-            // CREAR LINK WHATSAPP
-            // ==================================================
+           // ==================================================
+// CREAR LINK WHATSAPP
+// ==================================================
 
-            string telefono = "";
+string telefono = "";
 
-            if (!string.IsNullOrWhiteSpace(
-                disponibilidad.Manicurista.TelefonoNegocio))
-            {
-                telefono =
-                    disponibilidad.Manicurista.TelefonoNegocio;
-            }
-            else if (!string.IsNullOrWhiteSpace(
-                disponibilidad.Manicurista.Usuario.WhatsApp))
-            {
-                telefono =
-                    disponibilidad.Manicurista.Usuario.WhatsApp;
-            }
-            else
-            {
-                telefono =
-                    disponibilidad.Manicurista.Usuario.Telefono
-                    ?? "";
-            }
+if (!string.IsNullOrWhiteSpace(disponibilidad.Manicurista.TelefonoNegocio))
+{
+    telefono = disponibilidad.Manicurista.TelefonoNegocio;
+}
+else if (!string.IsNullOrWhiteSpace(disponibilidad.Manicurista.Usuario.WhatsApp))
+{
+    telefono = disponibilidad.Manicurista.Usuario.WhatsApp;
+}
+else
+{
+    telefono = disponibilidad.Manicurista.Usuario.Telefono ?? "";
+}
 
-            var mensaje =
-$@"💅 Nueva solicitud de cita - TropiNails Pro
+
+// Formatear la hora correctamente
+string horaFormateada =
+    DateTime.Today
+        .Add(cita.Hora)
+        .ToString("hh:mm tt");
+
+
+// Construir el mensaje
+var mensaje = $@"💅 *Nueva solicitud de cita - TropiNails Pro*
 
 Hola {disponibilidad.Manicurista.Nombre} 👋
 
 Una clienta acaba de solicitar una cita.
 
-👩 Clienta:
-{cita.NombreClienta}
+👩 *Clienta:* {cita.NombreClienta}
 
-📅 Fecha:
-{cita.Fecha:dd/MM/yyyy}
+📅 *Fecha:* {cita.Fecha:dddd dd 'de' MMMM 'de' yyyy}
 
-⏰ Hora:
-{cita.Hora}
+⏰ *Hora:* {horaFormateada}
 
-💖 Diseño:
-{cita.Servicio}
+💖 *Diseño:* {cita.Servicio}";
 
-La clienta está esperando confirmación.
+if (!string.IsNullOrWhiteSpace(cita.NotasAdicionales))
+{
+    mensaje += $@"
 
-Gracias por usar TropiNails Pro 💅✨";
+📝 *Notas:* {cita.NotasAdicionales}";
+}
 
-            var whatsapp =
-                "https://wa.me/" +
-                telefono +
-                "?text=" +
-                Uri.EscapeDataString(mensaje);
+mensaje += @"
 
-            TempData["WhatsApp"] = whatsapp;
+✨ La clienta está esperando tu confirmación.
+
+Gracias por utilizar *TropiNails Pro* 💅💕";
+
+
+var whatsapp =
+    "https://wa.me/" +
+    telefono +
+    "?text=" +
+    Uri.EscapeDataString(mensaje);
+
+TempData["WhatsApp"] = whatsapp;
 
             return RedirectToAction(
                 "Confirmacion");
