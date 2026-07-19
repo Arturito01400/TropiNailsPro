@@ -133,6 +133,14 @@ namespace TropiNailsPro.Controllers
                 TimeSpan.FromMinutes(
                     cita.DuracionMinutos);
 
+                    // Obtener la clienta que inició sesión
+var clienteId = HttpContext.Session.GetInt32("UsuarioId");
+
+if (clienteId.HasValue)
+{
+    cita.ClienteId = clienteId.Value;
+}
+
             _context.Citas.Add(cita);
 
             // Bloquear horario
