@@ -3,11 +3,24 @@
 @{
     bool enLinea = ViewBag.EnLinea != null && (bool)ViewBag.EnLinea;
 
-    string foto = string.IsNullOrEmpty(Model?.FotoPerfil)
-        ? "/img/user-default.png"
-        : Model.FotoPerfil;
+    string foto;
 
-    if (!foto.StartsWith("/")) foto = "/" + foto;
+if (string.IsNullOrWhiteSpace(Model?.FotoPerfil))
+{
+    foto = "/img/user-default.png";
+}
+else if (Model.FotoPerfil.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+{
+    // Imagen almacenada en Azure Blob Storage
+    foto = Model.FotoPerfil;
+}
+else
+{
+    // Imagen local
+    foto = Model.FotoPerfil.StartsWith("/")
+        ? Model.FotoPerfil
+        : "/" + Model.FotoPerfil;
+}
 
     int manicuristaId = Model.Id;
 
