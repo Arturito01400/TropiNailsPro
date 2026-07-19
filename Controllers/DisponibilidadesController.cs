@@ -99,23 +99,44 @@ private readonly TimeService _timeService;
 
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(
-        int id,
-        Disponibilidad disponibilidad)
-    {
-
-        if(id != disponibilidad.Id)
-            return NotFound();
-
-
-        _context.Update(disponibilidad);
-
-        await _context.SaveChangesAsync();
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(
+    int id,
+    Disponibilidad disponibilidad)
+{
+    if (id != disponibilidad.Id)
+        return NotFound();
 
 
-        return RedirectToAction(nameof(Index));
-    }
+    var manicuristaId = ObtenerManicuristaId();
+
+    if (manicuristaId == null)
+        return RedirectToAction("Login", "Auth");
+
+
+    var disponibilidadBD =
+        await _context.Disponibilidades
+        .FirstOrDefaultAsync(x => x.Id == id);
+
+
+    if (disponibilidadBD == null)
+        return NotFound();
+
+
+    disponibilidadBD.Fecha = disponibilidad.Fecha;
+    disponibilidadBD.Hora = disponibilidad.Hora;
+    disponibilidadBD.Nota = disponibilidad.Nota;
+    disponibilidadBD.Disponible = disponibilidad.Disponible;
+
+    // mantenemos el dueño real
+    disponibilidadBD.ManicuristaId = manicuristaId.Value;
+
+
+    await _context.SaveChangesAsync();
+
+
+    return RedirectToAction(nameof(Index));
+}
 
 
 

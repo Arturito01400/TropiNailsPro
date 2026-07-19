@@ -293,6 +293,82 @@ hr{
 
 }
 
+.dashboard-header h2{
+    font-size:2.2rem;
+    font-weight:800;
+    margin-bottom:8px;
+    color:white;
+}
+
+.dashboard-header p{
+    margin:0;
+    font-size:1rem;
+    color:rgba(255,255,255,.90);
+    font-weight:500;
+}
+
+
+/* ===================================== */
+/* BOTON AGENDAR CITA */
+/* ===================================== */
+
+.btn-agendar-cita{
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:10px;
+
+    background:linear-gradient(
+        135deg,
+        #ff4f87,
+        #ff8fba
+    );
+
+    color:white !important;
+
+    font-size:1.1rem;
+    font-weight:800;
+
+    padding:14px 35px;
+
+    border-radius:50px;
+
+    border:none;
+
+    text-decoration:none;
+
+    box-shadow:
+    0 10px 25px rgba(255,79,135,.35);
+
+    transition:.35s ease;
+
+}
+
+
+.btn-agendar-cita:hover{
+
+    transform:
+    translateY(-4px)
+    scale(1.03);
+
+    box-shadow:
+    0 15px 35px rgba(255,79,135,.45);
+
+}
+
+
+.btn-agendar-wrapper{
+
+    text-align:center;
+
+    margin-top:20px;
+    margin-bottom:35px;
+
+}
+
+
 /* ===================================== */
 /* RESPONSIVE */
 /* ===================================== */
@@ -321,21 +397,7 @@ hr{
     border:none;
 }
 
-.dashboard-header h2{
-    font-size:2.2rem;
-    font-weight:800;
-    margin-bottom:8px;
-    color:white;
 }
-
-.dashboard-header p{
-    margin:0;
-    font-size:1rem;
-    color:rgba(255,255,255,.90);
-    font-weight:500;
-}
-
-
 
 
 </style>
@@ -357,6 +419,22 @@ hr{
         <h2>👩 Bienvenida, @nombre</h2>
         <p class="text-muted">🙈Tu espacio de belleza y novedades</p>
     </div>
+
+    @if(tieneManicurista)
+{
+    <div class="btn-agendar-wrapper">
+
+        <a asp-controller="Agendar"
+           asp-action="Index"
+           asp-route-manicuristaId="@manicuristaId"
+           class="btn-agendar-cita">
+
+            💅 Agendar una cita
+
+        </a>
+
+    </div>
+}
 
     <hr />
 

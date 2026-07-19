@@ -1,0 +1,232 @@
+@model IEnumerable<TropiNailsPro.Models.Disponibilidad>
+
+@{
+    ViewData["Title"] = "Agendar Cita";
+}
+
+
+<style>
+
+body{
+    background:linear-gradient(135deg,#ffe6f5,#efe1ff);
+}
+
+
+.agendar-container{
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+}
+
+
+.titulo{
+    text-align:center;
+    color:#d63384;
+    font-weight:700;
+}
+
+
+.horario-card{
+
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 8px 25px rgba(0,0,0,.1);
+
+}
+
+
+.hora{
+
+    font-size:22px;
+    font-weight:bold;
+    color:#8e44ad;
+
+}
+
+
+.btn-reservar{
+
+    background:#d63384;
+    color:white;
+    border-radius:25px;
+    padding:12px 30px;
+    border:none;
+
+}
+
+
+.btn-reservar:hover{
+
+    background:#b0266d;
+
+}
+
+
+</style>
+
+
+
+
+<div class="agendar-container">
+
+
+<h1 class="titulo">
+💅 Agendar tu cita
+</h1>
+
+
+<p class="text-center">
+Selecciona un horario disponible
+</p>
+
+
+
+@if(ViewBag.Mensaje != null)
+{
+    <div class="alert alert-warning text-center">
+        @ViewBag.Mensaje
+    </div>
+}
+
+
+
+@foreach(var item in Model)
+{
+
+<div class="horario-card">
+
+
+<div>
+
+<h4>
+📅 @item.Fecha.ToString("dddd dd MMMM yyyy")
+</h4>
+
+
+<div class="hora">
+
+⏰ @DateTime.Today.Add(item.Hora)
+.ToString("hh:mm tt")
+
+</div>
+
+
+@if(!string.IsNullOrEmpty(item.Nota))
+{
+<p>
+📝 @item.Nota
+</p>
+}
+
+
+</div>
+
+
+
+<hr/>
+
+
+<form asp-action="Confirmar"
+      method="post">
+
+
+<input type="hidden"
+       name="DisponibilidadId"
+       value="@item.Id" />
+
+
+<input type="hidden"
+       name="ManicuristaId"
+       value="@item.ManicuristaId" />
+
+
+<input type="hidden"
+       name="Fecha"
+       value="@item.Fecha" />
+
+
+<input type="hidden"
+       name="Hora"
+       value="@item.Hora" />
+
+
+
+<div class="mb-3">
+
+<label>
+Nombre completo
+</label>
+
+<input class="form-control"
+       name="NombreClienta"
+       required />
+
+</div>
+
+
+
+
+<div class="mb-3">
+
+<label>
+Teléfono WhatsApp
+</label>
+
+<input class="form-control"
+       name="TelefonoCliente" />
+
+</div>
+
+
+
+
+<div class="mb-3">
+
+<label>
+Diseño que deseas 💖
+</label>
+
+<textarea class="form-control"
+          name="Servicio"
+          required></textarea>
+
+
+</div>
+
+
+
+
+<div class="mb-3">
+
+<label>
+Notas adicionales
+</label>
+
+<textarea class="form-control"
+          name="NotasAdicionales"></textarea>
+
+
+</div>
+
+
+
+
+<button class="btn-reservar">
+
+Confirmar Reserva 💅
+
+</button>
+
+
+</form>
+
+
+</div>
+
+
+}
+
+
+</div>

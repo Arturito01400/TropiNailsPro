@@ -1,0 +1,147 @@
+@{
+    ViewData["Title"] = "Reserva Confirmada";
+}
+
+
+<style>
+
+body{
+    background:linear-gradient(
+        135deg,
+        #ffe6f5,
+        #eee1ff
+    );
+}
+
+
+.confirmacion-box{
+
+    max-width:600px;
+    margin:60px auto;
+    background:white;
+    padding:40px;
+    border-radius:25px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+
+}
+
+
+.icono{
+
+    font-size:70px;
+
+}
+
+
+.titulo{
+
+    color:#d63384;
+    font-weight:800;
+
+}
+
+
+
+.texto{
+
+    font-size:18px;
+
+}
+
+
+
+.btn-whatsapp{
+
+    display:inline-block;
+    margin-top:25px;
+    padding:15px 35px;
+    background:#25D366;
+    color:white;
+    border-radius:30px;
+    text-decoration:none;
+    font-weight:bold;
+
+}
+
+
+
+.btn-whatsapp:hover{
+
+    background:#1ebe5d;
+    color:white;
+
+}
+
+
+.btn-inicio{
+
+    display:inline-block;
+    margin-top:15px;
+    padding:12px 30px;
+    background:#d63384;
+    color:white;
+    border-radius:30px;
+    text-decoration:none;
+
+}
+
+
+</style>
+
+
+
+<div class="confirmacion-box">
+
+
+<div class="icono">
+💅✨
+</div>
+
+
+<h1 class="titulo">
+¡Reserva enviada!
+</h1>
+
+
+
+<p class="texto">
+
+Tu solicitud de cita fue enviada correctamente.
+
+<br><br>
+
+La manicurista recibirá la notificación y podrá confirmar tu cita.
+
+</p>
+
+
+
+@if(TempData["WhatsApp"] != null)
+{
+
+<a href="@TempData["WhatsApp"]"
+   target="_blank"
+   class="btn-whatsapp">
+
+📲 Escribir por WhatsApp
+
+</a>
+
+}
+
+
+
+<br>
+
+
+<a asp-controller="Home"
+   asp-action="Index"
+   class="btn-inicio">
+
+Volver al inicio
+
+</a>
+
+
+</div>
