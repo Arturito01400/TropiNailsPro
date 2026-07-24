@@ -357,17 +357,8 @@ Console.WriteLine(
                         return RedirectToAction("Vencida", "Suscripcion");
                     }
 
-                    if (suscripcion.Plan != null &&
-                        suscripcion.Plan.ToLower() == "premium")
-                    {
-                        ViewBag.InventarioDesbloqueado = true;
-                        ViewBag.PagosDesbloqueados = true;
-                    }
-                    else
-                    {
-                        ViewBag.InventarioDesbloqueado = false;
-                        ViewBag.PagosDesbloqueados = false;
-                    }
+                    ViewBag.InventarioDesbloqueado = true;
+ViewBag.PagosDesbloqueados = true;
 
                     ViewBag.EstadisticasDesbloqueadas = true;
                     ViewBag.MostrarSuscripcion = false;
@@ -487,7 +478,7 @@ return View();
         {
             ViewBag.Titulo = "Inventario Premium";
             ViewBag.Mensaje =
-                "Este módulo de Inventario solo está disponible en Premium.";
+                "Suscripción requerida.";
             return View();
         }
 
@@ -495,7 +486,7 @@ return View();
         {
             ViewBag.Titulo = "Pagos Premium";
             ViewBag.Mensaje =
-                "El módulo Registro de Pagos está disponible solo en Premium.";
+                "Suscripción requerida.";
             return View();
         }
 
@@ -503,7 +494,7 @@ return View();
         {
             ViewBag.Titulo = "Módulo Premium";
             ViewBag.Mensaje =
-                "Este módulo está disponible en plan Premium.";
+                "Suscripción requerida.";
             return View();
         }
 
