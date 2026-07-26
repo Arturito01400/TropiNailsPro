@@ -4,68 +4,43 @@
     ViewData["Title"] = "Editar horario";
 }
 
-
 <div class="container py-5">
-
 
     <div class="row justify-content-center">
 
-
         <div class="col-12 col-md-8 col-lg-6">
-
 
             <div class="card border-0 shadow rounded-4">
 
-
                 <div class="card-body p-4 p-md-5">
 
-
                     <div class="text-center mb-4">
-
 
                         <div class="display-4">
                             ✏️
                         </div>
 
-
                         <h2 class="fw-bold mt-2">
                             Editar horario
                         </h2>
-
 
                         <p class="text-muted">
                             Actualiza la información de tu disponibilidad.
                         </p>
 
-
                     </div>
-
-
-
-
 
                     <form asp-action="Edit" method="post">
 
-
                         <input type="hidden" asp-for="Id" />
-
-
-
-
 
                         <div asp-validation-summary="ModelOnly"
                              class="text-danger mb-3">
                         </div>
 
-
-
-
-
                         <!-- Fecha -->
 
-
                         <div class="mb-3">
-
 
                             <label asp-for="Fecha"
                                    class="form-label fw-semibold">
@@ -74,66 +49,85 @@
 
                             </label>
 
-
                             <input asp-for="Fecha"
                                    type="date"
                                    class="form-control rounded-3" />
-
 
                             <span asp-validation-for="Fecha"
                                   class="text-danger">
                             </span>
 
-
                         </div>
-
-
-
-
-
-
 
                         <!-- Hora -->
 
-
                         <div class="mb-3">
 
-
-                            <label asp-for="Hora"
-                                   class="form-label fw-semibold">
+                            <label class="form-label fw-semibold">
 
                                 ⏰ Hora disponible
 
                             </label>
 
+                            <div class="row">
+
+                                <div class="col-4">
+
+                                    <select id="hora" class="form-select rounded-3">
+
+                                        @for (int i = 1; i <= 12; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-4">
+
+                                    <select id="minuto" class="form-select rounded-3">
+
+                                        @for (int i = 0; i < 60; i += 5)
+                                        {
+                                            <option value="@i.ToString("D2")">
+                                                @i.ToString("D2")
+                                            </option>
+                                        }
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-4">
+
+                                    <select id="periodo" class="form-select rounded-3">
+
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
 
                             <input asp-for="Hora"
-                                   type="time"
-                                   class="form-control rounded-3" />
-
+                                   id="HoraHidden"
+                                   type="hidden" />
 
                             <span asp-validation-for="Hora"
                                   class="text-danger">
                             </span>
 
-
                         </div>
-
-
-
-
-
-
 
                         <!-- Estado -->
 
-
                         <div class="form-check form-switch mb-4">
-
 
                             <input asp-for="Disponible"
                                    class="form-check-input" />
-
 
                             <label asp-for="Disponible"
                                    class="form-check-label fw-semibold">
@@ -142,21 +136,11 @@
 
                             </label>
 
-
                         </div>
-
-
-
-
-
-
-
 
                         <!-- Nota -->
 
-
                         <div class="mb-4">
-
 
                             <label asp-for="Nota"
                                    class="form-label fw-semibold">
@@ -165,29 +149,17 @@
 
                             </label>
 
-
-
                             <textarea asp-for="Nota"
                                       class="form-control rounded-3"
-                                      rows="4">
-                            </textarea>
-
+                                      rows="4"></textarea>
 
                             <span asp-validation-for="Nota"
                                   class="text-danger">
                             </span>
 
-
                         </div>
 
-
-
-
-
-
-
                         <div class="d-flex justify-content-between">
-
 
                             <a asp-action="Index"
                                class="btn btn-outline-secondary rounded-pill px-4">
@@ -196,9 +168,6 @@
 
                             </a>
 
-
-
-
                             <button type="submit"
                                     class="btn btn-primary rounded-pill px-4">
 
@@ -206,35 +175,79 @@
 
                             </button>
 
-
                         </div>
-
-
 
                     </form>
 
-
                 </div>
-
 
             </div>
 
-
         </div>
-
 
     </div>
 
-
 </div>
-
-
-
 
 @section Scripts {
 
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            let tiempo = "@Model.Hora";
+
+            if (tiempo) {
+
+                let partes = tiempo.split(":");
+
+                let hora = parseInt(partes[0]);
+
+                let minuto = partes[1];
+
+                let periodo = "AM";
+
+                if (hora >= 12) {
+                    periodo = "PM";
+                }
+
+                if (hora == 0)
+                    hora = 12;
+                else if (hora > 12)
+                    hora -= 12;
+
+                document.getElementById("hora").value = hora;
+                document.getElementById("minuto").value = minuto;
+                document.getElementById("periodo").value = periodo;
+
+            }
+
+        });
+
+        document.querySelector("form").addEventListener("submit", function () {
+
+            let hora = parseInt(document.getElementById("hora").value);
+
+            let minuto = document.getElementById("minuto").value;
+
+            let periodo = document.getElementById("periodo").value;
+
+            if (periodo === "PM" && hora < 12)
+                hora += 12;
+
+            if (periodo === "AM" && hora === 12)
+                hora = 0;
+
+            let hora24 = hora.toString().padStart(2, '0');
+
+            document.getElementById("HoraHidden").value = hora24 + ":" + minuto + ":00";
+
+        });
+
+    </script>
 
 }

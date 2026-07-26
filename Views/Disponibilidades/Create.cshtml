@@ -79,23 +79,62 @@
 
                         <div class="mb-3">
 
-                            <label asp-for="Hora"
-                                   class="form-label fw-semibold">
+                            <label class="form-label fw-semibold">
 
                                 ⏰ Hora disponible
 
                             </label>
 
+                            <div class="row">
+
+                                <div class="col-4">
+
+                                    <select id="hora" class="form-select rounded-3">
+
+                                        @for (int i = 1; i <= 12; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-4">
+
+                                    <select id="minuto" class="form-select rounded-3">
+
+                                        @for (int i = 0; i < 60; i += 5)
+                                        {
+                                            <option value="@i.ToString("D2")">
+                                                @i.ToString("D2")
+                                            </option>
+                                        }
+
+                                    </select>
+
+                                </div>
+
+                                <div class="col-4">
+
+                                    <select id="periodo" class="form-select rounded-3">
+
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
 
                             <input asp-for="Hora"
-                                   type="time"
-                                   class="form-control rounded-3" />
-
+                                   id="HoraHidden"
+                                   type="hidden" />
 
                             <span asp-validation-for="Hora"
                                   class="text-danger">
                             </span>
-
 
                         </div>
 
@@ -144,8 +183,7 @@
                             <textarea asp-for="Nota"
                                       class="form-control rounded-3"
                                       rows="4"
-                                      placeholder="Ejemplo: Diseños personalizados, traer referencia, etc.">
-                            </textarea>
+                                      placeholder="Ejemplo: Diseños personalizados, traer referencia, etc."></textarea>
 
 
                             <span asp-validation-for="Nota"
@@ -209,5 +247,29 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+
+        document.querySelector("form").addEventListener("submit", function () {
+
+            let hora = parseInt(document.getElementById("hora").value);
+
+            let minuto = document.getElementById("minuto").value;
+
+            let periodo = document.getElementById("periodo").value;
+
+            if (periodo === "PM" && hora < 12)
+                hora += 12;
+
+            if (periodo === "AM" && hora === 12)
+                hora = 0;
+
+            let hora24 = hora.toString().padStart(2, '0');
+
+            document.getElementById("HoraHidden").value = hora24 + ":" + minuto + ":00";
+
+        });
+
+    </script>
 
 }
