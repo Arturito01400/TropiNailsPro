@@ -1,0 +1,137 @@
+/* ============================================================
+   TropiNails Pro - Selector de Hora Profesional
+   Archivo: horaPicker.css
+   ============================================================ */
+
+.hora-picker-container {
+    width: 100%;
+    position: relative;
+}
+
+.hora-picker-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+    color: #333;
+}
+
+.hora-picker-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 12px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.hora-picker-box:focus-within {
+    border-color: #ff6fa8;
+    box-shadow: 0 0 0 0.2rem rgba(255, 111, 168, 0.25);
+}
+
+
+/* Selectores internos */
+
+.hora-picker-box select {
+    flex: 1;
+    min-height: 45px;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 16px;
+    background-color: #fff;
+    cursor: pointer;
+    outline: none;
+    text-align: center;
+    appearance: auto;
+}
+
+.hora-picker-box select:focus {
+    border-color: #ff6fa8;
+}
+
+
+/* Separador */
+
+.hora-picker-separador {
+    font-size: 22px;
+    font-weight: bold;
+    color: #666;
+}
+
+
+/* AM / PM */
+
+.hora-picker-periodo {
+    min-width: 90px;
+}
+
+
+/* Mensaje de validación */
+
+.hora-picker-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 6px;
+    display: none;
+}
+
+.hora-picker-error.activo {
+    display: block;
+}
+
+
+/* Campo oculto que recibe ASP.NET */
+
+.hora-picker-hidden {
+    display: none;
+}
+
+
+/* Estado bloqueado */
+
+.hora-picker-box.bloqueado {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+
+/* Responsive móvil */
+
+@media (max-width: 576px) {
+
+    .hora-picker-box {
+        gap: 6px;
+        padding: 10px;
+    }
+
+
+    .hora-picker-box select {
+        font-size: 15px;
+        min-height: 42px;
+        padding: 6px;
+    }
+
+
+    .hora-picker-periodo {
+        min-width: 75px;
+    }
+
+
+    .hora-picker-separador {
+        font-size: 18px;
+    }
+
+}
+
+
+/* Animación suave */
+
+.hora-picker-box,
+.hora-picker-box select {
+    transition: border-color .2s ease,
+                box-shadow .2s ease,
+                background-color .2s ease;
+}

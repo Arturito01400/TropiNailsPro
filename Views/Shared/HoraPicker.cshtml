@@ -1,0 +1,161 @@
+@model TimeSpan?
+
+@{
+    var horaInicial = Model.HasValue
+        ? Model.Value.Hours
+        : 9;
+
+    var minutosIniciales = Model.HasValue
+        ? Model.Value.Minutes.ToString("00")
+        : "00";
+
+
+    var periodoInicial = "AM";
+
+
+    if (horaInicial >= 12)
+    {
+        periodoInicial = "PM";
+
+        if (horaInicial > 12)
+        {
+            horaInicial -= 12;
+        }
+    }
+
+
+    if (horaInicial == 0)
+    {
+        horaInicial = 12;
+    }
+}
+
+
+<div class="hora-picker-container">
+
+    <label class="hora-picker-label">
+        ⏰ Hora disponible
+    </label>
+
+
+    <div class="hora-picker-box">
+
+
+        <!-- Hora -->
+
+        <select class="hora-picker-hora form-select">
+
+            @for (int i = 1; i <= 12; i++)
+            {
+                if (i == horaInicial)
+                {
+                    <option value="@i" selected>
+                        @i.ToString("00")
+                    </option>
+                }
+                else
+                {
+                    <option value="@i">
+                        @i.ToString("00")
+                    </option>
+                }
+            }
+
+        </select>
+
+
+
+        <span class="hora-picker-separador">
+            :
+        </span>
+
+
+
+        <!-- Minutos -->
+
+        <select class="hora-picker-minuto form-select">
+
+            @foreach (var minuto in new[]
+            {
+                "00",
+                "15",
+                "30",
+                "45"
+            })
+            {
+
+                if (minuto == minutosIniciales)
+                {
+                    <option value="@minuto" selected>
+                        @minuto
+                    </option>
+                }
+                else
+                {
+                    <option value="@minuto">
+                        @minuto
+                    </option>
+                }
+
+            }
+
+        </select>
+
+
+
+
+
+        <!-- AM / PM -->
+
+        <select class="hora-picker-periodo form-select">
+
+
+            @if (periodoInicial == "AM")
+            {
+                <option value="AM" selected>
+                    AM
+                </option>
+
+                <option value="PM">
+                    PM
+                </option>
+            }
+            else
+            {
+                <option value="AM">
+                    AM
+                </option>
+
+                <option value="PM" selected>
+                    PM
+                </option>
+            }
+
+
+        </select>
+
+
+    </div>
+
+
+
+
+    <div class="hora-picker-error">
+        Seleccione una hora válida.
+    </div>
+
+
+
+
+
+    <!-- Campo real que recibe ASP.NET -->
+
+    <input 
+        type="hidden"
+        class="hora-picker-hidden"
+        name="Hora"
+        value="@(Model.HasValue ? Model.Value.ToString(@"hh\:mm") : "")" />
+
+
+
+</div>

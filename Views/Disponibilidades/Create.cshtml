@@ -22,6 +22,7 @@
 
                     <div class="text-center mb-4">
 
+
                         <div class="display-4">
                             💅
                         </div>
@@ -36,7 +37,10 @@
                             Agrega un espacio donde tus clientas puedan reservar una cita.
                         </p>
 
+
                     </div>
+
+
 
 
 
@@ -49,94 +53,66 @@
 
 
 
+
+
                         <!-- Fecha -->
 
                         <div class="mb-3">
 
+
                             <label asp-for="Fecha"
                                    class="form-label fw-semibold">
 
+
                                 📅 Fecha disponible
+
 
                             </label>
 
 
+
                             <input asp-for="Fecha"
+                                   id="Fecha"
                                    type="date"
-                                   class="form-control rounded-3" />
+                                   class="form-control rounded-3"
+                                   min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+
 
 
                             <span asp-validation-for="Fecha"
                                   class="text-danger">
                             </span>
 
+
                         </div>
 
 
 
 
-                        <!-- Hora -->
+
+
+
+                        <!-- Selector profesional de Hora -->
 
                         <div class="mb-3">
 
-                            <label class="form-label fw-semibold">
 
-                                ⏰ Hora disponible
+                            @await Html.PartialAsync(
+                                "_HoraPicker",
+                                Model.Hora
+                            )
 
-                            </label>
 
-                            <div class="row">
-
-                                <div class="col-4">
-
-                                    <select id="hora" class="form-select rounded-3">
-
-                                        @for (int i = 1; i <= 12; i++)
-                                        {
-                                            <option value="@i">@i</option>
-                                        }
-
-                                    </select>
-
-                                </div>
-
-                                <div class="col-4">
-
-                                    <select id="minuto" class="form-select rounded-3">
-
-                                        @for (int i = 0; i < 60; i += 5)
-                                        {
-                                            <option value="@i.ToString("D2")">
-                                                @i.ToString("D2")
-                                            </option>
-                                        }
-
-                                    </select>
-
-                                </div>
-
-                                <div class="col-4">
-
-                                    <select id="periodo" class="form-select rounded-3">
-
-                                        <option value="AM">AM</option>
-                                        <option value="PM">PM</option>
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-
-                            <input asp-for="Hora"
-                                   id="HoraHidden"
-                                   type="hidden" />
 
                             <span asp-validation-for="Hora"
                                   class="text-danger">
                             </span>
 
+
                         </div>
+
+
+
 
 
 
@@ -148,17 +124,21 @@
                         <div class="form-check form-switch mb-4">
 
 
+
                             <input asp-for="Disponible"
-                                   class="form-check-input"
-                                   checked />
+                                   class="form-check-input" />
+
 
 
                             <label asp-for="Disponible"
                                    class="form-check-label fw-semibold">
 
+
                                 Horario activo para clientas
 
+
                             </label>
+
 
 
                         </div>
@@ -167,17 +147,26 @@
 
 
 
+
+
+
                         <!-- Nota -->
 
+
                         <div class="mb-4">
+
 
 
                             <label asp-for="Nota"
                                    class="form-label fw-semibold">
 
+
                                 📝 Nota para la clienta
 
+
                             </label>
+
+
 
 
                             <textarea asp-for="Nota"
@@ -186,12 +175,18 @@
                                       placeholder="Ejemplo: Diseños personalizados, traer referencia, etc."></textarea>
 
 
+
+
                             <span asp-validation-for="Nota"
                                   class="text-danger">
                             </span>
 
 
+
                         </div>
+
+
+
 
 
 
@@ -200,12 +195,20 @@
                         <div class="d-flex justify-content-between">
 
 
+
+
+
                             <a asp-action="Index"
                                class="btn btn-outline-secondary rounded-pill px-4">
 
+
                                 ← Volver
 
+
                             </a>
+
+
+
 
 
 
@@ -213,16 +216,26 @@
                             <button type="submit"
                                     class="btn btn-primary rounded-pill px-4 shadow-sm">
 
+
                                 💾 Guardar horario
 
+
                             </button>
+
+
+
 
 
                         </div>
 
 
 
+
+
                     </form>
+
+
+
 
 
                 </div>
@@ -242,34 +255,28 @@
 
 
 
+
+
+
 @section Scripts {
+
 
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    <script>
 
-        document.querySelector("form").addEventListener("submit", function () {
 
-            let hora = parseInt(document.getElementById("hora").value);
+    <!-- Selector de hora TropiNails Pro -->
 
-            let minuto = document.getElementById("minuto").value;
 
-            let periodo = document.getElementById("periodo").value;
+    <link rel="stylesheet"
+          href="~/css/horaPicker.css" />
 
-            if (periodo === "PM" && hora < 12)
-                hora += 12;
 
-            if (periodo === "AM" && hora === 12)
-                hora = 0;
 
-            let hora24 = hora.toString().padStart(2, '0');
+    <script src="~/js/horaPicker.js"></script>
 
-            document.getElementById("HoraHidden").value = hora24 + ":" + minuto + ":00";
 
-        });
-
-    </script>
 
 }
