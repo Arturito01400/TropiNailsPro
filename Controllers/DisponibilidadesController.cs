@@ -47,10 +47,15 @@ namespace TropiNailsPro.Controllers
 
 
         // CREAR
-        public IActionResult Create()
-        {
-            return View();
-        }
+public IActionResult Create()
+{
+    return View(new Disponibilidad
+    {
+        Fecha = _timeService.ObtenerHoraLocal().Date,
+        Hora = new TimeSpan(9, 0, 0),
+        Disponible = true
+    });
+}
 
 
 

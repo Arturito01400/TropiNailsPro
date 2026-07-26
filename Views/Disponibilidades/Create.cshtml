@@ -96,12 +96,10 @@
 
                         <div class="mb-3">
 
-
-                            @await Html.PartialAsync(
-                                "_HoraPicker",
-                                Model.Hora
-                            )
-
+@await Html.PartialAsync(
+    "_HoraPicker",
+    Model?.Hora
+)
 
 
                             <span asp-validation-for="Hora"
