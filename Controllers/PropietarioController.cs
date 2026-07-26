@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using TropiNailsPro.Data;
+using TropiNailsPro.Models;
 using System;
 using System.Linq;
 
@@ -139,12 +140,16 @@ public IActionResult RegalarMeses(int id, int meses)
         return RedirectToAction("Index", "Dashboard");
     }
 
-    var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == id);
+
+    var usuario = _context.Usuarios
+        .FirstOrDefault(u => u.Id == id);
+
 
     if (usuario == null)
     {
         return NotFound();
     }
+
 
     // Si nunca ha tenido un plan o ya venció, comenzar desde hoy
     var fechaBase = usuario.FechaVencimientoPlan.HasValue &&
@@ -152,23 +157,98 @@ public IActionResult RegalarMeses(int id, int meses)
         ? usuario.FechaVencimientoPlan.Value
         : DateTime.Now;
 
+
+    // 🔥 Actualizar datos principales del usuario
     usuario.PlanActivo = true;
     usuario.Plan = "Premium";
 
+
     if (!usuario.FechaInicioPlan.HasValue)
+    {
         usuario.FechaInicioPlan = DateTime.Now;
+    }
 
-    usuario.FechaVencimientoPlan = fechaBase.AddMonths(meses);
 
+    usuario.FechaVencimientoPlan =
+        fechaBase.AddMonths(meses);
+
+
+
+    // =====================================================
+    // 🔥 ACTUALIZAR SUSCRIPCIÓN REAL DEL SISTEMA
+    // =====================================================
+
+    var manicurista = _context.Manicuristas
+        .FirstOrDefault(m => m.UsuarioId == usuario.Id);
+
+
+    if (manicurista != null)
+    {
+        var suscripcion = _context.Suscripciones
+            .Where(s => s.ManicuristaId == manicurista.Id)
+            .OrderByDescending(s => s.FechaInicio)
+            .FirstOrDefault();
+
+
+        if (suscripcion != null)
+        {
+            // Actualizar suscripción existente
+            suscripcion.Activa = true;
+            suscripcion.Cancelada = false;
+            suscripcion.Plan = "Premium";
+            suscripcion.FechaVencimiento =
+                fechaBase.AddMonths(meses);
+
+            suscripcion.EstadoPago = "REGALO";
+            suscripcion.MetodoPago = "Administrador";
+        }
+        else
+        {
+            // Crear nueva suscripción si no existe
+            var nuevaSuscripcion = new Suscripcion
+            {
+                ManicuristaId = manicurista.Id,
+
+                FechaInicio = DateTime.Now,
+
+                FechaVencimiento =
+                    fechaBase.AddMonths(meses),
+
+                Plan = "Premium",
+
+                Activa = true,
+
+                Cancelada = false,
+
+                MetodoPago = "Administrador",
+
+                EstadoPago = "REGALO",
+
+                Monto = 0,
+
+                Moneda = "USD"
+            };
+
+
+            _context.Suscripciones.Add(nuevaSuscripcion);
+        }
+    }
+
+
+
+    // Guardar todos los cambios
     _context.SaveChanges();
+
 
     TempData["Success"] =
         $"Se regalaron {meses} mes(es) a {usuario.Nombre}.";
 
-    return RedirectToAction(nameof(AdministrarUsuario), new { id });
-}
-    
-    }
 
+    return RedirectToAction(
+        nameof(AdministrarUsuario),
+        new { id });
+}
+
+    }
 
 }
