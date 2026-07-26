@@ -10,6 +10,13 @@
         ← Volver al Panel
     </a>
 
+    @if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
     <div class="card shadow-lg border-0">
 
         <div class="card-body">
@@ -112,39 +119,69 @@
 
     <!-- SUSCRIPCIÓN -->
 
-    <div class="card shadow border-0 mb-4">
+<div class="card shadow border-0 mb-4">
 
-        <div class="card-header bg-primary text-white">
+    <div class="card-header bg-primary text-white">
 
-            <h5 class="mb-0">
+        <h5 class="mb-0">
+            🎁 Administración de Suscripción
+        </h5>
 
-                🎁 Administración de Suscripción
+    </div>
 
-            </h5>
+    <div class="card-body">
 
-        </div>
+        <div class="row">
 
-        <div class="card-body">
+            <div class="col-md-3 mb-2">
+                <form asp-action="RegalarMeses" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="meses" value="1" />
 
-            <button class="btn btn-success">
-                Regalar 1 Mes
-            </button>
+                    <button type="submit" class="btn btn-success w-100">
+                        +1 Mes
+                    </button>
+                </form>
+            </div>
 
-            <button class="btn btn-warning">
-                Regalar 3 Meses
-            </button>
+            <div class="col-md-3 mb-2">
+                <form asp-action="RegalarMeses" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="meses" value="3" />
 
-            <button class="btn btn-info text-white">
-                Regalar 6 Meses
-            </button>
+                    <button type="submit" class="btn btn-primary w-100">
+                        +3 Meses
+                    </button>
+                </form>
+            </div>
 
-            <button class="btn btn-dark">
-                Regalar 12 Meses
-            </button>
+            <div class="col-md-3 mb-2">
+                <form asp-action="RegalarMeses" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="meses" value="6" />
+
+                    <button type="submit" class="btn btn-warning w-100">
+                        +6 Meses
+                    </button>
+                </form>
+            </div>
+
+            <div class="col-md-3 mb-2">
+                <form asp-action="RegalarMeses" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="meses" value="12" />
+
+                    <button type="submit" class="btn btn-dark w-100">
+                        +12 Meses
+                    </button>
+                </form>
+            </div>
 
         </div>
 
     </div>
+
+</div>
 
     <!-- ESTADÍSTICAS -->
 

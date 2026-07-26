@@ -128,5 +128,47 @@ public IActionResult AdministrarUsuario(int id)
     return View(usuario);
 }
 
+[HttpPost]
+public IActionResult RegalarMeses(int id, int meses)
+{
+    // 🔒 Solo el propietario puede realizar esta acción
+    var usuarioSesion = HttpContext.Session.GetString("UsuarioNombre");
+
+    if (usuarioSesion != "Arturo Quezada Montero")
+    {
+        return RedirectToAction("Index", "Dashboard");
     }
+
+    var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == id);
+
+    if (usuario == null)
+    {
+        return NotFound();
+    }
+
+    // Si nunca ha tenido un plan o ya venció, comenzar desde hoy
+    var fechaBase = usuario.FechaVencimientoPlan.HasValue &&
+                    usuario.FechaVencimientoPlan.Value > DateTime.Now
+        ? usuario.FechaVencimientoPlan.Value
+        : DateTime.Now;
+
+    usuario.PlanActivo = true;
+    usuario.Plan = "Premium";
+
+    if (!usuario.FechaInicioPlan.HasValue)
+        usuario.FechaInicioPlan = DateTime.Now;
+
+    usuario.FechaVencimientoPlan = fechaBase.AddMonths(meses);
+
+    _context.SaveChanges();
+
+    TempData["Success"] =
+        $"Se regalaron {meses} mes(es) a {usuario.Nombre}.";
+
+    return RedirectToAction(nameof(AdministrarUsuario), new { id });
+}
+    
+    }
+
+
 }
