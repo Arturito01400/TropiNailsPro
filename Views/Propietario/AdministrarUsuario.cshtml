@@ -1,0 +1,287 @@
+@model TropiNailsPro.Models.Usuario
+
+@{
+    ViewData["Title"] = "Administrar Usuario";
+}
+
+<div class="container mt-4">
+
+    <a asp-action="Crecimiento" class="btn btn-outline-secondary mb-4">
+        ← Volver al Panel
+    </a>
+
+    <div class="card shadow-lg border-0">
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <!-- FOTO -->
+
+                <div class="col-md-3 text-center">
+
+                    <img src="@Model.FotoPerfilUrl"
+                         class="img-fluid rounded-circle border shadow"
+                         style="width:170px;height:170px;object-fit:cover;" />
+
+                    <h4 class="mt-3 fw-bold">
+                        @Model.Nombre
+                    </h4>
+
+                    <span class="badge bg-primary">
+                        @Model.Rol
+                    </span>
+
+                    <span class="badge bg-success">
+                        @Model.Plan
+                    </span>
+
+                </div>
+
+                <!-- INFORMACIÓN -->
+
+                <div class="col-md-9">
+
+                    <h3 class="fw-bold mb-4">
+                        Información General
+                    </h3>
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th style="width:220px;">Correo</th>
+                            <td>@Model.Email</td>
+                        </tr>
+
+                        <tr>
+                            <th>Teléfono</th>
+                            <td>@Model.Telefono</td>
+                        </tr>
+
+                        <tr>
+                            <th>Fecha de Registro</th>
+                            <td>@Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+
+                        <tr>
+                            <th>Último Acceso</th>
+
+                            <td>
+
+                                @(Model.UltimoAcceso.HasValue
+                                    ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
+                                    : "Nunca ha iniciado sesión")
+
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <th>Estado del Plan</th>
+
+                            <td>
+
+                                @(Model.PlanActivo
+                                    ? "🟢 Activo"
+                                    : "🔴 Inactivo")
+
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <th>Plan Actual</th>
+
+                            <td>
+                                @Model.Plan
+                            </td>
+
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <br />
+
+    <!-- SUSCRIPCIÓN -->
+
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+
+                🎁 Administración de Suscripción
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <button class="btn btn-success">
+                Regalar 1 Mes
+            </button>
+
+            <button class="btn btn-warning">
+                Regalar 3 Meses
+            </button>
+
+            <button class="btn btn-info text-white">
+                Regalar 6 Meses
+            </button>
+
+            <button class="btn btn-dark">
+                Regalar 12 Meses
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+
+    <div class="card shadow border-0 mb-4">
+
+        <div class="card-header bg-success text-white">
+
+            <h5 class="mb-0">
+
+                📊 Actividad
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-3">
+
+                    <div class="card text-center">
+
+                        <div class="card-body">
+
+                            <h6>Último Acceso</h6>
+
+                            <h5>
+
+                                @(Model.UltimoAcceso.HasValue
+                                    ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy")
+                                    : "--")
+
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="card text-center">
+
+                        <div class="card-body">
+
+                            <h6>Plan</h6>
+
+                            <h5>
+
+                                @Model.Plan
+
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="card text-center">
+
+                        <div class="card-body">
+
+                            <h6>Rol</h6>
+
+                            <h5>
+
+                                @Model.Rol
+
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="card text-center">
+
+                        <div class="card-body">
+
+                            <h6>Registro</h6>
+
+                            <h5>
+
+                                @Model.FechaRegistro.ToString("dd/MM/yyyy")
+
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ADMINISTRACIÓN -->
+
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-danger text-white">
+
+            <h5 class="mb-0">
+
+                ⚙ Administración
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <button class="btn btn-outline-primary">
+                Editar Usuario
+            </button>
+
+            <button class="btn btn-outline-warning">
+                Restablecer Contraseña
+            </button>
+
+            <button class="btn btn-outline-danger">
+                Eliminar Usuario
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

@@ -38,6 +38,9 @@ public string Clave { get; set; } = string.Empty;
 
         public DateTime FechaRegistro { get; set; } = DateTime.Now;
 
+        // ✅ Última vez que el usuario inició sesión
+public DateTime? UltimoAcceso { get; set; }
+
         [Required, StringLength(50)]
         public string Rol { get; set; } = "Clienta";
 

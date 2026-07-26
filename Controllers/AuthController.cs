@@ -249,6 +249,12 @@ else if (
             ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
         });
 
+        // ✅ Registrar último acceso
+usuario.UltimoAcceso = _timeService.ObtenerHoraLocal();
+
+_context.Usuarios.Update(usuario);
+await _context.SaveChangesAsync();
+
     return RedirectToAction("Index", "Dashboard");
 }
 

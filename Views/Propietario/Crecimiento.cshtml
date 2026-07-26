@@ -135,7 +135,9 @@
                                     <th>Teléfono</th>
                                     <th>Plan</th>
                                     <th>Estado</th>
+                                    <th>Último Acceso</th>
                                     <th>Fecha Registro</th>
+                                    <th>Acciones</th>
                                 </tr>
 
                             </thead>
@@ -191,12 +193,26 @@
                                         </td>
 
                                         <td>
-                                            @estado
-                                        </td>
+    @estado
+</td>
 
-                                        <td>
-                                            @usuario.FechaRegistro.ToString("dd/MM/yyyy HH:mm")
-                                        </td>
+<td>
+    @(usuario.UltimoAcceso.HasValue
+        ? usuario.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
+        : "Nunca ha ingresado")
+</td>
+
+<td>
+    @usuario.FechaRegistro.ToString("dd/MM/yyyy HH:mm")
+</td>
+
+<td>
+    <a asp-action="AdministrarUsuario"
+       asp-route-id="@usuario.Id"
+       class="btn btn-dark btn-sm">
+        Administrar
+    </a>
+</td>
 
                                     </tr>
                                 }

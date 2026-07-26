@@ -104,5 +104,29 @@ ViewBag.Manicuristas = _context.Manicuristas.ToList();
 
             return View(usuarios);
         }
+
+public IActionResult AdministrarUsuario(int id)
+{
+    // 🔒 Solo el propietario puede entrar
+    var usuarioSesion = HttpContext.Session.GetString("UsuarioNombre");
+
+    if (usuarioSesion != "Arturo Quezada Montero")
+    {
+        return RedirectToAction("Index", "Dashboard");
+    }
+
+    // Buscar el usuario
+    var usuario = _context.Usuarios
+        .Include(u => u.Manicurista)
+        .FirstOrDefault(u => u.Id == id);
+
+    if (usuario == null)
+    {
+        return NotFound();
+    }
+
+    return View(usuario);
+}
+
     }
 }
