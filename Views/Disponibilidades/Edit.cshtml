@@ -82,9 +82,9 @@
 
 
                             @await Html.PartialAsync(
-                             "_HoraPicker",
-                              Model?.Hora
-                             )
+                            "~/Views/Shared/_HoraPicker.cshtml",
+                                 Model?.Hora
+                            )
 
 
                             <span asp-validation-for="Hora"
