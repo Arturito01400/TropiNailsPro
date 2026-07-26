@@ -4,179 +4,484 @@
     ViewData["Title"] = "Agendar Cita";
 }
 
+
 <style>
 
 body{
-    background:linear-gradient(135deg,#ffe6f5,#efe1ff);
+    background:linear-gradient(145deg,#fff0f7,#f5edff);
 }
+
+
+/* CONTENEDOR */
 
 .agendar-container{
-    max-width:900px;
+
+    max-width:520px;
     margin:auto;
-    padding:30px;
+    padding:20px 15px;
+
 }
 
+
+
+/* TITULO */
+
 .titulo{
+
     text-align:center;
     color:#d63384;
-    font-weight:700;
-    margin-bottom:10px;
+    font-weight:800;
+    font-size:28px;
+    margin-bottom:5px;
+
 }
+
+
+.subtitulo{
+
+    text-align:center;
+    color:#777;
+    margin-bottom:25px;
+
+}
+
+
+
+
+
+/* TARJETAS */
 
 .horario-card{
 
     background:white;
-    border-radius:20px;
-    padding:20px;
-    margin-bottom:20px;
-    box-shadow:0 8px 25px rgba(0,0,0,.10);
+    border-radius:22px;
+    padding:18px;
+    margin-bottom:18px;
+
+    box-shadow:
+    0 10px 30px rgba(214,51,132,.12);
+
+    border:1px solid rgba(214,51,132,.08);
+
+    animation: aparecer .4s ease;
 
 }
+
+
+
+@@keyframes aparecer{
+
+from{
+
+    opacity:0;
+    transform:translateY(15px);
+
+}
+
+to{
+
+    opacity:1;
+    transform:translateY(0);
+
+}
+
+}
+
+
+
+
+
+.fecha{
+
+    color:#8e44ad;
+    font-weight:600;
+    font-size:15px;
+
+}
+
+
 
 .hora{
 
+    margin-top:8px;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    background:#fff0f7;
+
+    color:#d63384;
+
+    padding:8px 18px;
+
+    border-radius:30px;
+
     font-size:22px;
-    font-weight:bold;
-    color:#8e44ad;
+
+    font-weight:800;
 
 }
+
+
+
+
+.nota{
+
+    margin-top:12px;
+
+    color:#666;
+
+    font-size:14px;
+
+}
+
+
+
+
+.divisor{
+
+    border:none;
+
+    height:1px;
+
+    background:#f1d7e6;
+
+    margin:18px 0;
+
+}
+
+
+
+
+
+/* INPUTS */
+
+.form-label{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#555;
+
+}
+
+
+
+.form-control{
+
+    border-radius:15px;
+
+    border:1px solid #eee;
+
+    padding:12px;
+
+}
+
+
+
+.form-control:focus{
+
+    border-color:#d63384;
+
+    box-shadow:0 0 0 .2rem rgba(214,51,132,.15);
+
+}
+
+
+
+
+/* BOTON */
 
 .btn-reservar{
 
-    background:#d63384;
+
+    width:100%;
+
+    background:linear-gradient(
+        135deg,
+        #d63384,
+        #9b59b6
+    );
+
+
     color:white;
-    border-radius:25px;
-    padding:12px 30px;
+
+    border-radius:30px;
+
+    padding:13px;
+
     border:none;
-    transition:.25s;
+
+    font-weight:700;
+
+    font-size:16px;
+
+    box-shadow:
+    0 8px 20px rgba(214,51,132,.25);
+
+
+    transition:.3s;
+
 
 }
+
+
 
 .btn-reservar:hover{
 
-    background:#b0266d;
+    transform:translateY(-2px);
+
     color:white;
 
 }
 
+
+
+
+
+/* MENSAJE */
+
+.alert{
+
+    border-radius:20px;
+
+}
+
+
+
+
 </style>
+
+
+
+
 
 <div class="agendar-container">
 
+
     <h1 class="titulo">
-        💅 Agendar tu cita
+        💅 Agenda tu cita
     </h1>
 
-    <p class="text-center">
-        Selecciona un horario disponible
+
+    <p class="subtitulo">
+        Elige el horario perfecto para tu próximo diseño ✨
     </p>
+
+
+
+
 
     @if(ViewBag.Mensaje != null)
     {
+
         <div class="alert alert-warning text-center">
+
             @ViewBag.Mensaje
+
         </div>
+
     }
+
+
+
+
 
     @if(Model != null && Model.Any())
     {
+
+
         @foreach(var item in Model)
         {
+
+
             <div class="horario-card">
+
 
                 <div>
 
-                    <h4>
+
+                    <div class="fecha">
+
                         📅 @item.Fecha.ToString("dddd dd MMMM yyyy")
-                    </h4>
+
+                    </div>
+
+
 
                     <div class="hora">
+
                         ⏰ @(DateTime.Today.Add(item.Hora).ToString("hh:mm tt"))
+
                     </div>
+
+
+
 
                     @if(!string.IsNullOrWhiteSpace(item.Nota))
                     {
-                        <p class="mt-2">
+
+                        <div class="nota">
+
                             📝 @item.Nota
-                        </p>
+
+                        </div>
+
                     }
+
+
 
                 </div>
 
-                <hr />
+
+
+
+
+                <hr class="divisor" />
+
+
+
+
 
                 <form asp-action="Confirmar" method="post">
+
+
 
                     <input type="hidden"
                            name="DisponibilidadId"
                            value="@item.Id" />
 
+
                     <input type="hidden"
                            name="ManicuristaId"
                            value="@item.ManicuristaId" />
+
 
                     <input type="hidden"
                            name="Fecha"
                            value="@item.Fecha" />
 
+
                     <input type="hidden"
                            name="Hora"
                            value="@item.Hora" />
 
+
+
+
+
+
                     <div class="mb-3">
 
+
                         <label class="form-label">
-                            Nombre completo
+                            💖 Tu nombre
                         </label>
+
 
                         <input class="form-control"
                                name="NombreClienta"
+                               placeholder="Escribe tu nombre"
                                required />
 
+
                     </div>
+
+
+
+
+
 
                     <div class="mb-3">
 
+
                         <label class="form-label">
-                            Teléfono de WhatsApp
+                            📱 WhatsApp
                         </label>
+
 
                         <input class="form-control"
-                               name="TelefonoCliente" />
+                               name="TelefonoCliente"
+                               placeholder="Opcional" />
+
 
                     </div>
 
+
+
+
+
+
+
                     <div class="mb-3">
 
+
                         <label class="form-label">
-                            Diseño que deseas 💖
+                            💅 Diseño que deseas
                         </label>
+
 
                         <textarea class="form-control"
                                   name="Servicio"
+                                  rows="2"
+                                  placeholder="Ej: Francesas, acrílicas, diseño personalizado..."
                                   required></textarea>
 
+
                     </div>
+
+
+
+
+
+
 
                     <div class="mb-3">
 
+
                         <label class="form-label">
-                            Notas adicionales
+                            📝 Algo que quieras agregar
                         </label>
 
+
                         <textarea class="form-control"
-                                  name="NotasAdicionales"></textarea>
+                                  name="NotasAdicionales"
+                                  rows="2"></textarea>
+
 
                     </div>
 
-                    <button type="submit" class="btn-reservar">
-                        Confirmar Reserva 💅
+
+
+
+
+
+
+                    <button type="submit"
+                            class="btn-reservar">
+
+                        ✨ Confirmar mi cita
+
                     </button>
+
+
+
+
 
                 </form>
 
+
             </div>
+
+
         }
+
+
     }
+
 
 </div>

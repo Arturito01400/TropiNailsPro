@@ -73,33 +73,27 @@
 
         <!-- Minutos -->
 
-        <select class="hora-picker-minuto form-select">
+<select class="hora-picker-minuto form-select">
 
-            @foreach (var minuto in new[]
-            {
-                "00",
-                "15",
-                "30",
-                "45"
-            })
-            {
+    @for (int minuto = 0; minuto <= 59; minuto++)
+    {
+        var valorMinuto = minuto.ToString("00");
 
-                if (minuto == minutosIniciales)
-                {
-                    <option value="@minuto" selected>
-                        @minuto
-                    </option>
-                }
-                else
-                {
-                    <option value="@minuto">
-                        @minuto
-                    </option>
-                }
+        if (valorMinuto == minutosIniciales)
+        {
+            <option value="@valorMinuto" selected>
+                @valorMinuto
+            </option>
+        }
+        else
+        {
+            <option value="@valorMinuto">
+                @valorMinuto
+            </option>
+        }
+    }
 
-            }
-
-        </select>
+</select>
 
 
 
@@ -141,7 +135,7 @@
 
 
     <div class="hora-picker-error">
-        Seleccione una hora válida.
+    ⏰ No se permiten horarios pasados para hoy.
     </div>
 
 
