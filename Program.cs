@@ -7,6 +7,7 @@ using TropiNailsPro.Data;
 using TropiNailsPro.Services;
 using TropiNailsPro.Hubs;
 using TropiNailsPro.Middlewares;
+using TropiNailsPro.Models.Services;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -78,6 +79,8 @@ builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddScoped<PayPalService>();
 builder.Services.AddScoped<TimeService>();
 builder.Services.AddScoped<AzureBlobService>();
+// ✅ Estado de actividad de usuarios
+builder.Services.AddScoped<ActividadUsuarioService>();
 
 builder.Services.AddHttpContextAccessor();
 

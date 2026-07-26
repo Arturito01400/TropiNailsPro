@@ -1,5 +1,8 @@
 @model List<TropiNailsPro.Models.Usuario>
 
+@using TropiNailsPro.Models.Services
+@inject ActividadUsuarioService ActividadService
+
 @{
     ViewData["Title"] = "Panel del Propietario";
 }
@@ -197,9 +200,16 @@
 </td>
 
 <td>
-    @(usuario.UltimoAcceso.HasValue
-        ? usuario.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
-        : "Nunca ha ingresado")
+    <div>
+        @ActividadService.ObtenerEstado(usuario.UltimoAcceso)
+    </div>
+
+    @if (usuario.UltimoAcceso.HasValue)
+    {
+        <small class="text-muted">
+            @usuario.UltimoAcceso.Value.ToString("dd/MM/yyyy hh:mm tt")
+        </small>
+    }
 </td>
 
 <td>
