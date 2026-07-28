@@ -1,72 +1,101 @@
+@model TropiNailsPro.Models.ModeloUnas
+
 <div class="modelo-premium-overlay" id="modeloPremiumModal">
 
 
-    <div class="modelo-premium-container">
+<div class="modelo-premium-container">
 
 
-        <!-- BOTÓN CERRAR -->
-        <button 
-            class="modelo-premium-close"
-            onclick="cerrarModeloPremium()">
+    <!-- BOTÓN CERRAR -->
+    <button 
+        class="modelo-premium-close"
+        onclick="cerrarModeloPremium()">
 
-            ✕
+        ✕
+
+    </button>
+
+
+
+    <!-- CONTENIDO MULTIMEDIA -->
+    <div class="modelo-premium-media">
+
+
+        @if(Model.TipoMedia == "video")
+        {
+
+            <video class="modelo-premium-content"
+                   controls
+                   autoplay>
+
+                <source src="@Model.ImagenSegura"
+                        type="video/mp4" />
+
+            </video>
+
+        }
+        else
+        {
+
+            <img class="modelo-premium-content"
+                 src="@Model.ImagenSegura"
+                 alt="@Model.Nombre" />
+
+        }
+
+
+    </div>
+
+
+
+
+    <!-- INFORMACIÓN -->
+    <div class="modelo-premium-info">
+
+
+        <h2>
+
+            @Model.Nombre
+
+        </h2>
+
+
+
+        <p>
+
+            @Model.Descripcion
+
+        </p>
+
+
+
+        <div class="modelo-premium-stats">
+
+            <span>
+                👁️ 
+                <span>
+                    0
+                </span>
+            </span>
+
+        </div>
+
+
+
+        <button
+            id="btnReservarModelo"
+            class="modelo-premium-reservar">
+
+            💅 Reservar este diseño
 
         </button>
 
 
 
-        <!-- CONTENIDO MULTIMEDIA -->
-        <div class="modelo-premium-media"
-             id="modeloPremiumMedia">
-
-        </div>
-
-
-
-
-        <!-- INFORMACIÓN -->
-        <div class="modelo-premium-info">
-
-
-            <h2 id="modeloPremiumNombre">
-                
-            </h2>
-
-
-
-            <p id="modeloPremiumDescripcion">
-
-            </p>
-
-
-
-            <div class="modelo-premium-stats">
-
-                <span>
-                    👁️ 
-                    <span id="modeloPremiumVistas">
-                        0
-                    </span>
-                </span>
-
-            </div>
-
-
-
-            <button
-                id="btnReservarModelo"
-                class="modelo-premium-reservar">
-
-                💅 Reservar este diseño
-
-            </button>
-
-
-
-        </div>
-
-
     </div>
+
+
+</div>
 
 
 </div>
