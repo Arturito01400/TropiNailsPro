@@ -53,6 +53,13 @@ namespace TropiNailsPro.Models
         public string TipoMedia { get; set; } = "imagen";
 
 
+        //=====================================================
+// ESTADÍSTICAS
+//=====================================================
+
+public int Vistas { get; set; } = 0;
+
+
 
         //=====================================================
         // SUBIDA DESDE PC

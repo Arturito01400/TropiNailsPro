@@ -672,19 +672,22 @@ hr{
 
         @foreach (var m in modelos)
         {
-            <div class="modelo-card">
+           <div class="modelo-card"
+     onclick="abrirModeloPremium(@m.Id)">
 
                 @if (!string.IsNullOrEmpty(m.ImagenUrl))
                 {
                     @if (m.TipoMedia == "video")
                     {
                         <video class="modelo-media" controls>
-                            <source src="@m.ImagenUrl" type="video/mp4" />
+                           <source src="@m.ImagenSegura" type="video/mp4" />
                         </video>
                     }
                     else
                     {
-                        <img src="@m.ImagenUrl" class="modelo-media" />
+                        <img src="@m.ImagenSegura"
+                         class="modelo-media"
+                        alt="@m.Nombre" />
                     }
                 }
                 else
@@ -703,10 +706,26 @@ hr{
 
     </div>
 
+   
+@foreach (var m in modelos)
+{
+    <div id="modelo-data-@m.Id"
+         style="display:none">
+
+        @await Html.PartialAsync(
+            "_ModeloPremiumModal",
+            m
+        )
+
+    </div>
+}
+
     <hr />
 
     <!-- ================= FEED ================= -->
     <h4 class="section-title">💖 Comunidad TropiNails</h4>
+
+
 
     <hr />
 
@@ -796,6 +815,47 @@ function(cita){
     location.reload();
 
 });
+
+function abrirModeloPremium(id){
+
+    const contenedor = document.getElementById(
+        "modelo-data-" + id
+    );
+
+    if(!contenedor) return;
+
+
+    const modal = contenedor.querySelector(
+        ".modelo-premium-overlay"
+    );
+
+
+    if(modal){
+
+        modal.style.display = "flex";
+
+        document.body.style.overflow = "hidden";
+
+    }
+
+}
+
+
+function cerrarModeloPremium(){
+
+    document.querySelectorAll(
+        ".modelo-premium-overlay"
+    )
+    .forEach(modal => {
+
+        modal.style.display = "none";
+
+    });
+
+
+    document.body.style.overflow = "auto";
+
+}
 
 </script>
 
