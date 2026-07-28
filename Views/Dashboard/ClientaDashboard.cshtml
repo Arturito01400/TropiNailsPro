@@ -822,7 +822,10 @@ function abrirModeloPremium(id){
         "modelo-data-" + id
     );
 
-    if(!contenedor) return;
+    if(!contenedor){
+        console.error("No existe modelo-data-" + id);
+        return;
+    }
 
 
     const modal = contenedor.querySelector(
@@ -830,13 +833,18 @@ function abrirModeloPremium(id){
     );
 
 
-    if(modal){
-
-        modal.style.display = "flex";
-
-        document.body.style.overflow = "hidden";
-
+    if(!modal){
+        console.error("No se encontró modelo-premium-overlay");
+        return;
     }
+
+
+    modal.style.display = "flex";
+
+    document.body.style.overflow = "hidden";
+
+
+    console.log("Modelo abierto:", id);
 
 }
 
