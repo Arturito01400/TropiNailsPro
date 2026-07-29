@@ -63,7 +63,10 @@ function abrirModeloPremium(id) {
     descripcion.textContent =
         tarjeta.querySelector("small")?.textContent ?? "";
 
-    botonReservar.dataset.modeloId = id;
+   botonReservar.dataset.modeloId = id;
+
+botonReservar.dataset.manicuristaId =
+    tarjeta.dataset.manicuristaId;
 
     modal.style.display = "flex";
 
@@ -123,12 +126,18 @@ document.addEventListener("click", function (e) {
     if (!boton)
         return;
 
-    const modeloId = boton.dataset.modeloId;
 
-    console.log("Modelo seleccionado:", modeloId);
+    const manicuristaId =
+        boton.dataset.manicuristaId;
 
-    // Próximo paso:
-    // window.location.href =
-    // `/Agendar/Index?modeloId=${modeloId}`;
+
+    console.log(
+        "Manicurista seleccionado:",
+        manicuristaId
+    );
+
+
+    window.location.href =
+        `/Agendar/Index?manicuristaId=${manicuristaId}`;
 
 });

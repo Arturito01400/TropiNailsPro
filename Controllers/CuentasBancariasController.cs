@@ -4,19 +4,22 @@ using Microsoft.EntityFrameworkCore;
 using TropiNailsPro.Data;
 using TropiNailsPro.Models;
 using System.Security.Claims;
+using TropiNailsPro.Services;
 
 namespace TropiNailsPro.Controllers
 {
     public class CuentasBancariasController : Controller
     {
         private readonly AppDbContext _context;
-        private readonly IWebHostEnvironment _env;
+private readonly AzureBlobService _azureBlobService;
 
-        public CuentasBancariasController(AppDbContext context, IWebHostEnvironment env)
-        {
-            _context = context;
-            _env = env;
-        }
+        public CuentasBancariasController(
+    AppDbContext context,
+    AzureBlobService azureBlobService)
+{
+    _context = context;
+    _azureBlobService = azureBlobService;
+}
 
         #region 🛠️ Helpers
 
@@ -51,25 +54,23 @@ namespace TropiNailsPro.Controllers
         }
 
         private async Task<string> GuardarLogo(IFormFile archivo)
-        {
-            if (archivo == null || archivo.Length == 0)
-                return null;
+{
+    if (archivo == null || archivo.Length == 0)
+        return null;
 
-            string carpeta = Path.Combine(_env.WebRootPath, "img", "bancos");
+    string nombreArchivo =
+        Guid.NewGuid().ToString()
+        + Path.GetExtension(archivo.FileName);
 
-            if (!Directory.Exists(carpeta))
-                Directory.CreateDirectory(carpeta);
+    using var stream = archivo.OpenReadStream();
 
-            string nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(archivo.FileName);
-            string rutaCompleta = Path.Combine(carpeta, nombreArchivo);
-
-            using (var stream = new FileStream(rutaCompleta, FileMode.Create))
-            {
-                await archivo.CopyToAsync(stream);
-            }
-
-            return "/img/bancos/" + nombreArchivo;
-        }
+    return await _azureBlobService.SubirArchivoCarpetaAsync(
+        stream,
+        "bancos",
+        nombreArchivo,
+        archivo.ContentType
+    );
+}
 
         #endregion
 
