@@ -363,55 +363,66 @@ private int ObtenerManicuristaId()
 
 
                 //==================================
-                // VIDEO
-                //==================================
+// VIDEO AZURE BLOB STORAGE
+//==================================
 
-                if(
-                    videos.Contains(
-                        extension
-                    )
-                )
-                {
-                    string nombreVideo=
-                        Guid.NewGuid()
-                        +
-                        extension;
+if(
+    videos.Contains(extension)
+)
+{
+    string nombreVideo =
+        Guid.NewGuid()
+        +
+        extension;
 
-                    string rutaVideo=
-                        Path.Combine(
-                            carpeta,
-                            nombreVideo
-                        );
 
-                    using(
-                        var stream=
-                        new FileStream(
-                            rutaVideo,
-                            FileMode.Create
-                        )
-                    )
-                    {
-                        await modelo
-                        .ImagenArchivo
-                        .CopyToAsync(
-                            stream
-                        );
-                    }
+    using var memoriaVideo =
+        new MemoryStream();
 
-                    BorrarImagenLocal(
-                        anterior
-                    );
 
-                    modelo.ImagenUrl=
-                        "/uploads/modelos/"
-                        +
-                        nombreVideo;
+    await modelo.ImagenArchivo
+        .CopyToAsync(memoriaVideo);
 
-                    modelo.TipoMedia=
-                        "video";
 
-                    return;
-                }
+    memoriaVideo.Position = 0;
+
+
+    string tipoContenido =
+        modelo.ImagenArchivo.ContentType;
+
+
+    if(string.IsNullOrEmpty(tipoContenido))
+    {
+        tipoContenido =
+            extension switch
+            {
+                ".mp4" => "video/mp4",
+                ".webm" => "video/webm",
+                ".mov" => "video/quicktime",
+                _ => "application/octet-stream"
+            };
+    }
+
+
+    string urlAzureVideo =
+        await _blobService.SubirArchivoCarpetaAsync(
+            memoriaVideo,
+            $"modelos/{modelo.ManicuristaId}",
+            nombreVideo,
+            tipoContenido
+        );
+
+
+    modelo.ImagenUrl =
+        urlAzureVideo;
+
+
+    modelo.TipoMedia =
+        "video";
+
+
+    return;
+}
 
 
 

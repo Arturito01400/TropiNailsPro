@@ -706,19 +706,7 @@ hr{
 
     </div>
 
-   
-@foreach (var m in modelos)
-{
-    <div id="modelo-data-@m.Id"
-         style="display:none">
-
-        @await Html.PartialAsync(
-            "_ModeloPremiumModal",
-            m
-        )
-
-    </div>
-}
+   @await Html.PartialAsync("_ModeloPremiumModal")
 
     <hr />
 
@@ -816,114 +804,7 @@ function(cita){
 
 });
 
-function abrirModeloPremium(id){
 
-    const tarjeta = document.querySelector(
-        `.modelo-card[onclick="abrirModeloPremium(${id})"]`
-    );
-
-
-    if(!tarjeta){
-        console.error("No existe tarjeta del modelo");
-        return;
-    }
-
-
-    const modal = document.getElementById(
-        "modeloPremiumModal"
-    );
-
-
-    const media = document.getElementById(
-        "modeloPremiumMedia"
-    );
-
-
-    const nombre = document.getElementById(
-        "modeloPremiumNombre"
-    );
-
-
-    const descripcion = document.getElementById(
-        "modeloPremiumDescripcion"
-    );
-
-
-    const contenido =
-        tarjeta.querySelector(".modelo-media");
-
-
-    if(contenido.tagName === "IMG"){
-
-        media.innerHTML = `
-            <img 
-            src="${contenido.src}"
-            class="modelo-premium-content">
-        `;
-
-    }
-    else if(contenido.tagName === "VIDEO"){
-
-        media.innerHTML = `
-            <video 
-            class="modelo-premium-content"
-            controls
-            autoplay>
-
-                <source src="${contenido.currentSrc}">
-                
-            </video>
-        `;
-
-    }
-
-
-    nombre.innerText =
-        tarjeta.querySelector("strong").innerText;
-
-
-    descripcion.innerText =
-        tarjeta.querySelector("small").innerText;
-
-
-
-    modal.style.display="flex";
-
-
-    document.body.style.overflow="hidden";
-
-
-    console.log(
-        "Modelo premium abierto:",
-        id
-    );
-
-}
-
-
-function cerrarModeloPremium(){
-
-    const modal =
-    document.getElementById(
-        "modeloPremiumModal"
-    );
-
-
-    if(modal){
-
-        modal.style.display="none";
-
-    }
-
-
-    document.getElementById(
-        "modeloPremiumMedia"
-    ).innerHTML="";
-
-
-    document.body.style.overflow="auto";
-
-}
 
 </script>
 
