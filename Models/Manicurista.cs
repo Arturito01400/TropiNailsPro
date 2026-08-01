@@ -69,5 +69,7 @@ namespace TropiNailsPro.Models
         public virtual ICollection<Disponibilidad> Disponibilidades { get; set; } = new List<Disponibilidad>();
 
         public virtual ICollection<Suscripcion> Suscripciones { get; set; } = new List<Suscripcion>();
+        // 🔥 Gastos registrados por la manicurista
+public virtual ICollection<Gasto> Gastos { get; set; } = new List<Gasto>();
     }
 }

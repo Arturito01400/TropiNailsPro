@@ -20,6 +20,7 @@ namespace TropiNailsPro.Data
         public DbSet<Pago> Pagos { get; set; }
         public DbSet<Producto> Productos { get; set; }
         public DbSet<Gasto> Gastos { get; set; }
+        public DbSet<GastoPersonal> GastosPersonales { get; set; }
 
         // 🔥 RESTAURADO CORRECTAMENTE
         public DbSet<UsuarioPerfil> UsuariosPerfil { get; set; }
@@ -63,6 +64,8 @@ namespace TropiNailsPro.Data
             modelBuilder.Entity<Pago>().ToTable("Pagos");
             modelBuilder.Entity<Producto>().ToTable("Productos");
             modelBuilder.Entity<Gasto>().ToTable("Gastos");
+            modelBuilder.Entity<GastoPersonal>()
+                 .ToTable("GastosPersonales");
 
             // 🔥 RESTAURADO
             modelBuilder.Entity<UsuarioPerfil>().ToTable("UsuariosPerfil");
@@ -167,6 +170,51 @@ modelBuilder.Entity<Disponibilidad>()
                 .WithMany()
                 .HasForeignKey(p => p.ManicuristaId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
+
+                // ======================================================
+// GASTOS → MANICURISTA
+// ======================================================
+
+modelBuilder.Entity<Gasto>()
+    .HasOne(g => g.Manicurista)
+    .WithMany(m => m.Gastos)
+    .HasForeignKey(g => g.ManicuristaId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+modelBuilder.Entity<Gasto>()
+    .HasIndex(g => g.ManicuristaId);
+
+modelBuilder.Entity<Gasto>()
+    .HasIndex(g => new
+    {
+        g.ManicuristaId,
+        g.FechaGasto
+    });
+
+
+    // ======================================================
+// GASTOS PERSONALES → MANICURISTA
+// ======================================================
+
+modelBuilder.Entity<GastoPersonal>()
+    .HasOne(g => g.Manicurista)
+    .WithMany()
+    .HasForeignKey(g => g.ManicuristaId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+
+modelBuilder.Entity<GastoPersonal>()
+    .HasIndex(g => g.ManicuristaId);
+
+
+modelBuilder.Entity<GastoPersonal>()
+    .HasIndex(g => new
+    {
+        g.ManicuristaId,
+        g.FechaGasto
+    });
 
             // ======================================================
             // USUARIOS

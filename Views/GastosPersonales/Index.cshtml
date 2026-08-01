@@ -1,0 +1,570 @@
+@model IEnumerable<TropiNailsPro.Models.GastoPersonal>
+
+@{
+    ViewData["Title"] = "Mis Gastos Personales";
+
+
+    var lista = Model ?? Enumerable.Empty<TropiNailsPro.Models.GastoPersonal>();
+
+
+    decimal total = lista.Sum(x => x.Monto);
+
+
+    decimal totalMes = lista
+        .Where(x => x.FechaGasto.Month == DateTime.Now.Month &&
+                    x.FechaGasto.Year == DateTime.Now.Year)
+        .Sum(x => x.Monto);
+
+
+    int cantidad = lista.Count();
+
+}
+
+
+
+<style>
+
+.personal-header {
+
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    border-radius:28px;
+    padding:40px;
+    color:white;
+    box-shadow:0 15px 40px rgba(0,0,0,.15);
+
+}
+
+
+
+.personal-card {
+
+    background:white;
+    border:none;
+    border-radius:25px;
+    padding:25px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    transition:.3s;
+
+}
+
+
+.personal-card:hover {
+
+    transform:translateY(-5px);
+
+}
+
+
+
+.circle-icon {
+
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:28px;
+
+}
+
+
+
+.table-container {
+
+    border-radius:25px;
+    overflow:hidden;
+    box-shadow:0 10px 35px rgba(0,0,0,.08);
+
+}
+
+
+
+.table thead {
+
+    background:#f5f3ff;
+
+}
+
+
+
+.table tbody tr:hover {
+
+    background:#faf7ff;
+
+}
+
+
+
+.btn-personal {
+
+    background:white;
+    color:#667eea;
+    border-radius:30px;
+    padding:12px 28px;
+    font-weight:bold;
+
+}
+
+
+
+.empty-personal {
+
+    padding:70px;
+    text-align:center;
+
+}
+
+
+</style>
+
+
+
+
+
+<div class="container mt-4 mb-5">
+
+
+
+<!-- HEADER -->
+
+<div class="personal-header mb-4">
+
+
+<div class="d-flex justify-content-between align-items-center flex-wrap">
+
+
+<div>
+
+
+<h1 class="fw-bold">
+
+👤 Mis Gastos Personales
+
+</h1>
+
+
+<p class="mb-0 opacity-75">
+
+Organiza tus finanzas personales separadas del negocio.
+
+</p>
+
+
+</div>
+
+
+
+
+<a asp-action="Create"
+class="btn btn-personal mt-3 mt-md-0">
+
+
+➕ Nuevo gasto personal
+
+
+</a>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<!-- RESUMEN -->
+
+
+<div class="row g-4 mb-4">
+
+
+
+<div class="col-md-4">
+
+
+<div class="personal-card">
+
+
+<div class="circle-icon bg-danger bg-opacity-10">
+
+💳
+
+</div>
+
+
+<h6 class="text-muted mt-3">
+
+Total personal
+
+</h6>
+
+
+<h3 class="fw-bold text-danger">
+
+RD$ @total.ToString("N2")
+
+</h3>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="col-md-4">
+
+
+<div class="personal-card">
+
+
+<div class="circle-icon bg-success bg-opacity-10">
+
+📅
+
+</div>
+
+
+<h6 class="text-muted mt-3">
+
+Este mes
+
+</h6>
+
+
+<h3 class="fw-bold">
+
+RD$ @totalMes.ToString("N2")
+
+</h3>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="col-md-4">
+
+
+<div class="personal-card">
+
+
+<div class="circle-icon bg-primary bg-opacity-10">
+
+📝
+
+</div>
+
+
+<h6 class="text-muted mt-3">
+
+Registros
+
+</h6>
+
+
+<h3 class="fw-bold">
+
+@cantidad
+
+</h3>
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- TABLA -->
+
+
+<div class="card table-container border-0">
+
+
+<div class="card-body p-0">
+
+
+
+@if(lista.Any())
+{
+
+
+<div class="table-responsive">
+
+
+<table class="table align-middle mb-0">
+
+
+
+<thead>
+
+
+<tr>
+
+
+<th class="ps-4">
+
+Fecha
+
+</th>
+
+
+<th>
+
+Descripción
+
+</th>
+
+
+<th>
+
+Categoría
+
+</th>
+
+
+<th>
+
+Monto
+
+</th>
+
+
+<th>
+
+Notas
+
+</th>
+
+
+<th>
+
+Acciones
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+
+
+
+<tbody>
+
+
+
+@foreach(var gasto in lista)
+{
+
+
+<tr>
+
+
+<td class="ps-4">
+
+
+<strong>
+
+@gasto.FechaGasto.ToString("dd MMM yyyy")
+
+</strong>
+
+
+</td>
+
+
+
+
+<td>
+
+@gasto.Descripcion
+
+</td>
+
+
+
+
+
+<td>
+
+
+<span class="badge rounded-pill bg-primary">
+
+@gasto.Categoria
+
+</span>
+
+
+</td>
+
+
+
+
+
+<td>
+
+
+<strong class="text-danger">
+
+RD$ @gasto.Monto.ToString("N2")
+
+</strong>
+
+
+</td>
+
+
+
+
+
+<td>
+
+@(gasto.Notas ?? "Sin notas")
+
+</td>
+
+
+
+
+
+<td>
+
+
+<div class="btn-group">
+
+
+
+<a asp-action="Edit"
+asp-route-id="@gasto.Id"
+class="btn btn-sm btn-outline-warning">
+
+✏️
+
+</a>
+
+
+
+
+
+<a asp-action="Delete"
+asp-route-id="@gasto.Id"
+class="btn btn-sm btn-outline-danger">
+
+🗑️
+
+</a>
+
+
+
+</div>
+
+
+</td>
+
+
+</tr>
+
+
+}
+
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+}
+
+else
+{
+
+
+<div class="empty-personal">
+
+
+<h1>
+
+🏡
+
+</h1>
+
+
+<h4>
+
+Aún no tienes gastos personales
+
+</h4>
+
+
+<p class="text-muted">
+
+Registra tus gastos personales para conocer mejor tus finanzas.
+
+</p>
+
+
+
+<a asp-action="Create"
+class="btn btn-primary rounded-pill px-4">
+
+Agregar primer gasto
+
+</a>
+
+
+
+</div>
+
+
+}
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+</div>

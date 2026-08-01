@@ -1,0 +1,350 @@
+@model TropiNailsPro.Models.GastoPersonal
+
+@{
+    ViewData["Title"] = "Editar Gasto Personal";
+}
+
+
+<style>
+
+.edit-container {
+
+    max-width:750px;
+    margin:auto;
+
+}
+
+
+.edit-card {
+
+    background:white;
+    border-radius:30px;
+    padding:40px;
+    box-shadow:0 15px 40px rgba(0,0,0,.10);
+
+}
+
+
+
+.edit-header {
+
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
+    padding:30px;
+    border-radius:25px;
+    margin-bottom:30px;
+
+}
+
+
+
+.form-control,
+.form-select {
+
+    border-radius:15px;
+    padding:13px 18px;
+    border:1px solid #ddd;
+
+}
+
+
+
+.form-control:focus,
+.form-select:focus {
+
+    box-shadow:0 0 0 .25rem rgba(102,126,234,.25);
+    border-color:#667eea;
+
+}
+
+
+
+.btn-save {
+
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
+    border:none;
+    border-radius:30px;
+    padding:14px 35px;
+    font-weight:bold;
+
+}
+
+
+
+.btn-save:hover {
+
+    opacity:.9;
+    color:white;
+
+}
+
+
+
+.btn-back {
+
+    border-radius:30px;
+    padding:14px 30px;
+
+}
+
+
+</style>
+
+
+
+<div class="container mt-5 mb-5 edit-container">
+
+
+<div class="edit-card">
+
+
+
+<div class="edit-header">
+
+
+<h2 class="fw-bold mb-2">
+
+✏️ Editar gasto personal
+
+</h2>
+
+
+<p class="mb-0 opacity-75">
+
+Actualiza la información de tu gasto personal.
+
+</p>
+
+
+</div>
+
+
+
+
+<form asp-action="Edit" method="post">
+
+
+<input type="hidden" asp-for="Id" />
+
+
+
+<div asp-validation-summary="ModelOnly"
+class="text-danger mb-3">
+</div>
+
+
+
+
+<div class="mb-4">
+
+
+<label asp-for="Descripcion"
+class="form-label fw-bold">
+
+Descripción
+
+</label>
+
+
+<input asp-for="Descripcion"
+class="form-control"
+placeholder="Ej: Pago de internet, comida, transporte..." />
+
+
+<span asp-validation-for="Descripcion"
+class="text-danger"></span>
+
+
+</div>
+
+
+
+
+
+<div class="row">
+
+
+
+<div class="col-md-6 mb-4">
+
+
+<label asp-for="Monto"
+class="form-label fw-bold">
+
+Monto
+
+</label>
+
+
+<div class="input-group">
+
+<span class="input-group-text rounded-start">
+
+RD$
+
+</span>
+
+
+<input asp-for="Monto"
+class="form-control"
+step="0.01" />
+
+
+</div>
+
+
+<span asp-validation-for="Monto"
+class="text-danger"></span>
+
+
+</div>
+
+
+
+
+
+<div class="col-md-6 mb-4">
+
+
+<label asp-for="Categoria"
+class="form-label fw-bold">
+
+Categoría
+
+</label>
+
+
+<select asp-for="Categoria"
+class="form-select">
+
+
+<option value="">
+Seleccione una categoría
+</option>
+
+
+<option>Comida</option>
+
+<option>Transporte</option>
+
+<option>Casa</option>
+
+<option>Salud</option>
+
+<option>Educación</option>
+
+<option>Otros</option>
+
+
+</select>
+
+
+<span asp-validation-for="Categoria"
+class="text-danger"></span>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="mb-4">
+
+
+<label asp-for="FechaGasto"
+class="form-label fw-bold">
+
+Fecha del gasto
+
+</label>
+
+
+<input asp-for="FechaGasto"
+type="date"
+class="form-control" />
+
+
+<span asp-validation-for="FechaGasto"
+class="text-danger"></span>
+
+
+</div>
+
+
+
+
+
+
+<div class="mb-4">
+
+
+<label asp-for="Notas"
+class="form-label fw-bold">
+
+Notas
+
+</label>
+
+
+<textarea asp-for="Notas"
+class="form-control"
+rows="4"
+placeholder="Agrega algún detalle adicional..."></textarea>
+
+
+</div>
+
+
+
+
+
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+
+<a asp-action="Index"
+class="btn btn-outline-secondary btn-back">
+
+⬅ Volver
+
+</a>
+
+
+
+
+<button type="submit"
+class="btn btn-save">
+
+💾 Guardar cambios
+
+</button>
+
+
+
+</div>
+
+
+
+</form>
+
+
+
+</div>
+
+
+</div>
+
+
+
+@section Scripts {
+
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+
+}

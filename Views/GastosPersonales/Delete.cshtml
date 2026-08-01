@@ -1,0 +1,171 @@
+@model TropiNailsPro.Models.GastoPersonal
+
+@{
+    ViewData["Title"] = "Eliminar Gasto Personal";
+}
+
+<style>
+
+.delete-container{
+    max-width:650px;
+    margin:auto;
+}
+
+.delete-card{
+    background:white;
+    border-radius:30px;
+    padding:45px;
+    box-shadow:0 15px 40px rgba(0,0,0,.12);
+    text-align:center;
+}
+
+.delete-icon{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    background:#ffe5e5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:45px;
+    margin:auto;
+}
+
+.delete-header{
+    background:linear-gradient(135deg,#dc3545,#ff6b6b);
+    color:white;
+    padding:30px;
+    border-radius:25px;
+    margin-bottom:35px;
+}
+
+.info-box{
+    background:#f8f9fa;
+    border-radius:20px;
+    padding:25px;
+    text-align:left;
+    margin:30px 0;
+}
+
+.info-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+}
+
+.info-item:last-child{
+    border-bottom:none;
+}
+
+.btn-delete{
+    background:linear-gradient(135deg,#dc3545,#ff6b6b);
+    color:white;
+    border:none;
+    border-radius:30px;
+    padding:14px 35px;
+    font-weight:bold;
+}
+
+.btn-delete:hover{
+    color:white;
+    opacity:.9;
+}
+
+.btn-back{
+    border-radius:30px;
+    padding:14px 30px;
+}
+
+</style>
+
+<div class="container mt-5 mb-5 delete-container">
+
+    <div class="delete-card">
+
+        <div class="delete-header">
+
+            <h2 class="fw-bold">
+                🗑️ Eliminar gasto personal
+            </h2>
+
+            <p class="mb-0 opacity-75">
+                Esta acción no se puede deshacer.
+            </p>
+
+        </div>
+
+        <div class="delete-icon">
+            ⚠️
+        </div>
+
+        <h3 class="mt-4 fw-bold">
+            ¿Estás seguro?
+        </h3>
+
+        <p class="text-muted">
+            Vas a eliminar este registro de tus gastos personales.
+        </p>
+
+        <div class="info-box">
+
+            <div class="info-item">
+                <strong>Descripción</strong>
+                <span>@Model.Descripcion</span>
+            </div>
+
+            <div class="info-item">
+                <strong>Categoría</strong>
+                <span class="badge bg-primary rounded-pill">
+                    @Model.Categoria
+                </span>
+            </div>
+
+            <div class="info-item">
+                <strong>Monto</strong>
+                <span class="fw-bold text-danger">
+                    RD$ @Model.Monto.ToString("N2")
+                </span>
+            </div>
+
+            <div class="info-item">
+                <strong>Fecha</strong>
+                <span>
+                    @Model.FechaGasto.ToString("dd/MM/yyyy")
+                </span>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Notas))
+            {
+                <div class="info-item">
+                    <strong>Notas</strong>
+                    <span>@Model.Notas</span>
+                </div>
+            }
+
+        </div>
+
+        <form asp-action="Delete" method="post">
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary btn-back">
+                    ⬅ Cancelar
+                </a>
+
+                <button type="submit"
+                        class="btn btn-delete">
+                    🗑️ Sí, eliminar gasto
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

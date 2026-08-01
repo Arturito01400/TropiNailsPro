@@ -1,0 +1,491 @@
+@model IEnumerable<TropiNailsPro.Models.Gasto>
+
+@{
+    ViewData["Title"] = "Gastos del Negocio";
+
+    decimal total = Model.Sum(x => x.Monto);
+
+    decimal totalMes = Model
+        .Where(x => x.FechaGasto.Month == DateTime.Now.Month &&
+                    x.FechaGasto.Year == DateTime.Now.Year)
+        .Sum(x => x.Monto);
+
+    int cantidad = Model.Count();
+}
+
+
+<style>
+
+.gastos-header {
+    background: linear-gradient(135deg,#8e44ad,#d3549f);
+    border-radius:25px;
+    padding:35px;
+    color:white;
+    box-shadow:0 15px 40px rgba(0,0,0,.15);
+}
+
+
+.finance-card {
+    border:none;
+    border-radius:22px;
+    padding:25px;
+    background:white;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+
+.finance-card:hover {
+    transform:translateY(-5px);
+}
+
+
+.icon-circle {
+
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:25px;
+
+}
+
+
+.table-card {
+
+    border-radius:25px;
+    overflow:hidden;
+    border:none;
+    box-shadow:0 10px 35px rgba(0,0,0,.08);
+
+}
+
+
+.table thead {
+
+    background:#faf5ff;
+
+}
+
+
+.table tbody tr {
+
+    transition:.2s;
+
+}
+
+
+.table tbody tr:hover {
+
+    background:#fff5fb;
+
+}
+
+
+.btn-premium {
+
+    background:white;
+    color:#8e44ad;
+    font-weight:bold;
+    border-radius:30px;
+    padding:12px 25px;
+
+}
+
+
+.empty-box {
+
+    padding:60px;
+    text-align:center;
+
+}
+
+</style>
+
+
+
+<div class="container mt-4 mb-5">
+
+
+<!-- HEADER -->
+
+<div class="gastos-header mb-4">
+
+
+<div class="d-flex justify-content-between align-items-center flex-wrap">
+
+
+<div>
+
+<h1 class="fw-bold">
+💼 Gastos del Negocio
+</h1>
+
+
+<p class="mb-0 opacity-75">
+
+Administra y controla las salidas de dinero de tu emprendimiento.
+
+</p>
+
+
+</div>
+
+
+
+<a asp-action="Create"
+class="btn btn-premium mt-3 mt-md-0">
+
+➕ Registrar gasto
+
+</a>
+
+
+</div>
+
+
+</div>
+
+
+
+
+<!-- ESTADISTICAS -->
+
+
+<div class="row g-4 mb-4">
+
+
+<div class="col-md-4">
+
+<div class="finance-card">
+
+
+<div class="icon-circle bg-danger bg-opacity-10">
+
+💸
+
+</div>
+
+
+<h6 class="text-muted mt-3">
+
+Total Gastado
+
+</h6>
+
+
+<h3 class="fw-bold text-danger">
+
+RD$ @total.ToString("N2")
+
+</h3>
+
+
+</div>
+
+</div>
+
+
+
+
+<div class="col-md-4">
+
+<div class="finance-card">
+
+
+<div class="icon-circle bg-warning bg-opacity-10">
+
+📅
+
+</div>
+
+
+<h6 class="text-muted mt-3">
+
+Este Mes
+
+</h6>
+
+
+<h3 class="fw-bold">
+
+RD$ @totalMes.ToString("N2")
+
+</h3>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<div class="col-md-4">
+
+<div class="finance-card">
+
+
+<div class="icon-circle bg-primary bg-opacity-10">
+
+📊
+
+</div>
+
+
+<h6 class="text-muted mt-3">
+
+Cantidad de gastos
+
+</h6>
+
+
+<h3 class="fw-bold">
+
+@cantidad
+
+</h3>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- TABLA -->
+
+
+<div class="card table-card">
+
+
+<div class="card-body p-0">
+
+
+
+@if(Model.Any())
+{
+
+
+<div class="table-responsive">
+
+
+<table class="table table-hover align-middle mb-0">
+
+
+<thead>
+
+<tr>
+
+<th class="ps-4">
+Fecha
+</th>
+
+<th>
+Descripción
+</th>
+
+<th>
+Categoría
+</th>
+
+<th>
+Monto
+</th>
+
+<th>
+Notas
+</th>
+
+<th>
+Acciones
+</th>
+
+
+</tr>
+
+</thead>
+
+
+
+
+<tbody>
+
+
+@foreach(var gasto in Model)
+{
+
+
+<tr>
+
+
+<td class="ps-4">
+
+<div class="fw-bold">
+
+@gasto.FechaGasto.ToString("dd MMM yyyy")
+
+</div>
+
+
+</td>
+
+
+
+<td>
+
+<strong>
+
+@gasto.Descripcion
+
+</strong>
+
+
+</td>
+
+
+
+
+<td>
+
+<span class="badge rounded-pill bg-secondary">
+
+@gasto.Categoria
+
+</span>
+
+
+</td>
+
+
+
+
+<td>
+
+<span class="fw-bold text-danger">
+
+RD$ @gasto.Monto.ToString("N2")
+
+</span>
+
+
+</td>
+
+
+
+<td>
+
+@(gasto.Notas ?? "Sin notas")
+
+</td>
+
+
+
+
+<td>
+
+
+<div class="btn-group">
+
+
+<a asp-action="Edit"
+asp-route-id="@gasto.Id"
+class="btn btn-sm btn-outline-warning">
+
+✏️
+
+</a>
+
+
+<a asp-action="Delete"
+asp-route-id="@gasto.Id"
+class="btn btn-sm btn-outline-danger">
+
+🗑️
+
+</a>
+
+
+</div>
+
+
+</td>
+
+
+
+</tr>
+
+
+}
+
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+}
+
+else
+{
+
+
+<div class="empty-box">
+
+
+<h1>
+💰
+</h1>
+
+
+<h4>
+Todavía no tienes gastos registrados
+</h4>
+
+
+<p class="text-muted">
+
+Empieza agregando el primer gasto de tu negocio.
+
+</p>
+
+
+
+<a asp-action="Create"
+class="btn btn-primary rounded-pill px-4">
+
+Registrar primer gasto
+
+</a>
+
+
+
+</div>
+
+
+}
+
+
+
+</div>
+
+
+</div>
+
+
+
+</div>

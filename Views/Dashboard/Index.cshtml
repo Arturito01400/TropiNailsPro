@@ -53,9 +53,12 @@ transform:none;
 min-height:auto;
 }
 
-.card:hover{
+
+/* Mantiene las tarjetas actuales sin movimiento */
+.dashboard-panel .card:hover{
 transform:none;
 }
+
 
 .dashboard-header{
 margin-bottom:30px;
@@ -71,6 +74,7 @@ color:#333;
 color:#666;
 }
 
+
 .clienta-card{
 border-radius:12px;
 background:#fff0f6;
@@ -78,6 +82,7 @@ padding:15px;
 margin-bottom:15px;
 box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
+
 
 .chat-card{
 background:linear-gradient(
@@ -88,6 +93,7 @@ background:linear-gradient(
 color:white;
 }
 
+
 .chat-card .btn{
 background:white;
 color:#e91e63;
@@ -95,14 +101,18 @@ font-weight:bold;
 border:none;
 }
 
+
 .chat-card .btn:hover{
 background:#ffe4ec;
 }
+
+
 
 .link-registro{
 margin-bottom:20px;
 text-align:center;
 }
+
 
 .link-registro input{
 width:70%;
@@ -112,6 +122,8 @@ border-radius:5px;
 border:1px solid #ccc;
 }
 
+
+
 .fin-card{
 background:white;
 border-radius:12px;
@@ -120,15 +132,19 @@ box-shadow:0 4px 15px rgba(0,0,0,.15);
 text-align:center;
 }
 
+
 .fin-card h4{
 color:#e91e63;
 font-weight:bold;
 }
 
+
 .fin-card span{
 font-size:22px;
 font-weight:bold;
 }
+
+
 
 .premium-lock{
 display:inline-block;
@@ -138,6 +154,37 @@ border-radius:25px;
 font-size:.85rem;
 font-weight:700;
 }
+
+
+
+/* NUEVAS TARJETAS FINANCIERAS */
+
+.finance-module-card{
+
+background:white;
+border-radius:18px;
+padding:25px;
+box-shadow:0 8px 25px rgba(0,0,0,.10);
+transition:.3s;
+}
+
+
+.finance-module-card:hover{
+
+transform:translateY(-5px);
+
+}
+
+
+
+.finance-module-icon{
+
+font-size:45px;
+margin-bottom:15px;
+
+}
+
+
 
 @@media screen and (max-width:768px){
 
@@ -341,6 +388,89 @@ Actualizar Plan
 
 </div>
 
+<!-- GASTOS DEL NEGOCIO -->
+
+<div class="col-md-4">
+
+<div class="card h-100 finance-module-card border-danger"
+onclick="window.location.href='@Url.Action("Index","Gastos")'">
+
+
+<div class="card-body text-center">
+
+
+<h5>
+💼 Gastos del Negocio
+</h5>
+
+
+<p class="text-muted small">
+
+Controla materiales, productos,
+publicidad y costos del emprendimiento.
+
+</p>
+
+
+<a asp-controller="Gastos"
+asp-action="Index"
+class="btn btn-danger">
+
+Ver Gastos
+
+</a>
+
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+
+<!-- GASTOS PERSONALES -->
+
+<div class="col-md-4">
+
+<div class="card h-100 finance-module-card border-primary"
+onclick="window.location.href='@Url.Action("Index","GastosPersonales")'">
+
+
+<div class="card-body text-center">
+
+
+<h5>
+👤 Gastos Personales
+</h5>
+
+
+<p class="text-muted small">
+
+Separa tus gastos personales
+de las finanzas del negocio.
+
+</p>
+
+
+<a asp-controller="GastosPersonales"
+asp-action="Index"
+class="btn btn-primary">
+
+Ver Gastos Personales
+
+</a>
+
+
+</div>
+
+
+</div>
+
+
+</div>
 
 
 <div class="col-md-4">

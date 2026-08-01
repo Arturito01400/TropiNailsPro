@@ -1,0 +1,205 @@
+@model TropiNailsPro.Models.Gasto
+
+@{
+    ViewData["Title"] = "Eliminar Gasto del Negocio";
+}
+
+<style>
+
+.delete-container {
+
+    max-width:650px;
+    margin:auto;
+
+}
+
+.delete-card {
+
+    background:white;
+    border-radius:30px;
+    padding:45px;
+    box-shadow:0 15px 40px rgba(0,0,0,.12);
+    text-align:center;
+
+}
+
+.delete-header {
+
+    background:linear-gradient(135deg,#8e44ad,#d3549f);
+    color:white;
+    padding:30px;
+    border-radius:25px;
+    margin-bottom:35px;
+
+}
+
+.delete-icon {
+
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    background:#ffe5f0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:auto;
+    font-size:45px;
+
+}
+
+.info-box {
+
+    background:#f8f9fa;
+    border-radius:22px;
+    padding:25px;
+    margin:30px 0;
+    text-align:left;
+
+}
+
+.info-item {
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+
+}
+
+.info-item:last-child {
+
+    border-bottom:none;
+
+}
+
+.btn-delete {
+
+    background:linear-gradient(135deg,#dc3545,#ff6b6b);
+    color:white;
+    border:none;
+    border-radius:30px;
+    padding:14px 35px;
+    font-weight:bold;
+
+}
+
+.btn-delete:hover {
+
+    color:white;
+    opacity:.9;
+
+}
+
+.btn-back {
+
+    border-radius:30px;
+    padding:14px 30px;
+
+}
+
+</style>
+
+<div class="container mt-5 mb-5 delete-container">
+
+    <div class="delete-card">
+
+        <div class="delete-header">
+
+            <h2 class="fw-bold">
+                🗑️ Eliminar gasto del negocio
+            </h2>
+
+            <p class="mb-0 opacity-75">
+                Esta acción eliminará este registro financiero.
+            </p>
+
+        </div>
+
+        <div class="delete-icon">
+            ⚠️
+        </div>
+
+        <h3 class="fw-bold mt-4">
+            ¿Confirmar eliminación?
+        </h3>
+
+        <p class="text-muted">
+            Este gasto desaparecerá del control financiero del negocio.
+        </p>
+
+        <div class="info-box">
+
+            <div class="info-item">
+
+                <strong>
+                    Descripción
+                </strong>
+
+                <span>
+                    @Model.Descripcion
+                </span>
+
+            </div>
+
+            <div class="info-item">
+
+                <strong>
+                    Categoría
+                </strong>
+
+                <span class="badge rounded-pill bg-secondary">
+                    @Model.Categoria
+                </span>
+
+            </div>
+
+            <div class="info-item">
+
+                <strong>
+                    Monto
+                </strong>
+
+                <span class="fw-bold text-danger">
+                    RD$ @Model.Monto.ToString("N2")
+                </span>
+
+            </div>
+
+            <div class="info-item">
+
+                <strong>
+                    Fecha
+                </strong>
+
+                <span>
+                    @Model.FechaGasto.ToString("dd/MM/yyyy")
+                </span>
+
+            </div>
+
+        </div>
+
+        <form asp-action="Delete" method="post">
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary btn-back">
+                    ⬅ Cancelar
+                </a>
+
+                <button type="submit"
+                        class="btn btn-delete">
+                    🗑️ Eliminar gasto
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

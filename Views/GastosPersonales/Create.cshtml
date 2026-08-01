@@ -1,0 +1,390 @@
+@model TropiNailsPro.Models.GastoPersonal
+
+@{
+    ViewData["Title"] = "Nuevo Gasto Personal";
+}
+
+
+
+<style>
+
+.form-personal-container {
+
+    max-width:700px;
+    margin:auto;
+
+}
+
+
+
+.personal-form-card {
+
+    background:white;
+    border-radius:30px;
+    padding:40px;
+    box-shadow:0 15px 40px rgba(0,0,0,.10);
+
+}
+
+
+
+.form-header {
+
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
+    padding:35px;
+    border-radius:25px;
+    margin-bottom:30px;
+
+}
+
+
+
+.form-control,
+.form-select {
+
+    border-radius:15px;
+    padding:14px 18px;
+    border:1px solid #ddd;
+
+}
+
+
+
+.form-control:focus,
+.form-select:focus {
+
+    border-color:#667eea;
+    box-shadow:0 0 0 .2rem rgba(102,126,234,.20);
+
+}
+
+
+
+.btn-save-personal {
+
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    border:none;
+    color:white;
+    border-radius:30px;
+    padding:14px 35px;
+    font-weight:bold;
+
+}
+
+
+
+.btn-back-personal {
+
+    border-radius:30px;
+    padding:14px 30px;
+
+}
+
+
+</style>
+
+
+
+
+
+<div class="container mt-4 mb-5">
+
+
+
+<div class="form-personal-container">
+
+
+
+<div class="personal-form-card">
+
+
+
+<div class="form-header">
+
+
+<h2 class="fw-bold mb-2">
+
+👤 Nuevo Gasto Personal
+
+</h2>
+
+
+<p class="mb-0 opacity-75">
+
+Registra un gasto que no pertenece al negocio.
+
+</p>
+
+
+
+</div>
+
+
+
+
+
+
+
+<form asp-action="Create" method="post">
+
+
+@Html.AntiForgeryToken()
+
+
+
+<div asp-validation-summary="ModelOnly"
+class="text-danger mb-3">
+</div>
+
+
+
+
+
+
+<!-- DESCRIPCIÓN -->
+
+
+<div class="mb-4">
+
+
+<label class="form-label fw-semibold">
+
+Descripción
+
+</label>
+
+
+<input asp-for="Descripcion"
+class="form-control"
+placeholder="Ejemplo: Supermercado, gasolina, comida..." />
+
+
+<span asp-validation-for="Descripcion"
+class="text-danger">
+</span>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- MONTO -->
+
+
+<div class="mb-4">
+
+
+<label class="form-label fw-semibold">
+
+Monto
+
+</label>
+
+
+<div class="input-group">
+
+
+<span class="input-group-text rounded-start">
+
+RD$
+
+</span>
+
+
+<input asp-for="Monto"
+class="form-control"
+placeholder="0.00" />
+
+
+</div>
+
+
+
+<span asp-validation-for="Monto"
+class="text-danger">
+</span>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- CATEGORIA -->
+
+
+<div class="mb-4">
+
+
+<label class="form-label fw-semibold">
+
+Categoría
+
+</label>
+
+
+
+<select asp-for="Categoria"
+class="form-select">
+
+
+<option value="">
+Selecciona una categoría
+</option>
+
+
+<option>
+Alimentación
+</option>
+
+
+<option>
+Transporte
+</option>
+
+
+<option>
+Vivienda
+</option>
+
+
+<option>
+Salud
+</option>
+
+
+<option>
+Educación
+</option>
+
+
+<option>
+Entretenimiento
+</option>
+
+
+<option>
+Deudas
+</option>
+
+
+<option>
+Otros
+</option>
+
+
+</select>
+
+
+<span asp-validation-for="Categoria"
+class="text-danger">
+</span>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- NOTAS -->
+
+
+<div class="mb-4">
+
+
+<label class="form-label fw-semibold">
+
+Notas
+
+</label>
+
+
+<textarea asp-for="Notas"
+class="form-control"
+rows="4"
+placeholder="Información adicional del gasto...">
+</textarea>
+
+
+<span asp-validation-for="Notas"
+class="text-danger">
+</span>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="d-flex justify-content-between align-items-center">
+
+
+<a asp-action="Index"
+class="btn btn-outline-secondary btn-back-personal">
+
+⬅ Volver
+
+</a>
+
+
+
+
+
+<button type="submit"
+class="btn btn-save-personal">
+
+💾 Guardar gasto
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+</form>
+
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+@section Scripts {
+
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+
+}

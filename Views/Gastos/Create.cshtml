@@ -1,0 +1,333 @@
+@model TropiNailsPro.Models.Gasto
+
+@{
+    ViewData["Title"] = "Registrar Gasto del Negocio";
+}
+
+
+
+<style>
+
+.create-container {
+
+    max-width:750px;
+    margin:auto;
+
+}
+
+
+.create-card {
+
+    background:white;
+    border-radius:30px;
+    padding:40px;
+    box-shadow:0 15px 40px rgba(0,0,0,.10);
+
+}
+
+
+
+.create-header {
+
+    background:linear-gradient(135deg,#8e44ad,#d3549f);
+    color:white;
+    padding:30px;
+    border-radius:25px;
+    margin-bottom:30px;
+
+}
+
+
+
+.form-control,
+.form-select {
+
+    border-radius:15px;
+    padding:13px 18px;
+
+}
+
+
+
+.form-control:focus,
+.form-select:focus {
+
+    border-color:#8e44ad;
+    box-shadow:0 0 0 .25rem rgba(142,68,173,.25);
+
+}
+
+
+
+.btn-save {
+
+    background:linear-gradient(135deg,#8e44ad,#d3549f);
+    color:white;
+    border:none;
+    border-radius:30px;
+    padding:14px 35px;
+    font-weight:bold;
+
+}
+
+
+.btn-save:hover {
+
+    color:white;
+    opacity:.9;
+
+}
+
+
+.btn-back {
+
+    border-radius:30px;
+    padding:14px 30px;
+
+}
+
+
+</style>
+
+
+
+
+
+<div class="container mt-5 mb-5 create-container">
+
+
+<div class="create-card">
+
+
+
+<div class="create-header">
+
+
+<h2 class="fw-bold">
+
+💼 Registrar gasto del negocio
+
+</h2>
+
+
+<p class="mb-0 opacity-75">
+
+Controla las salidas de dinero de tu emprendimiento.
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+<form asp-action="Create" method="post">
+
+
+<div asp-validation-summary="ModelOnly"
+class="text-danger mb-3"></div>
+
+
+
+
+
+<div class="mb-4">
+
+
+<label asp-for="Descripcion"
+class="form-label fw-bold">
+
+Descripción
+
+</label>
+
+
+<input asp-for="Descripcion"
+class="form-control"
+placeholder="Ej: Compra de materiales, productos, alquiler..." />
+
+
+<span asp-validation-for="Descripcion"
+class="text-danger"></span>
+
+
+</div>
+
+
+
+
+
+
+<div class="row">
+
+
+
+<div class="col-md-6 mb-4">
+
+
+<label asp-for="Monto"
+class="form-label fw-bold">
+
+Monto
+
+</label>
+
+
+<div class="input-group">
+
+
+<span class="input-group-text">
+
+RD$
+
+</span>
+
+
+<input asp-for="Monto"
+class="form-control"
+step="0.01" />
+
+
+</div>
+
+
+<span asp-validation-for="Monto"
+class="text-danger"></span>
+
+
+</div>
+
+
+
+
+
+
+<div class="col-md-6 mb-4">
+
+
+<label asp-for="Categoria"
+class="form-label fw-bold">
+
+Categoría
+
+</label>
+
+
+<select asp-for="Categoria"
+class="form-select">
+
+
+<option value="">
+Seleccione categoría
+</option>
+
+
+<option>Materiales</option>
+
+<option>Productos</option>
+
+<option>Publicidad</option>
+
+<option>Servicios</option>
+
+<option>Alquiler</option>
+
+<option>Transporte</option>
+
+<option>Otros</option>
+
+
+</select>
+
+
+<span asp-validation-for="Categoria"
+class="text-danger"></span>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="mb-4">
+
+
+<label asp-for="Notas"
+class="form-label fw-bold">
+
+Notas
+
+</label>
+
+
+<textarea asp-for="Notas"
+class="form-control"
+rows="4"
+placeholder="Detalles adicionales del gasto..."></textarea>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="d-flex justify-content-between flex-wrap gap-3">
+
+
+<a asp-action="Index"
+class="btn btn-outline-secondary btn-back">
+
+⬅ Volver
+
+</a>
+
+
+
+
+<button type="submit"
+class="btn btn-save">
+
+💾 Guardar gasto
+
+</button>
+
+
+
+</div>
+
+
+
+
+</form>
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+@section Scripts {
+
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+
+}
