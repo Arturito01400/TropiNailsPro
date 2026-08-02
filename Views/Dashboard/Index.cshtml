@@ -428,7 +428,45 @@ Ver Gastos
 
 </div>
 
+<!-- RESUMEN FINANCIERO -->
 
+<div class="col-md-4">
+
+<div class="card h-100 finance-module-card border-success"
+onclick="window.location.href='@Url.Action("ResumenMensual","Finanzas")'">
+
+
+<div class="card-body text-center">
+
+
+<h5>
+📊 Resumen Financiero
+</h5>
+
+
+<p class="text-muted small">
+
+Analiza ingresos, gastos y ganancias
+de tu negocio.
+
+</p>
+
+
+<a asp-controller="Finanzas"
+asp-action="ResumenMensual"
+class="btn btn-success">
+
+Ver Resumen
+
+</a>
+
+
+</div>
+
+
+</div>
+
+</div>
 
 
 <!-- GASTOS PERSONALES -->
