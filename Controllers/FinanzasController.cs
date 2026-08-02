@@ -126,16 +126,7 @@ namespace TropiNailsPro.Controllers
                     TotalGastosNegocio = gastosNegocioMes,
 
 
-                    TotalGastosPersonales = gastosPersonalesMes,
-
-
-
-                    Ganancia =
-                        ingresosMes
-                        -
-                        gastosNegocioMes
-                        -
-                        gastosPersonalesMes
+                    TotalGastosPersonales = gastosPersonalesMes
 
                 });
 
