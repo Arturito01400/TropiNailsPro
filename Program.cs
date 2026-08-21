@@ -228,20 +228,22 @@ app.UseAuthorization();
 
 //app.UseMiddleware<SuscripcionMiddleware>();
 
-// RUTAS
+// RUTAS 
 app.MapControllerRoute(
     name: "notificaciones",
     pattern: "Notificaciones/{action=Index}/{id?}",
     defaults: new { controller = "Notificaciones", action = "Index" });
 
 app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
     name: "manicurista_slug",
     pattern: "{slug}",
     defaults: new { controller = "Salones", action = "Index" });
 
-app.MapControllerRoute(
-    name: "default",
-   pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 // HUBS
 app.MapHub<OnlineHub>("/onlineHub");
