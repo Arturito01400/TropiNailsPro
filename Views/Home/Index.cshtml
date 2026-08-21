@@ -1,27 +1,374 @@
 ﻿@{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "TropiNails";
     Layout = "_Layout";
 }
 
-<div class="text-center mt-5">
-    <h2 class="text-primary">Bienvenido, Admin TropiNails!</h2>
-    <p class="lead">Selecciona una opción para comenzar.</p>
+<style>
+    .public-home {
+        position: relative;
+        min-height: calc(100vh - 56px);
+        display: flex;
+        align-items: center;
+        overflow: hidden;
+        background:
+            linear-gradient(
+                90deg,
+                rgba(20, 12, 18, 0.82) 0%,
+                rgba(20, 12, 18, 0.62) 42%,
+                rgba(20, 12, 18, 0.20) 100%
+            ),
+            url('/images/tropinails-public-hero.png') center center / cover no-repeat;
+    }
 
-    <div class="row justify-content-center mt-4">
-        <div class="col-md-5 mb-4">
-            <div class="card shadow-lg p-4">
-                <h4 class="text-success">Gestionar Citas</h4>
-                <p>Ver, crear y editar citas de tus clientas.</p>
-                <a class="btn btn-outline-primary" asp-controller="Citas" asp-action="Index">Ir a Citas</a>
+    .public-home::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            180deg,
+            rgba(0,0,0,0.10),
+            rgba(0,0,0,0.20)
+        );
+        pointer-events: none;
+    }
+
+    .public-content {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        padding: 70px 0;
+    }
+
+    .brand-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 17px;
+        border-radius: 50px;
+        background: rgba(255,255,255,0.13);
+        border: 1px solid rgba(255,255,255,0.25);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 24px;
+    }
+
+    .brand-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ff8fc8;
+        box-shadow: 0 0 12px rgba(255,143,200,0.9);
+    }
+
+    .hero-title {
+        color: #fff;
+        font-size: clamp(3rem, 6vw, 5.8rem);
+        line-height: 0.98;
+        font-weight: 800;
+        letter-spacing: -2.5px;
+        margin-bottom: 25px;
+        max-width: 760px;
+    }
+
+    .hero-title span {
+        background: linear-gradient(90deg, #fff, #ffc4df);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-description {
+        color: rgba(255,255,255,0.88);
+        font-size: 1.18rem;
+        line-height: 1.7;
+        max-width: 620px;
+        margin-bottom: 34px;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 38px;
+    }
+
+    .btn-premium {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 54px;
+        padding: 0 25px;
+        border-radius: 16px;
+        text-decoration: none;
+        font-weight: 700;
+        transition: all 0.25s ease;
+    }
+
+    .btn-primary-premium {
+        color: #fff;
+        background: linear-gradient(135deg, #e83e8c, #c52c72);
+        box-shadow: 0 12px 30px rgba(197,44,114,0.35);
+    }
+
+    .btn-primary-premium:hover {
+        color: #fff;
+        transform: translateY(-3px);
+        box-shadow: 0 16px 35px rgba(197,44,114,0.48);
+    }
+
+    .btn-glass-premium {
+        color: #fff;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.30);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .btn-glass-premium:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.20);
+        transform: translateY(-3px);
+    }
+
+    .hero-search {
+        max-width: 690px;
+        padding: 9px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.22);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 30px;
+    }
+
+    .search-icon {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.15rem;
+    }
+
+    .hero-search input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #fff;
+        font-size: 1rem;
+        padding: 12px 5px;
+    }
+
+    .hero-search input::placeholder {
+        color: rgba(255,255,255,0.72);
+    }
+
+    .search-button {
+        border: 0;
+        min-height: 48px;
+        padding: 0 20px;
+        border-radius: 13px;
+        background: #fff;
+        color: #b52d69;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.25s ease;
+    }
+
+    .search-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .trust-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        color: rgba(255,255,255,0.88);
+        font-size: 0.9rem;
+    }
+
+    .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .trust-item i {
+        color: #ffc1dc;
+    }
+
+    .login-link {
+        position: absolute;
+        top: 28px;
+        right: 32px;
+        z-index: 5;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 10px 17px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.10);
+        border: 1px solid rgba(255,255,255,0.22);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: 0.25s ease;
+    }
+
+    .login-link:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.18);
+    }
+
+    @@media (max-width: 768px) {
+        .public-home {
+            min-height: calc(100vh - 56px);
+            align-items: flex-end;
+            background-position: 62% center;
+        }
+
+        .public-content {
+            padding: 55px 18px 45px;
+        }
+
+        .hero-title {
+            font-size: 3.1rem;
+            letter-spacing: -1.5px;
+        }
+
+        .hero-description {
+            font-size: 1rem;
+        }
+
+        .hero-search {
+            flex-wrap: wrap;
+            padding: 8px;
+        }
+
+        .hero-search input {
+            width: calc(100% - 60px);
+        }
+
+        .search-button {
+            width: 100%;
+        }
+
+        .login-link {
+            top: 18px;
+            right: 18px;
+        }
+
+        .trust-row {
+            gap: 13px;
+        }
+    }
+</style>
+
+<div class="public-home">
+
+    <a asp-controller="Auth"
+       asp-action="Login"
+       class="login-link">
+        Iniciar sesión
+    </a>
+
+    <div class="public-content">
+
+        <div class="container">
+
+            <div class="row">
+
+                <div class="col-lg-8">
+
+                    <div class="brand-badge">
+                        <span class="brand-dot"></span>
+                        La nueva forma de encontrar belleza
+                    </div>
+
+                    <h1 class="hero-title">
+                        Tu belleza.
+                        <br />
+                        <span>Tu estilo.</span>
+                        <br />
+                        Tu profesional.
+                    </h1>
+
+                    <p class="hero-description">
+                        Descubre manicuristas y profesionales de belleza,
+                        explora sus trabajos y encuentra el servicio perfecto
+                        para ti, todo desde un solo lugar.
+                    </p>
+
+                    <div class="hero-search">
+
+                        <div class="search-icon">
+                            <i class="bi bi-search"></i>
+                        </div>
+
+                        <input type="text"
+                               placeholder="¿Qué servicio estás buscando?" />
+
+                        <button type="button"
+                                class="search-button">
+                            Buscar
+                        </button>
+
+                    </div>
+
+                    <div class="hero-actions">
+
+                        <a href="#profesionales"
+                           class="btn-premium btn-primary-premium">
+                            <i class="bi bi-stars"></i>
+                            Encontrar profesionales
+                        </a>
+
+                        <a href="#cerca"
+                           class="btn-premium btn-glass-premium">
+                            <i class="bi bi-geo-alt"></i>
+                            Cerca de mí
+                        </a>
+
+                    </div>
+
+                    <div class="trust-row">
+
+                        <div class="trust-item">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Profesionales reales
+                        </div>
+
+                        <div class="trust-item">
+                            <i class="bi bi-images"></i>
+                            Portafolios
+                        </div>
+
+                        <div class="trust-item">
+                            <i class="bi bi-calendar-check"></i>
+                            Agenda tu cita
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
 
-        <div class="col-md-5 mb-4">
-            <div class="card shadow-lg p-4">
-                <h4 class="text-info">Modelos de Uñas</h4>
-                <p>Mira y administra tus diseños de uñas.</p>
-                <a class="btn btn-outline-success" asp-controller="ModelosUnas" asp-action="Index">Ver Modelos</a>
-            </div>
-        </div>
     </div>
+
 </div>
