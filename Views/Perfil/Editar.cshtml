@@ -3,134 +3,788 @@
 @{
     ViewData["Title"] = "Editar Perfil";
     Layout = "_Layout";
+
+    var negocio = ViewBag.Manicurista as TropiNailsPro.Models.Manicurista;
+
+    string fotoBase = "/img/user-default.png";
+
+    if (!string.IsNullOrWhiteSpace(Model?.FotoPerfil))
+    {
+        fotoBase = Model.FotoPerfil;
+
+        if (!fotoBase.StartsWith("/") &&
+            !fotoBase.StartsWith("http://") &&
+            !fotoBase.StartsWith("https://"))
+        {
+            fotoBase = "/" + fotoBase;
+        }
+    }
+
+    string fotoFinal =
+        fotoBase + "?v=" + DateTime.Now.Ticks;
+
+    string fotoNegocio =
+        "/img/user-default.png";
+
+    if (!string.IsNullOrWhiteSpace(negocio?.FotoNegocio))
+    {
+        fotoNegocio = negocio.FotoNegocio;
+
+        if (!fotoNegocio.StartsWith("/") &&
+            !fotoNegocio.StartsWith("http://") &&
+            !fotoNegocio.StartsWith("https://"))
+        {
+            fotoNegocio = "/" + fotoNegocio;
+        }
+    }
+
+    string whatsappValor =
+        Model?.WhatsApp ?? "";
+
+    string whatsappPlaceholder =
+        "Ej: 18095551234";
 }
 
-<div class="container mt-5" style="max-width:600px;">
+<div class="container mt-4 mb-5 perfil-editar">
 
-    <div class="card shadow-lg border-0 rounded-4 p-4">
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
 
-        <h3 class="text-center mb-4 fw-bold text-pink">
-            ✨ Editar mi perfil
-        </h3>
+        <!-- ================================================= -->
+        <!-- CABECERA -->
+        <!-- ================================================= -->
 
-        @if (TempData["Mensaje"] != null)
-        {
-            <div class="alert alert-success text-center">
-                @TempData["Mensaje"]
-            </div>
-        }
+        <div class="perfil-header text-center">
 
-        <form asp-controller="Perfil"
-              asp-action="Guardar"
-              method="post"
-              enctype="multipart/form-data">
+            <h2 class="fw-bold mb-2">
+                ✨ Personaliza tu perfil
+            </h2>
 
-            <input type="hidden" asp-for="Id" />
+            <p class="mb-0">
+                Completa tu información para que tus clientes
+                puedan conocerte y contactarte.
+            </p>
 
-            @{
-                string fotoBase = "/img/user-default.png";
+        </div>
 
-                if (!string.IsNullOrEmpty(Model?.FotoPerfil))
-                {
-                    fotoBase = Model.FotoPerfil;
 
-                    if (!fotoBase.StartsWith("/"))
-                        fotoBase = "/" + fotoBase;
-                }
+        <div class="card-body p-4 p-md-5">
 
-                var fotoFinal = fotoBase + "?v=" + DateTime.Now.Ticks;
+            @if (TempData["Mensaje"] != null)
+            {
+                <div class="alert alert-success text-center rounded-3">
+                    @TempData["Mensaje"]
+                </div>
             }
 
-            <div class="text-center mb-4">
-                <img id="previewFoto"
-                     src="@fotoFinal"
-                     class="rounded-circle shadow"
-                     style="width:150px;height:150px;object-fit:cover;border:4px solid #ff4da6;"
-                     onerror="this.src='/img/user-default.png'" />
 
-                <div class="mt-3">
-                    <input type="file"
-                           name="foto"
-                           accept="image/*"
-                           class="form-control"
-                           onchange="previewImagen(event)" />
+            <form asp-controller="Perfil"
+                  asp-action="Guardar"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <input type="hidden"
+                       asp-for="Id" />
+
+
+                <!-- ================================================= -->
+                <!-- INFORMACIÓN PERSONAL -->
+                <!-- ================================================= -->
+
+                <div class="seccion-perfil">
+
+                    <div class="seccion-titulo">
+                        <span>👤</span>
+                        <div>
+                            <h4>Mi información</h4>
+                            <small>
+                                Información que verán tus clientes.
+                            </small>
+                        </div>
+                    </div>
+
+
+                    <!-- FOTO PERFIL -->
+
+                    <div class="foto-contenedor text-center mb-4">
+
+                        <img id="previewFoto"
+                             src="@fotoFinal"
+                             class="foto-perfil"
+                             onerror="this.src='/img/user-default.png'" />
+
+                        <div class="mt-3">
+
+                            <label class="btn btn-outline-pink">
+                                📷 Cambiar foto de perfil
+
+                                <input type="file"
+                                       name="foto"
+                                       accept="image/*"
+                                       hidden
+                                       onchange="previewImagen(event)" />
+                            </label>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Nombre
+                        </label>
+
+                        <input asp-for="Nombre"
+                               class="form-control form-control-lg"
+                               placeholder="Tu nombre completo" />
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Teléfono personal
+                        </label>
+
+                        <input asp-for="Telefono"
+                               class="form-control form-control-lg"
+                               placeholder="Ej: 8095551234" />
+
+                    </div>
+
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <input asp-for="Nombre"
-                       class="form-control"
-                       placeholder="Nombre completo" />
-            </div>
 
-            <div class="mb-3">
-                <input asp-for="Telefono"
-                       class="form-control"
-                       placeholder="Teléfono" />
-            </div>
+                <!-- ================================================= -->
+                <!-- NEGOCIO -->
+                <!-- ================================================= -->
 
-            @* ❌ PASSWORD ELIMINADO (NO EXISTE EN TU MODELO) *@
-            @* Si necesitas contraseña, debe manejarse en otro campo o tabla *@
+                <div class="seccion-perfil">
 
-            <div class="mb-3">
-                <input asp-for="Instagram"
-                       class="form-control"
-                       placeholder="Instagram" />
-            </div>
+                    <div class="seccion-titulo">
 
-            <div class="mb-3">
-                <input asp-for="TikTok"
-                       class="form-control"
-                       placeholder="TikTok" />
-            </div>
+                        <span>🏪</span>
 
-            <div class="mb-3">
-                <input asp-for="Facebook"
-                       class="form-control"
-                       placeholder="Facebook" />
-            </div>
+                        <div>
 
-            <div class="mb-4">
-                <input asp-for="WhatsApp"
-                       class="form-control"
-                       placeholder="WhatsApp (ej: https://wa.me/1809xxxxxxx)" />
-            </div>
+                            <h4>Mi negocio</h4>
 
-            <div class="d-grid gap-2">
-                <button type="submit"
-                        class="btn btn-lg text-white"
-                        style="background:#ff4da6;">
-                    💾 Guardar cambios
-                </button>
+                            <small>
+                                Presenta tu negocio profesionalmente.
+                            </small>
 
-                <a asp-controller="Perfil"
-                   asp-action="Index"
-                   class="btn btn-outline-secondary">
-                    Cancelar
-                </a>
-            </div>
+                        </div>
 
-        </form>
+                    </div>
+
+
+                    <div class="foto-negocio-box text-center mb-4">
+
+                        <img id="previewFotoNegocio"
+                             src="@fotoNegocio"
+                             class="foto-negocio"
+                             onerror="this.src='/img/user-default.png'" />
+
+                        <div class="mt-3">
+
+                            <label class="btn btn-outline-pink">
+
+                                📸 Foto del negocio
+
+                                <input type="file"
+                                       name="fotoNegocio"
+                                       accept="image/*"
+                                       hidden
+                                       onchange="previewFotoNegocio(event)" />
+
+                            </label>
+
+                        </div>
+
+                        <small class="text-muted d-block mt-2">
+                            Esta imagen aparecerá en tu perfil público.
+                        </small>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Nombre del negocio
+                        </label>
+
+                        <input type="text"
+                               name="NombreNegocio"
+                               class="form-control form-control-lg"
+                               value="@negocio?.NombreNegocio"
+                               placeholder="Ej: Beauty Studio RD" />
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Teléfono del negocio
+                        </label>
+
+                        <input type="text"
+                               name="TelefonoNegocio"
+                               class="form-control form-control-lg"
+                               value="@negocio?.TelefonoNegocio"
+                               placeholder="Ej: 8095551234" />
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- REDES SOCIALES -->
+                <!-- ================================================= -->
+
+                <div class="seccion-perfil">
+
+                    <div class="seccion-titulo">
+
+                        <span>📱</span>
+
+                        <div>
+
+                            <h4>Mis redes sociales</h4>
+
+                            <small>
+                                Permite que tus clientes conozcan tu trabajo.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            📸 Instagram
+                        </label>
+
+                        <input asp-for="Instagram"
+                               class="form-control form-control-lg"
+                               placeholder="https://instagram.com/tuusuario" />
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            🎵 TikTok
+                        </label>
+
+                        <input asp-for="TikTok"
+                               class="form-control form-control-lg"
+                               placeholder="https://tiktok.com/@@tuusuario" />
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            📘 Facebook
+                        </label>
+
+                        <input asp-for="Facebook"
+                               class="form-control form-control-lg"
+                               placeholder="https://facebook.com/tuusuario" />
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- WHATSAPP -->
+                <!-- ================================================= -->
+
+                <div class="seccion-perfil">
+
+                    <div class="seccion-titulo">
+
+                        <span>💬</span>
+
+                        <div>
+
+                            <h4>WhatsApp</h4>
+
+                            <small>
+                                Tus clientes podrán contactarte directamente.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Número de WhatsApp
+                        </label>
+
+                        <input asp-for="WhatsApp"
+                               class="form-control form-control-lg"
+                               placeholder="@whatsappPlaceholder"
+                               value="@whatsappValor" />
+
+                        <div class="form-text">
+                            Escribe el número con código de país,
+                            sin espacios ni símbolos.
+                            Ejemplo: <strong>18095551234</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- UBICACIÓN -->
+                <!-- ================================================= -->
+
+                <div class="seccion-perfil">
+
+                    <div class="seccion-titulo">
+
+                        <span>📍</span>
+
+                        <div>
+
+                            <h4>Ubicación de mi negocio</h4>
+
+                            <small>
+                                Ayuda a tus clientes a encontrarte.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Dirección
+                        </label>
+
+                        <input type="text"
+                               name="DireccionNegocio"
+                               class="form-control form-control-lg"
+                               value="@negocio?.DireccionNegocio"
+                               placeholder="Ej: Calle Principal #25" />
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Ciudad
+                            </label>
+
+                            <input type="text"
+                                   name="Ciudad"
+                                   class="form-control form-control-lg"
+                                   value="@negocio?.Ciudad"
+                                   placeholder="Santo Domingo" />
+
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                Provincia
+                            </label>
+
+                            <input type="text"
+                                   name="Provincia"
+                                   class="form-control form-control-lg"
+                                   value="@negocio?.Provincia"
+                                   placeholder="Santo Domingo" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- COORDENADAS -->
+
+                    <input type="hidden"
+                           id="Latitud"
+                           name="Latitud"
+                           value="@negocio?.Latitud" />
+
+                    <input type="hidden"
+                           id="Longitud"
+                           name="Longitud"
+                           value="@negocio?.Longitud" />
+
+
+                    <div class="ubicacion-box">
+
+                        <div class="ubicacion-icon">
+                            📍
+                        </div>
+
+                        <div class="flex-grow-1">
+
+                            <strong>
+                                Ubicación exacta
+                            </strong>
+
+                            <p class="mb-2 text-muted">
+                                Puedes permitir que TropiNails Pro
+                                detecte la ubicación de tu negocio.
+                            </p>
+
+                            <button type="button"
+                                    class="btn btn-pink"
+                                    onclick="obtenerUbicacion()">
+
+                                📍 Detectar mi ubicación
+
+                            </button>
+
+                            <span id="estadoUbicacion"
+                                  class="d-block mt-2 small">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <input type="hidden"
+                           id="UbicacionActiva"
+                           name="UbicacionActiva"
+                           value="@(negocio?.UbicacionActiva == true ? "true" : "false")" />
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- BOTONES -->
+                <!-- ================================================= -->
+
+                <div class="d-grid gap-3 mt-4">
+
+                    <button type="submit"
+                            class="btn btn-lg text-white btn-guardar">
+
+                        💾 Guardar cambios
+
+                    </button>
+
+
+                    <a asp-controller="Perfil"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary btn-lg">
+
+                        Cancelar
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
     </div>
+
 </div>
 
+
+<style>
+
+.perfil-editar{
+    max-width:800px;
+}
+
+.perfil-header{
+    background:linear-gradient(
+        135deg,
+        #ff4da6,
+        #e91e63
+    );
+    color:white;
+    padding:35px 20px;
+}
+
+.perfil-header h2{
+    font-size:30px;
+}
+
+.seccion-perfil{
+    margin-bottom:35px;
+    padding-bottom:30px;
+    border-bottom:1px solid #eee;
+}
+
+.seccion-titulo{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.seccion-titulo > span{
+    font-size:32px;
+}
+
+.seccion-titulo h4{
+    margin:0;
+    font-weight:700;
+}
+
+.seccion-titulo small{
+    color:#777;
+}
+
+.form-label{
+    font-weight:600;
+}
+
+.form-control{
+    border-radius:12px;
+}
+
+.form-control:focus{
+    border-color:#ff4da6;
+    box-shadow:0 0 0 .2rem rgba(255,77,166,.15);
+}
+
+.foto-perfil{
+    width:160px;
+    height:160px;
+    object-fit:cover;
+    border-radius:50%;
+    border:5px solid #ff4da6;
+    box-shadow:0 8px 25px rgba(0,0,0,.15);
+}
+
+.foto-negocio{
+    width:100%;
+    max-width:500px;
+    height:230px;
+    object-fit:cover;
+    border-radius:20px;
+    border:4px solid #ff4da6;
+    box-shadow:0 8px 25px rgba(0,0,0,.12);
+}
+
+.btn-outline-pink{
+    color:#ff4da6;
+    border:2px solid #ff4da6;
+    border-radius:12px;
+    font-weight:600;
+}
+
+.btn-outline-pink:hover{
+    background:#ff4da6;
+    color:white;
+}
+
+.btn-pink{
+    background:#ff4da6;
+    border:none;
+    color:white;
+    border-radius:12px;
+    font-weight:600;
+    padding:10px 18px;
+}
+
+.btn-pink:hover{
+    background:#e91e63;
+    color:white;
+}
+
+.btn-guardar{
+    background:#ff4da6;
+    border-radius:14px;
+    font-weight:700;
+}
+
+.btn-guardar:hover{
+    background:#e91e63;
+}
+
+.ubicacion-box{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    background:#fff5fa;
+    border:1px solid #ffd1e5;
+    padding:20px;
+    border-radius:18px;
+}
+
+.ubicacion-icon{
+    font-size:35px;
+}
+
+@@media(max-width:576px){
+
+    .perfil-header h2{
+        font-size:24px;
+    }
+
+    .foto-negocio{
+        height:190px;
+    }
+
+    .ubicacion-box{
+        align-items:flex-start;
+    }
+
+}
+
+</style>
+
+
 <script>
-function previewImagen(event) {
-    const file = event.target.files[0];
-    if (!file) return;
 
-    const reader = new FileReader();
+function previewImagen(event){
 
-    reader.onload = function(e) {
-        document.getElementById("previewFoto").src = e.target.result;
-    };
+    const file =
+        event.target.files[0];
+
+    if(!file) return;
+
+    const reader =
+        new FileReader();
+
+    reader.onload =
+        function(e){
+
+            document.getElementById(
+                "previewFoto"
+            ).src = e.target.result;
+
+        };
 
     reader.readAsDataURL(file);
 }
 
-function togglePassword() {
-    const field = document.getElementById("passwordField");
-    if (!field) return;
-    field.type = field.type === "password" ? "text" : "password";
+
+function previewFotoNegocio(event){
+
+    const file =
+        event.target.files[0];
+
+    if(!file) return;
+
+    const reader =
+        new FileReader();
+
+    reader.onload =
+        function(e){
+
+            document.getElementById(
+                "previewFotoNegocio"
+            ).src = e.target.result;
+
+        };
+
+    reader.readAsDataURL(file);
 }
+
+
+function obtenerUbicacion(){
+
+    const estado =
+        document.getElementById(
+            "estadoUbicacion"
+        );
+
+    if(!navigator.geolocation){
+
+        estado.innerText =
+            "❌ Tu navegador no permite obtener la ubicación.";
+
+        estado.style.color =
+            "#dc3545";
+
+        return;
+    }
+
+    estado.innerText =
+        "📍 Detectando ubicación...";
+
+    estado.style.color =
+        "#666";
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        function(position){
+
+            const lat =
+                position.coords.latitude;
+
+            const lon =
+                position.coords.longitude;
+
+
+            document.getElementById(
+                "Latitud"
+            ).value = lat.toFixed(7);
+
+
+            document.getElementById(
+                "Longitud"
+            ).value = lon.toFixed(7);
+
+
+            document.getElementById(
+                "UbicacionActiva"
+            ).value = "true";
+
+
+            estado.innerText =
+                "✅ Ubicación guardada correctamente.";
+
+            estado.style.color =
+                "#12a150";
+
+        },
+
+        function(error){
+
+            console.error(error);
+
+            estado.innerText =
+                "❌ No pudimos obtener tu ubicación. Revisa los permisos del navegador.";
+
+            estado.style.color =
+                "#dc3545";
+
+        },
+
+        {
+            enableHighAccuracy:true,
+            timeout:10000,
+            maximumAge:0
+        }
+
+    );
+
+}
+
 </script>

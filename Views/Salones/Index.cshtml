@@ -1,171 +1,1792 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var manicurista = ViewBag.Manicurista as TropiNailsPro.Models.Manicurista;
+    var manicurista =
+        ViewBag.Manicurista as TropiNailsPro.Models.Manicurista;
 
-    var citas = ViewBag.Citas as List<TropiNailsPro.Models.Cita> ?? new();
-    var modelos = ViewBag.Modelos as List<TropiNailsPro.Models.ModeloUnas> ?? new();
-    var feed = ViewBag.Feed as List<TropiNailsPro.Models.Publicacion> ?? new();
+    var modelos =
+        ViewBag.Modelos as List<TropiNailsPro.Models.ModeloUnas>
+        ?? new();
+
+    var feed =
+        ViewBag.Feed as List<TropiNailsPro.Models.Publicacion>
+        ?? new();
+
+    var usuario = manicurista?.Usuario;
+
+    // =========================================================
+    // FOTOS
+    // =========================================================
+
+    var fotoNegocio =
+        ViewBag.FotoNegocio as string
+        ?? manicurista?.FotoNegocio
+        ?? "/img/user-default.png";
+
+    var fotoPerfil =
+        ViewBag.FotoPerfil as string
+        ?? usuario?.FotoPerfilUrl
+        ?? "/img/user-default.png";
+
+    if (string.IsNullOrWhiteSpace(fotoNegocio))
+    {
+        fotoNegocio = fotoPerfil;
+    }
+
+    if (string.IsNullOrWhiteSpace(fotoPerfil))
+    {
+        fotoPerfil = "/img/user-default.png";
+    }
+
+    // =========================================================
+    // WHATSAPP
+    // =========================================================
+
+    var telefonoWhatsApp =
+        manicurista?.TelefonoNegocio
+        ?? usuario?.WhatsApp
+        ?? usuario?.Telefono;
+
+    string? whatsappUrl = null;
+
+    if (!string.IsNullOrWhiteSpace(telefonoWhatsApp))
+    {
+        var numeroWhatsApp =
+            new string(
+                telefonoWhatsApp
+                    .Where(char.IsDigit)
+                    .ToArray()
+            );
+
+        if (numeroWhatsApp.Length == 10)
+        {
+            numeroWhatsApp = "1" + numeroWhatsApp;
+        }
+
+        if (!string.IsNullOrWhiteSpace(numeroWhatsApp))
+        {
+            whatsappUrl =
+                "https://wa.me/" + numeroWhatsApp;
+        }
+    }
+
+    // =========================================================
+    // UBICACIÓN
+    // =========================================================
+
+    bool ubicacionActiva =
+        ViewBag.UbicacionActiva != null &&
+        (bool)ViewBag.UbicacionActiva;
+
+    decimal? latitud =
+        ViewBag.Latitud as decimal?;
+
+    decimal? longitud =
+        ViewBag.Longitud as decimal?;
+
+    var direccion =
+        ViewBag.DireccionNegocio as string
+        ?? manicurista?.DireccionNegocio;
+
+    var ciudad =
+        ViewBag.Ciudad as string
+        ?? manicurista?.Ciudad;
+
+    var provincia =
+        ViewBag.Provincia as string
+        ?? manicurista?.Provincia;
+
+    // =========================================================
+    // INFORMACIÓN
+    // =========================================================
+
+    var nombreNegocio =
+        !string.IsNullOrWhiteSpace(manicurista?.NombreNegocio)
+            ? manicurista!.NombreNegocio
+            : "Negocio de belleza";
+
+    var nombreProfesional =
+        !string.IsNullOrWhiteSpace(usuario?.Nombre)
+            ? usuario!.Nombre
+            : "Profesional de belleza";
+
+    var ubicacionTexto =
+        !string.IsNullOrWhiteSpace(ciudad)
+            ? ciudad
+            : !string.IsNullOrWhiteSpace(provincia)
+                ? provincia
+                : "República Dominicana";
+
+    var totalModelos = modelos.Count;
+    var totalPublicaciones = feed.Count;
+
+    var slug =
+        manicurista?.Slug;
+
+    string? agendarUrl = null;
+
+    if (!string.IsNullOrWhiteSpace(slug))
+    {
+        agendarUrl =
+            "/Agendar?slug=" +
+            Uri.EscapeDataString(slug);
+    }
 }
 
 <style>
-body {
-    background: #f4f6fb;
-    font-family: Arial, sans-serif;
+
+/* ============================================================
+   TROPINAILS PRO
+   PERFIL PÚBLICO PREMIUM
+============================================================ */
+
+:root {
+    --tn-pink: #ff3f91;
+    --tn-pink-light: #ff72b2;
+    --tn-purple: #8b3dff;
+    --tn-dark: #17121d;
+    --tn-text: #29222f;
+    --tn-muted: #817985;
+    --tn-bg: #f7f5f8;
+    --tn-white: #ffffff;
+    --tn-border: rgba(35, 25, 45, .08);
+    --tn-shadow: 0 15px 50px rgba(40, 20, 55, .09);
+    --tn-shadow-hover: 0 22px 60px rgba(40, 20, 55, .15);
 }
 
-.container {
-    max-width: 1100px;
+/* ============================================================
+   BASE
+============================================================ */
+
+.public-profile-page {
+    background:
+        radial-gradient(
+            circle at 10% 0%,
+            rgba(255, 83, 157, .08),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 90% 10%,
+            rgba(139, 61, 255, .07),
+            transparent 30%
+        ),
+        var(--tn-bg);
+
+    min-height: 100vh;
+    padding-bottom: 70px;
 }
 
-/* HEADER */
-.salon-header {
-    text-align: center;
-    padding: 30px 10px;
+.public-profile {
+    width: min(1180px, calc(100% - 30px));
+    margin: 0 auto;
 }
 
-.salon-header h1 {
+/* ============================================================
+   HERO
+============================================================ */
+
+.business-hero {
+    position: relative;
+    min-height: 470px;
+    border-radius: 0 0 38px 38px;
+    overflow: hidden;
+    background: #17121d;
+    box-shadow: 0 20px 60px rgba(20, 10, 30, .16);
+}
+
+.hero-cover {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0,0,0,.08) 0%,
+            rgba(0,0,0,.16) 35%,
+            rgba(16,8,20,.88) 100%
+        );
+    z-index: 1;
+}
+
+.hero-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.02);
+    filter: saturate(1.08);
+}
+
+.hero-top-bar {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 28px;
+}
+
+.brand-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    color: white;
+    background: rgba(255,255,255,.13);
+    border: 1px solid rgba(255,255,255,.2);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.brand-mini span {
+    font-size: 18px;
+}
+
+.hero-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: white;
+    background: rgba(0,0,0,.22);
+    border: 1px solid rgba(255,255,255,.16);
+    padding: 9px 14px;
+    border-radius: 999px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.hero-content {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 35px 45px 42px;
+    color: white;
+}
+
+.hero-profile-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 22px;
+}
+
+.profile-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.profile-avatar {
+    width: 112px;
+    height: 112px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 5px solid rgba(255,255,255,.95);
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.35);
+    background: white;
+}
+
+.verified-badge {
+    position: absolute;
+    right: 2px;
+    bottom: 5px;
+    width: 31px;
+    height: 31px;
+    border-radius: 50%;
+    background: linear-gradient(
+        135deg,
+        #ff3f91,
+        #8b3dff
+    );
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.hero-info {
+    min-width: 0;
+}
+
+.hero-title {
+    font-size: clamp(32px, 5vw, 54px);
+    line-height: 1.02;
+    font-weight: 900;
+    margin: 0 0 9px;
+    letter-spacing: -1.5px;
+    text-shadow: 0 4px 25px rgba(0,0,0,.25);
+}
+
+.hero-subtitle {
+    margin: 0;
+    color: rgba(255,255,255,.85);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.hero-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.16);
+    backdrop-filter: blur(12px);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ============================================================
+   ACTION BAR
+============================================================ */
+
+.action-panel {
+    position: relative;
+    z-index: 5;
+    width: min(1080px, calc(100% - 30px));
+    margin: -28px auto 0;
+    background: rgba(255,255,255,.96);
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 25px;
+    box-shadow: var(--tn-shadow);
+    padding: 15px;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr 1fr;
+    gap: 10px;
+}
+
+.action-button {
+    min-height: 56px;
+    border-radius: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    text-decoration: none !important;
+    font-weight: 850;
+    font-size: 14px;
+    transition: .22s ease;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+}
+
+.action-primary {
+    color: white !important;
+    background:
+        linear-gradient(
+            135deg,
+            var(--tn-pink),
+            var(--tn-purple)
+        );
+    box-shadow: 0 8px 25px rgba(255,63,145,.22);
+}
+
+.action-whatsapp {
+    color: white !important;
+    background: #25D366;
+    box-shadow: 0 8px 25px rgba(37,211,102,.18);
+}
+
+.action-secondary {
+    color: var(--tn-text) !important;
+    background: #f5f2f7;
+}
+
+/* ============================================================
+   CONTENT
+============================================================ */
+
+.profile-content {
+    padding-top: 35px;
+}
+
+.section {
+    margin-top: 35px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 900;
+    color: var(--tn-dark);
+    letter-spacing: -.5px;
+}
+
+.section-subtitle {
+    color: var(--tn-muted);
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.section-count {
+    background: white;
+    border: 1px solid var(--tn-border);
+    border-radius: 999px;
+    padding: 7px 12px;
+    color: var(--tn-pink);
+    font-size: 12px;
     font-weight: 800;
 }
 
-/* SECCIONES */
-.section-title {
-    text-align: center;
+/* ============================================================
+   ABOUT CARD
+============================================================ */
+
+.about-grid {
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 18px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--tn-shadow);
+    border: 1px solid var(--tn-border);
+}
+
+.info-card-title {
+    font-weight: 900;
+    font-size: 17px;
+    margin-bottom: 18px;
+    color: var(--tn-dark);
+}
+
+.info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 13px 0;
+    border-bottom: 1px solid #f0edf2;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.info-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: linear-gradient(
+        135deg,
+        #fff0f7,
+        #f1eaff
+    );
+    font-size: 17px;
+}
+
+.info-label {
+    color: #8a808e;
+    font-size: 11px;
     font-weight: 700;
-    margin: 25px 0 15px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
 }
 
-/* CARDS */
-.card {
-    border-radius: 18px;
-    border: none;
+.info-value {
+    color: var(--tn-text);
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 2px;
+    word-break: break-word;
+}
+
+.social-card {
+    background:
+        linear-gradient(
+            145deg,
+            #fff,
+            #fff7fb
+        );
+}
+
+.social-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.social-button {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 12px;
+    border-radius: 14px;
+    background: #faf8fb;
+    color: #3a313f !important;
+    text-decoration: none !important;
+    font-size: 13px;
+    font-weight: 800;
+    border: 1px solid #eee9f0;
+    transition: .2s;
+}
+
+.social-button:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(40,20,55,.08);
+}
+
+/* ============================================================
+   MAP
+============================================================ */
+
+.map-card {
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    padding: 0;
 }
 
-/* MEDIA */
-.media {
+.map-header {
+    padding: 20px 22px 15px;
+}
+
+.map-frame {
     width: 100%;
-    height: 300px;
-    object-fit: cover;
+    height: 340px;
+    border: 0;
+    display: block;
 }
 
-/* VIDEO */
-.video-box {
+.map-placeholder {
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+    background:
+        radial-gradient(
+            circle at center,
+            #fff3f8,
+            #f7f3fa
+        );
+}
+
+.map-placeholder-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 10px 30px rgba(40,20,55,.08);
+    margin-bottom: 15px;
+}
+
+.map-placeholder h4 {
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+
+.map-placeholder p {
+    color: var(--tn-muted);
+    margin: 0;
+    max-width: 450px;
+    font-size: 14px;
+}
+
+/* ============================================================
+   MODELOS
+============================================================ */
+
+.models-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.model-card {
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid var(--tn-border);
+    box-shadow: var(--tn-shadow);
+    transition: .25s ease;
+}
+
+.model-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--tn-shadow-hover);
+}
+
+.model-media-wrap {
     position: relative;
-    width: 100%;
-    padding-top: 56.25%;
+    height: 330px;
+    overflow: hidden;
+    background: #17121d;
 }
 
-.video-box video {
-    position: absolute;
+.model-image {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    display: block;
+    transition: transform .35s ease;
 }
 
-/* CITAS */
-.cita {
-    background: #eaf3ff;
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 10px;
-    text-align: center;
+.model-card:hover .model-image {
+    transform: scale(1.035);
 }
+
+.model-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #000;
+}
+
+.model-type {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.5);
+    color: white;
+    backdrop-filter: blur(10px);
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.model-body {
+    padding: 17px;
+}
+
+.model-name {
+    font-weight: 900;
+    font-size: 17px;
+    color: var(--tn-dark);
+}
+
+.model-description {
+    color: var(--tn-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    margin-top: 6px;
+}
+
+.model-price {
+    margin-top: 13px;
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 11px;
+    border-radius: 10px;
+    background: #fff0f7;
+    color: var(--tn-pink);
+    font-size: 13px;
+    font-weight: 900;
+}
+
+/* ============================================================
+   FEED
+============================================================ */
+
+.feed-layout {
+    width: min(760px, 100%);
+    margin: 0 auto;
+}
+
+.post-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--tn-shadow);
+    border: 1px solid var(--tn-border);
+    margin-bottom: 20px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 17px 18px;
+}
+
+.post-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow:
+        0 0 0 2px #ff69aa;
+}
+
+.post-user {
+    font-weight: 900;
+    color: var(--tn-dark);
+    font-size: 14px;
+}
+
+.post-business {
+    color: var(--tn-muted);
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.post-media-wrap {
+    background: #111;
+}
+
+.post-media {
+    width: 100%;
+    max-height: 700px;
+    object-fit: cover;
+    display: block;
+}
+
+.post-video {
+    width: 100%;
+    max-height: 700px;
+    display: block;
+    background: #000;
+}
+
+.post-body {
+    padding: 17px 18px 20px;
+}
+
+.post-text {
+    color: #413847;
+    font-size: 14px;
+    line-height: 1.65;
+    margin: 0;
+    white-space: pre-line;
+}
+
+/* ============================================================
+   EMPTY
+============================================================ */
+
+.empty-state {
+    background: white;
+    border: 1px dashed #ded7e2;
+    border-radius: 24px;
+    padding: 45px 25px;
+    text-align: center;
+    color: var(--tn-muted);
+}
+
+.empty-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    background: #fff0f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+.empty-state h4 {
+    color: var(--tn-dark);
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ============================================================
+   FOOTER CTA
+============================================================ */
+
+.final-cta {
+    margin-top: 50px;
+    border-radius: 30px;
+    padding: 38px 30px;
+    text-align: center;
+    color: white;
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(255,255,255,.18),
+            transparent 28%
+        ),
+        linear-gradient(
+            135deg,
+            #ff3f91,
+            #8b3dff
+        );
+    box-shadow: 0 20px 50px rgba(139,61,255,.2);
+}
+
+.final-cta h3 {
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.final-cta p {
+    margin: 0 auto 20px;
+    max-width: 600px;
+    color: rgba(255,255,255,.86);
+    font-size: 14px;
+}
+
+.final-cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: white;
+    color: #8b3dff !important;
+    text-decoration: none !important;
+    font-weight: 900;
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@@media (max-width: 900px) {
+
+    .models-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .business-hero {
+        min-height: 500px;
+    }
+}
+
+@@media (max-width: 700px) {
+
+    .public-profile {
+        width: min(100% - 18px, 600px);
+    }
+
+    .business-hero {
+        min-height: 550px;
+        border-radius: 0 0 28px 28px;
+    }
+
+    .hero-top-bar {
+        padding: 18px 15px;
+    }
+
+    .hero-location {
+        max-width: 160px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .hero-content {
+        padding: 28px 20px 38px;
+    }
+
+    .hero-profile-row {
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 105px;
+        height: 105px;
+    }
+
+    .hero-meta {
+        justify-content: center;
+    }
+
+    .action-panel {
+        width: calc(100% - 18px);
+        margin-top: -22px;
+        padding: 10px;
+        border-radius: 20px;
+    }
+
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-button {
+        min-height: 52px;
+    }
+
+    .profile-content {
+        padding-top: 20px;
+    }
+
+    .section {
+        margin-top: 27px;
+    }
+
+    .section-title {
+        font-size: 22px;
+    }
+
+    .models-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .model-media-wrap {
+        height: 360px;
+    }
+
+    .social-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .map-frame {
+        height: 280px;
+    }
+
+    .final-cta {
+        padding: 32px 20px;
+    }
+}
+
+@@media (max-width: 430px) {
+
+    .brand-mini {
+        padding: 7px 10px;
+        font-size: 11px;
+    }
+
+    .hero-location {
+        padding: 7px 10px;
+        font-size: 11px;
+        max-width: 135px;
+    }
+
+    .hero-title {
+        font-size: 31px;
+    }
+
+    .hero-subtitle {
+        font-size: 13px;
+    }
+
+    .profile-avatar {
+        width: 92px;
+        height: 92px;
+    }
+
+    .model-media-wrap {
+        height: 330px;
+    }
+
+    .post-card {
+        border-radius: 19px;
+    }
+}
+
 </style>
 
-<div class="container mt-4">
 
-    <!-- HEADER DEL SALÓN -->
-    <div class="salon-header">
-        <h1>💅 @manicurista?.NombreNegocio</h1>
-        <p class="text-muted">Bienvenida a tu salón de belleza</p>
-    </div>
+<div class="public-profile-page">
 
-    <hr />
+    <!-- =====================================================
+         HERO DEL NEGOCIO
+    ====================================================== -->
 
-    <!-- ================= CITAS ================= -->
-    <h4 class="section-title">📅 Citas del salón</h4>
+    <section class="business-hero">
 
-    @if (citas.Any())
-    {
-        foreach (var c in citas)
-        {
-            <div class="cita">
-                💅 <strong>@c.Hora.ToString(@"hh\:mm")</strong>
-                <br />
-                <small>@c.Estado</small>
+        <img
+            src="@fotoNegocio"
+            class="hero-image"
+            alt="@nombreNegocio"
+            onerror="this.onerror=null;this.src='/img/user-default.png';"
+        />
+
+        <div class="hero-cover"></div>
+
+        <div class="hero-top-bar">
+
+            <div class="brand-mini">
+                <span>✨</span>
+                TropiNails Pro
             </div>
-        }
-    }
-    else
-    {
-        <p class="text-center text-muted">No hay citas registradas.</p>
-    }
 
-    <hr />
+            <div class="hero-location">
+                📍 @ubicacionTexto
+            </div>
 
-    <!-- ================= MODELOS ================= -->
-    <h4 class="section-title">💅 Modelos de uñas</h4>
+        </div>
 
-    <div class="row">
-        @foreach (var m in modelos)
-        {
-            <div class="col-12 col-sm-6 col-md-4 mb-3">
-                <div class="card text-center">
 
-                    @if (!string.IsNullOrEmpty(m.ImagenUrl))
-                    {
-                        <img src="@m.ImagenUrl" class="media" />
-                    }
+        <div class="hero-content">
 
-                    <div class="card-body">
-                        <strong>@m.Nombre</strong>
-                        <br />
-                        <small class="text-muted">@m.Descripcion</small>
+            <div class="hero-profile-row">
+
+                <div class="profile-avatar-wrap">
+
+                    <img
+                        src="@fotoPerfil"
+                        class="profile-avatar"
+                        alt="@nombreProfesional"
+                        onerror="this.onerror=null;this.src='/img/user-default.png';"
+                    />
+
+                    <div class="verified-badge">
+                        ✓
                     </div>
 
                 </div>
+
+
+                <div class="hero-info">
+
+                    <h1 class="hero-title">
+                        @nombreNegocio
+                    </h1>
+
+                    <p class="hero-subtitle">
+                        ✨ @nombreProfesional · Profesional de belleza
+                    </p>
+
+                    <div class="hero-meta">
+
+                        @if (!string.IsNullOrWhiteSpace(ciudad))
+                        {
+                            <span class="hero-pill">
+                                📍 @ciudad
+                            </span>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(provincia))
+                        {
+                            <span class="hero-pill">
+                                🗺️ @provincia
+                            </span>
+                        }
+
+                        @if (totalModelos > 0)
+                        {
+                            <span class="hero-pill">
+                                💎 @totalModelos trabajos
+                            </span>
+                        }
+
+                        @if (totalPublicaciones > 0)
+                        {
+                            <span class="hero-pill">
+                                🔥 @totalPublicaciones publicaciones
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
             </div>
-        }
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         BOTONES PRINCIPALES
+    ====================================================== -->
+
+    <div class="action-panel">
+
+        <div class="action-grid">
+
+            @if (!string.IsNullOrWhiteSpace(agendarUrl))
+            {
+                <a
+                    href="@agendarUrl"
+                    class="action-button action-primary">
+
+                    📅
+                    <span>Agendar cita</span>
+
+                </a>
+            }
+            else
+            {
+                <div class="action-button action-secondary">
+                    📅
+                    <span>Reservas próximamente</span>
+                </div>
+            }
+
+
+            @if (!string.IsNullOrWhiteSpace(whatsappUrl))
+            {
+                <a
+                    href="@whatsappUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="action-button action-whatsapp">
+
+                    💬
+                    <span>WhatsApp</span>
+
+                </a>
+            }
+
+
+            @if (ubicacionActiva &&
+                latitud.HasValue &&
+                longitud.HasValue)
+            {
+                <a
+                    href="#ubicacion"
+                    class="action-button action-secondary">
+
+                    📍
+                    <span>Ver ubicación</span>
+
+                </a>
+            }
+            else
+            {
+                <a
+                    href="#informacion"
+                    class="action-button action-secondary">
+
+                    ✨
+                    <span>Conocer negocio</span>
+
+                </a>
+            }
+
+        </div>
+
     </div>
 
-    <hr />
 
-    <!-- ================= FEED ================= -->
-    <h4 class="section-title">🔥 Publicaciones</h4>
+    <main class="public-profile profile-content">
 
-    <div class="row justify-content-center">
+        <!-- =================================================
+             INFORMACIÓN DEL NEGOCIO
+        ================================================== -->
 
-        @foreach (var p in feed)
-        {
-            <div class="col-12 col-md-8 mb-4">
+        <section
+            id="informacion"
+            class="section">
 
-                <div class="card">
+            <div class="section-heading">
 
-                    @if (p.TipoMedia == "imagen")
+                <div>
+                    <h2 class="section-title">
+                        ✨ Conoce el negocio
+                    </h2>
+
+                    <div class="section-subtitle">
+                        Todo lo que necesitas saber antes de reservar.
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="about-grid">
+
+                <div class="info-card">
+
+                    <div class="info-card-title">
+                        💎 Información
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-icon">
+                            💅
+                        </div>
+
+                        <div>
+
+                            <div class="info-label">
+                                Negocio
+                            </div>
+
+                            <div class="info-value">
+                                @nombreNegocio
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="info-row">
+
+                        <div class="info-icon">
+                            👤
+                        </div>
+
+                        <div>
+
+                            <div class="info-label">
+                                Profesional
+                            </div>
+
+                            <div class="info-value">
+                                @nombreProfesional
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    @if (!string.IsNullOrWhiteSpace(
+                        manicurista?.TelefonoNegocio))
                     {
-                        <img src="@p.MediaUrl" class="media" />
-                    }
+                        <div class="info-row">
 
-                    @if (p.TipoMedia == "video")
-                    {
-                        <div class="video-box">
-                            <video controls>
-                                <source src="@p.MediaUrl" type="video/mp4" />
-                            </video>
+                            <div class="info-icon">
+                                📞
+                            </div>
+
+                            <div>
+
+                                <div class="info-label">
+                                    Teléfono
+                                </div>
+
+                                <div class="info-value">
+                                    @manicurista.TelefonoNegocio
+                                </div>
+
+                            </div>
+
                         </div>
                     }
 
-                    <div class="card-body text-center">
-                        <p>@p.Texto</p>
+
+                    @if (!string.IsNullOrWhiteSpace(direccion))
+                    {
+                        <div class="info-row">
+
+                            <div class="info-icon">
+                                📍
+                            </div>
+
+                            <div>
+
+                                <div class="info-label">
+                                    Dirección
+                                </div>
+
+                                <div class="info-value">
+                                    @direccion
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- REDES -->
+
+                <div class="info-card social-card">
+
+                    <div class="info-card-title">
+                        💖 Síguenos
+                    </div>
+
+                    <div class="social-buttons">
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            usuario?.Instagram))
+                        {
+                            <a
+                                href="@usuario.Instagram"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="social-button">
+
+                                📸 Instagram
+
+                            </a>
+                        }
+
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            usuario?.TikTok))
+                        {
+                            <a
+                                href="@usuario.TikTok"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="social-button">
+
+                                🎵 TikTok
+
+                            </a>
+                        }
+
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            usuario?.Facebook))
+                        {
+                            <a
+                                href="@usuario.Facebook"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="social-button">
+
+                                📘 Facebook
+
+                            </a>
+                        }
+
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            whatsappUrl))
+                        {
+                            <a
+                                href="@whatsappUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="social-button">
+
+                                💬 WhatsApp
+
+                            </a>
+                        }
+
                     </div>
 
                 </div>
 
             </div>
+
+        </section>
+
+
+        <!-- =================================================
+             UBICACIÓN
+        ================================================== -->
+
+        <section
+            id="ubicacion"
+            class="section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2 class="section-title">
+                        📍 Encuentra el negocio
+                    </h2>
+
+                    <div class="section-subtitle">
+                        Visítanos y descubre tu próximo lugar favorito.
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="info-card map-card">
+
+                @if (ubicacionActiva &&
+                     latitud.HasValue &&
+                     longitud.HasValue)
+                {
+                    <div class="map-header">
+
+                        <div class="info-card-title mb-1">
+                            📍 Ubicación del negocio
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(direccion))
+                        {
+                            <div class="section-subtitle">
+                                @direccion
+                            </div>
+                        }
+
+                    </div>
+
+                    <iframe
+                        class="map-frame"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://www.google.com/maps?q=@latitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),@longitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)&output=embed">
+                    </iframe>
+                }
+                else
+                {
+                    <div class="map-placeholder">
+
+                        <div class="map-placeholder-icon">
+                            📍
+                        </div>
+
+                        <h4>
+                            Ubicación privada
+                        </h4>
+
+                        <p>
+                            Este negocio todavía no ha habilitado
+                            su ubicación pública.
+                        </p>
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TRABAJOS
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2 class="section-title">
+                        💎 Trabajos y servicios
+                    </h2>
+
+                    <div class="section-subtitle">
+                        Inspírate con algunos de los trabajos publicados.
+                    </div>
+                </div>
+
+                @if (totalModelos > 0)
+                {
+                    <div class="section-count">
+                        @totalModelos trabajos
+                    </div>
+                }
+
+            </div>
+
+
+            @if (modelos.Any())
+            {
+                <div class="models-grid">
+
+                    @foreach (var m in modelos)
+                    {
+                        <article class="model-card">
+
+                            <div class="model-media-wrap">
+
+                                @if (m.EsVideo)
+                                {
+                                    <video
+                                        class="model-video"
+                                        controls
+                                        preload="metadata">
+
+                                        <source
+                                            src="@m.ImagenSegura"
+                                            type="video/mp4" />
+
+                                    </video>
+
+                                    <div class="model-type">
+                                        🎬 VIDEO
+                                    </div>
+                                }
+                                else
+                                {
+                                    <img
+                                        src="@m.ImagenSegura"
+                                        class="model-image"
+                                        alt="@m.Nombre"
+                                        loading="lazy"
+                                        onerror="this.onerror=null;this.src='/uploads/default-modelo.png';"
+                                    />
+
+                                    <div class="model-type">
+                                        ✨ TRABAJO
+                                    </div>
+                                }
+
+                            </div>
+
+
+                            <div class="model-body">
+
+                                <div class="model-name">
+                                    @m.Nombre
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    m.Descripcion))
+                                {
+                                    <div class="model-description">
+                                        @m.Descripcion
+                                    </div>
+                                }
+
+                                @if (m.Precio.HasValue)
+                                {
+                                    <div class="model-price">
+                                        Desde RD$
+                                        @m.Precio.Value.ToString("N2")
+                                    </div>
+                                }
+
+                            </div>
+
+                        </article>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        💎
+                    </div>
+
+                    <h4>
+                        Próximamente
+                    </h4>
+
+                    <p>
+                        Este negocio todavía no ha publicado
+                        sus trabajos y servicios.
+                    </p>
+
+                </div>
+            }
+
+        </section>
+
+
+        <!-- =================================================
+             PUBLICACIONES
+        ================================================== -->
+
+        <section class="section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2 class="section-title">
+                        🔥 Últimas publicaciones
+                    </h2>
+
+                    <div class="section-subtitle">
+                        Descubre las novedades de @nombreNegocio.
+                    </div>
+                </div>
+
+                @if (totalPublicaciones > 0)
+                {
+                    <div class="section-count">
+                        @totalPublicaciones posts
+                    </div>
+                }
+
+            </div>
+
+
+            @if (feed.Any())
+            {
+                <div class="feed-layout">
+
+                    @foreach (var p in feed)
+                    {
+                        var postFoto =
+                            p.Usuario?.FotoPerfilUrl
+                            ?? fotoPerfil
+                            ?? "/img/user-default.png";
+
+
+                        <article class="post-card">
+
+                            <!-- CABECERA -->
+
+                            <div class="post-header">
+
+                                <img
+                                    src="@postFoto"
+                                    class="post-avatar"
+                                    alt="Perfil"
+                                    loading="lazy"
+                                    onerror="this.onerror=null;this.src='/img/user-default.png';"
+                                />
+
+                                <div>
+
+                                    <div class="post-user">
+                                        @(p.Usuario?.Nombre
+                                            ?? nombreProfesional)
+                                    </div>
+
+                                    <div class="post-business">
+                                        ✨ @nombreNegocio
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- MEDIA -->
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                p.MediaUrl))
+                            {
+                                <div class="post-media-wrap">
+
+                                    @if ((p.TipoMedia ?? "")
+                                        .ToLower()
+                                        .Contains("video"))
+                                    {
+                                        <video
+                                            class="post-video"
+                                            controls
+                                            preload="metadata"
+                                            playsinline>
+
+                                            <source
+                                                src="@p.MediaUrl"
+                                                type="video/mp4" />
+
+                                        </video>
+                                    }
+                                    else
+                                    {
+                                        <img
+                                            src="@p.MediaUrl"
+                                            class="post-media"
+                                            alt="Publicación de @nombreNegocio"
+                                            loading="lazy"
+                                            onerror="this.style.display='none';"
+                                        />
+                                    }
+
+                                </div>
+                            }
+
+
+                            <!-- TEXTO -->
+
+                            @if (!string.IsNullOrWhiteSpace(
+                                p.Texto))
+                            {
+                                <div class="post-body">
+
+                                    <p class="post-text">
+                                        @p.Texto
+                                    </p>
+
+                                </div>
+                            }
+
+                        </article>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        📸
+                    </div>
+
+                    <h4>
+                        Aquí comenzará la historia
+                    </h4>
+
+                    <p>
+                        Este negocio todavía no ha publicado
+                        contenido.
+                    </p>
+
+                </div>
+            }
+
+        </section>
+
+
+        <!-- =================================================
+             CTA FINAL
+        ================================================== -->
+
+        @if (!string.IsNullOrWhiteSpace(agendarUrl))
+        {
+            <section class="final-cta">
+
+                <h3>
+                    ✨ ¿Te gustó este negocio?
+                </h3>
+
+                <p>
+                    Reserva tu cita fácilmente y deja que
+                    esta profesional se encargue de hacerte
+                    sentir espectacular.
+                </p>
+
+                <a
+                    href="@agendarUrl"
+                    class="final-cta-button">
+
+                    📅 Reservar mi cita
+
+                </a>
+
+            </section>
         }
 
-    </div>
+    </main>
 
 </div>

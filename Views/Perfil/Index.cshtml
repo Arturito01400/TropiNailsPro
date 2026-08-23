@@ -149,19 +149,28 @@ else
 
 
 <p>
-<b>WhatsApp:</b>
+    <b>WhatsApp:</b>
 
-@if(!string.IsNullOrEmpty(Model.WhatsApp))
-{
-<a href="@Model.WhatsApp"
-target="_blank">
-Enviar mensaje
-</a>
-}
-else
-{
-<span>No registrado</span>
-}
+    @if (!string.IsNullOrWhiteSpace(ViewBag.WhatsApp))
+    {
+        string numeroWhatsApp = ViewBag.WhatsApp.ToString();
+
+        string mensajeWhatsApp =
+            "Hola, vi tu perfil en TropiNails Pro y me gustaría reservar una cita. 💅";
+
+        string enlaceWhatsApp =
+            $"https://wa.me/{numeroWhatsApp}?text={Uri.EscapeDataString(mensajeWhatsApp)}";
+
+        <a href="@enlaceWhatsApp"
+           target="_blank"
+           rel="noopener noreferrer">
+            💬 Enviar mensaje por WhatsApp
+        </a>
+    }
+    else
+    {
+        <span>No registrado</span>
+    }
 </p>
 
 

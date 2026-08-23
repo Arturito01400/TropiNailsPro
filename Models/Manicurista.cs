@@ -61,6 +61,32 @@ namespace TropiNailsPro.Models
         [MaxLength(20)]
         public string? TelefonoNegocio { get; set; }
 
+        // 📸 Foto principal del negocio
+[MaxLength(500)]
+public string? FotoNegocio { get; set; }
+
+        // ======================================================
+// 📍 UBICACIÓN DEL NEGOCIO
+// ======================================================
+
+[Column(TypeName = "decimal(10,7)")]
+public decimal? Latitud { get; set; }
+
+[Column(TypeName = "decimal(10,7)")]
+public decimal? Longitud { get; set; }
+
+[MaxLength(250)]
+public string? DireccionNegocio { get; set; }
+
+[MaxLength(100)]
+public string? Ciudad { get; set; }
+
+[MaxLength(100)]
+public string? Provincia { get; set; }
+
+// Indica si la profesional autorizó usar su ubicación
+public bool UbicacionActiva { get; set; } = false;
+
         public ICollection<SuscripcionPago>? Pagos { get; set; }
 
         public ICollection<Cliente>? Clientes { get; set; }

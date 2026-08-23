@@ -81,6 +81,17 @@ namespace TropiNailsPro.Data
             modelBuilder.Entity<Suscripcion>().ToTable("Suscripciones");
             modelBuilder.Entity<Manicurista>().ToTable("Manicuristas");
 
+            // ======================================================
+// 📍 UBICACIÓN DE MANICURISTAS
+// ======================================================
+
+modelBuilder.Entity<Manicurista>()
+    .HasIndex(m => new
+    {
+        m.Latitud,
+        m.Longitud
+    });
+
             modelBuilder.Entity<Historia>().ToTable("Historias");
             modelBuilder.Entity<Catalogo>().ToTable("Catalogos");
             modelBuilder.Entity<CuentaBancaria>().ToTable("CuentasBancarias");
