@@ -423,7 +423,9 @@
                     </div>
 
 
+                    <!-- ================================================= -->
                     <!-- COORDENADAS -->
+                    <!-- ================================================= -->
 
                     <input type="hidden"
                            id="Latitud"
@@ -435,6 +437,96 @@
                            name="Longitud"
                            value="@negocio?.Longitud" />
 
+
+                    <!-- ================================================= -->
+                    <!-- MAPA -->
+                    <!-- ================================================= -->
+
+                    <div class="mapa-contenedor mb-3">
+
+                        <div class="mapa-header">
+
+                            <div>
+
+                                <strong>
+                                    🗺️ Ubicación de tu negocio
+                                </strong>
+
+                                <small>
+                                    Esta será la ubicación que verán tus clientes.
+                                </small>
+
+                            </div>
+
+                            <span id="estadoMapa"
+                                  class="estado-mapa">
+                                Sin ubicación
+                            </span>
+
+                        </div>
+
+
+                        <div id="mapaGoogle"
+                             class="mapa-google">
+
+                            <div id="mapaPlaceholder"
+                                 class="mapa-placeholder">
+
+                                <div class="mapa-placeholder-icon">
+                                    📍
+                                </div>
+
+                                <strong>
+                                    Aún no has seleccionado una ubicación
+                                </strong>
+
+                                <span>
+                                    Presiona "Detectar mi ubicación"
+                                    para colocar tu negocio en el mapa.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- ACCIONES DEL MAPA -->
+                    <!-- ================================================= -->
+
+                    <div id="accionesMapa"
+                         class="acciones-mapa"
+                         style="display:none;">
+
+                        <a id="btnGoogleMaps"
+                           href="#"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-google-maps">
+
+                            🗺️ Abrir en Google Maps
+
+                        </a>
+
+
+                        <a id="btnComoLlegar"
+                           href="#"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="btn btn-como-llegar">
+
+                            🚗 Cómo llegar
+
+                        </a>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- DETECTAR UBICACIÓN -->
+                    <!-- ================================================= -->
 
                     <div class="ubicacion-box">
 
@@ -449,8 +541,8 @@
                             </strong>
 
                             <p class="mb-2 text-muted">
-                                Puedes permitir que TropiNails Pro
-                                detecte la ubicación de tu negocio.
+                                Permite que TropiNails Pro detecte
+                                automáticamente dónde está tu negocio.
                             </p>
 
                             <button type="button"
@@ -639,6 +731,141 @@
     font-size:35px;
 }
 
+
+/* ================================================= */
+/* MAPA */
+/* ================================================= */
+
+.mapa-contenedor{
+    background:white;
+    border:1px solid #e7e7e7;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 5px 20px rgba(0,0,0,.07);
+}
+
+.mapa-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    padding:16px 18px;
+    background:#fafafa;
+    border-bottom:1px solid #eee;
+}
+
+.mapa-header strong{
+    display:block;
+    font-size:16px;
+}
+
+.mapa-header small{
+    display:block;
+    color:#777;
+    margin-top:3px;
+}
+
+.estado-mapa{
+    background:#f1f1f1;
+    color:#777;
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+    white-space:nowrap;
+}
+
+.estado-mapa.activo{
+    background:#e8fff2;
+    color:#12a150;
+}
+
+.mapa-google{
+    width:100%;
+    height:330px;
+    position:relative;
+    background:#f5f5f5;
+}
+
+.mapa-google iframe{
+    width:100%;
+    height:100%;
+    border:0;
+    display:block;
+}
+
+.mapa-placeholder{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:30px;
+    color:#777;
+}
+
+.mapa-placeholder-icon{
+    font-size:55px;
+    margin-bottom:10px;
+}
+
+.mapa-placeholder strong{
+    color:#444;
+    margin-bottom:5px;
+}
+
+.mapa-placeholder span{
+    max-width:400px;
+    font-size:14px;
+}
+
+
+/* ================================================= */
+/* BOTONES MAPA */
+/* ================================================= */
+
+.acciones-mapa{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:15px;
+}
+
+.btn-google-maps{
+    background:#4285f4;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-weight:600;
+    padding:11px 16px;
+}
+
+.btn-google-maps:hover{
+    background:#3367d6;
+    color:white;
+}
+
+.btn-como-llegar{
+    background:#34a853;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-weight:600;
+    padding:11px 16px;
+}
+
+.btn-como-llegar:hover{
+    background:#27863f;
+    color:white;
+}
+
+
+/* ================================================= */
+/* RESPONSIVE */
+/* ================================================= */
+
 @@media(max-width:576px){
 
     .perfil-header h2{
@@ -653,12 +880,34 @@
         align-items:flex-start;
     }
 
+    .mapa-google{
+        height:280px;
+    }
+
+    .mapa-header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .acciones-mapa{
+        flex-direction:column;
+    }
+
+    .acciones-mapa a{
+        width:100%;
+        text-align:center;
+    }
+
 }
 
 </style>
 
 
 <script>
+
+/* ================================================= */
+/* PREVIEW FOTO PERFIL */
+/* ================================================= */
 
 function previewImagen(event){
 
@@ -683,6 +932,10 @@ function previewImagen(event){
 }
 
 
+/* ================================================= */
+/* PREVIEW FOTO NEGOCIO */
+/* ================================================= */
+
 function previewFotoNegocio(event){
 
     const file =
@@ -706,12 +959,95 @@ function previewFotoNegocio(event){
 }
 
 
+/* ================================================= */
+/* CREAR MAPA */
+/* ================================================= */
+
+function mostrarMapa(lat, lon){
+
+    const mapa =
+        document.getElementById("mapaGoogle");
+
+    const placeholder =
+        document.getElementById("mapaPlaceholder");
+
+    const acciones =
+        document.getElementById("accionesMapa");
+
+    const estadoMapa =
+        document.getElementById("estadoMapa");
+
+    if(!lat || !lon){
+
+        return;
+    }
+
+
+    /*
+     * Google Maps puede mostrar la ubicación
+     * mediante esta URL sin necesidad de
+     * colocar una API Key dentro del código.
+     */
+
+    const mapaUrl =
+        "https://www.google.com/maps?q=" +
+        encodeURIComponent(lat + "," + lon) +
+        "&output=embed";
+
+
+    const googleMapsUrl =
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(lat + "," + lon);
+
+
+    const comoLlegarUrl =
+        "https://www.google.com/maps/dir/?api=1&destination=" +
+        encodeURIComponent(lat + "," + lon);
+
+
+    mapa.innerHTML =
+        '<iframe ' +
+        'src="' + mapaUrl + '" ' +
+        'loading="lazy" ' +
+        'referrerpolicy="no-referrer-when-downgrade" ' +
+        'allowfullscreen>' +
+        '</iframe>';
+
+
+    document.getElementById(
+        "btnGoogleMaps"
+    ).href = googleMapsUrl;
+
+
+    document.getElementById(
+        "btnComoLlegar"
+    ).href = comoLlegarUrl;
+
+
+    acciones.style.display =
+        "flex";
+
+
+    estadoMapa.innerText =
+        "✓ Ubicación activa";
+
+    estadoMapa.classList.add(
+        "activo"
+    );
+}
+
+
+/* ================================================= */
+/* DETECTAR UBICACIÓN */
+/* ================================================= */
+
 function obtenerUbicacion(){
 
     const estado =
         document.getElementById(
             "estadoUbicacion"
         );
+
 
     if(!navigator.geolocation){
 
@@ -723,6 +1059,7 @@ function obtenerUbicacion(){
 
         return;
     }
+
 
     estado.innerText =
         "📍 Detectando ubicación...";
@@ -744,26 +1081,36 @@ function obtenerUbicacion(){
 
             document.getElementById(
                 "Latitud"
-            ).value = lat.toFixed(7);
+            ).value =
+                lat.toFixed(7);
 
 
             document.getElementById(
                 "Longitud"
-            ).value = lon.toFixed(7);
+            ).value =
+                lon.toFixed(7);
 
 
             document.getElementById(
                 "UbicacionActiva"
-            ).value = "true";
+            ).value =
+                "true";
+
+
+            mostrarMapa(
+                lat,
+                lon
+            );
 
 
             estado.innerText =
-                "✅ Ubicación guardada correctamente.";
+                "✅ Ubicación detectada correctamente. Guarda los cambios para conservarla.";
 
             estado.style.color =
                 "#12a150";
 
         },
+
 
         function(error){
 
@@ -777,6 +1124,7 @@ function obtenerUbicacion(){
 
         },
 
+
         {
             enableHighAccuracy:true,
             timeout:10000,
@@ -786,5 +1134,42 @@ function obtenerUbicacion(){
     );
 
 }
+
+
+/* ================================================= */
+/* CARGAR MAPA SI YA EXISTE UBICACIÓN */
+/* ================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        const lat =
+            document.getElementById(
+                "Latitud"
+            ).value;
+
+        const lon =
+            document.getElementById(
+                "Longitud"
+            ).value;
+
+
+        if(
+            lat &&
+            lon &&
+            !isNaN(parseFloat(lat)) &&
+            !isNaN(parseFloat(lon))
+        ){
+
+            mostrarMapa(
+                parseFloat(lat),
+                parseFloat(lon)
+            );
+
+        }
+
+    }
+);
 
 </script>
