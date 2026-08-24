@@ -45,34 +45,6 @@ namespace TropiNailsPro.Controllers
         // ==========================================================
         // 🔎 BUSCADOR PÚBLICO TROPINAILS PRO
         // ==========================================================
-        //
-        // Este buscador está preparado para el ecosistema completo
-        // de belleza:
-        //
-        // 💅 Uñas
-        // 💇 Cabello
-        // 💈 Barbería
-        // 💄 Maquillaje
-        // 👁️ Pestañas
-        // ✨ Cejas
-        // 🧖 Spa
-        // 💆 Masajes
-        // 💆‍♀️ Estética
-        // 👰 Novias
-        // 📸 Beauty creators
-        // 🏪 Salones
-        // 🏠 Profesionales independientes
-        //
-        // Estrategia:
-        //
-        // 1. TropiNails primero.
-        // 2. Mejor coincidencia.
-        // 3. Cercanía cuando hay ubicación.
-        // 4. Google Places como complemento.
-        // 5. Google nunca debe tumbar TropiNails.
-        // 6. Resultados limpios y preparados para el frontend.
-        //
-        // ==========================================================
 
         [HttpGet]
         public async Task<IActionResult> Buscar(
@@ -133,24 +105,6 @@ namespace TropiNailsPro.Controllers
                 // ==================================================
                 // 4. PREPARAR VARIACIONES DE BÚSQUEDA
                 // ==================================================
-                //
-                // Ejemplo:
-                //
-                // "pelo" puede buscar:
-                // peluquería
-                // cabello
-                // salón
-                //
-                // "uñas" puede buscar:
-                // uñas
-                // manicure
-                // pedicure
-                // nail
-                //
-                // Esto ayuda a que el buscador entienda mejor
-                // lo que la persona realmente quiere.
-                //
-                // ==================================================
 
                 var terminosBusqueda =
                     ObtenerTerminosRelacionados(texto);
@@ -158,64 +112,20 @@ namespace TropiNailsPro.Controllers
                 // ==================================================
                 // 5. BUSCAR EN TROPINAILS
                 // ==================================================
-
-                var profesionalesQuery = _context.Manicuristas
-                    .AsNoTracking()
-                    .Where(m => m.UbicacionActiva == true);
-
-                // ==================================================
-                // 6. CONSTRUIR FILTRO
-                // ==================================================
                 //
-                // No agregamos propiedades que no sabemos si existen.
+                // IMPORTANTE:
+                // La búsqueda se hace en memoria después de traer
+                // solamente los profesionales con ubicación activa.
                 //
-                // Utilizamos los campos que ya existen en tu modelo.
+                // Esto evita problemas de traducción de EF Core/MySQL
+                // con terminosBusqueda.Any(...) dentro del Where.
                 //
                 // ==================================================
 
-                profesionalesQuery =
-                    profesionalesQuery.Where(m =>
-                        (
-                            m.NombreNegocio != null &&
-                            terminosBusqueda.Any(t =>
-                                m.NombreNegocio.Contains(t)
-                            )
-                        )
-                        ||
-                        (
-                            m.DireccionNegocio != null &&
-                            terminosBusqueda.Any(t =>
-                                m.DireccionNegocio.Contains(t)
-                            )
-                        )
-                        ||
-                        (
-                            m.Ciudad != null &&
-                            terminosBusqueda.Any(t =>
-                                m.Ciudad.Contains(t)
-                            )
-                        )
-                        ||
-                        (
-                            m.Provincia != null &&
-                            terminosBusqueda.Any(t =>
-                                m.Provincia.Contains(t)
-                            )
-                        )
-                    );
-
-                // ==================================================
-                // 7. TRAER CANDIDATOS
-                // ==================================================
-                //
-                // Traemos más candidatos de los que mostraremos.
-                // Después hacemos ranking.
-                //
-                // ==================================================
-
-                var candidatos =
-                    await profesionalesQuery
-                        .Take(100)
+                var candidatosBase =
+                    await _context.Manicuristas
+                        .AsNoTracking()
+                        .Where(m => m.UbicacionActiva == true)
                         .Select(m => new
                         {
                             id = m.Id,
@@ -232,10 +142,72 @@ namespace TropiNailsPro.Controllers
 
                             longitud = m.Longitud
                         })
+                        .Take(500)
                         .ToListAsync();
 
                 // ==================================================
-                // 8. RANKING INTELIGENTE
+                // 6. FILTRAR CANDIDATOS
+                // ==================================================
+                //
+                // Se normaliza el texto para permitir búsquedas como:
+                //
+                // peluqueria -> Peluquería
+                // estetica   -> Estética
+                // barberia   -> Barbería
+                // pestanas   -> Pestañas
+                //
+                // ==================================================
+
+                var candidatos =
+                    candidatosBase
+                        .Where(m =>
+                        {
+                            string nombre =
+                                NormalizarTexto(m.nombre);
+
+                            string direccion =
+                                NormalizarTexto(m.direccion);
+
+                            string ciudad =
+                                NormalizarTexto(m.ciudad);
+
+                            string provincia =
+                                NormalizarTexto(m.provincia);
+
+                            return terminosBusqueda.Any(t =>
+                            {
+                                string termino =
+                                    NormalizarTexto(t);
+
+                                if (string.IsNullOrWhiteSpace(termino))
+                                    return false;
+
+                                return
+                                    (!string.IsNullOrWhiteSpace(nombre) &&
+                                     nombre.Contains(
+                                         termino,
+                                         StringComparison.OrdinalIgnoreCase))
+                                    ||
+                                    (!string.IsNullOrWhiteSpace(direccion) &&
+                                     direccion.Contains(
+                                         termino,
+                                         StringComparison.OrdinalIgnoreCase))
+                                    ||
+                                    (!string.IsNullOrWhiteSpace(ciudad) &&
+                                     ciudad.Contains(
+                                         termino,
+                                         StringComparison.OrdinalIgnoreCase))
+                                    ||
+                                    (!string.IsNullOrWhiteSpace(provincia) &&
+                                     provincia.Contains(
+                                         termino,
+                                         StringComparison.OrdinalIgnoreCase));
+                            });
+                        })
+                        .ToList();
+
+                // ==================================================
+                // 7. RANKING INTELIGENTE
                 // ==================================================
 
                 var profesionales =
@@ -250,12 +222,13 @@ namespace TropiNailsPro.Controllers
                                 m.longitud.HasValue
                             )
                             {
-                                distanciaKm = CalcularDistanciaKm(
-                                 latitud!.Value,
-                                  longitud!.Value,
-                                  (double)m.latitud.Value,
-                                    (double)m.longitud.Value
-                                );
+                                distanciaKm =
+                                    CalcularDistanciaKm(
+                                        latitud!.Value,
+                                        longitud!.Value,
+                                        (double)m.latitud.Value,
+                                        (double)m.longitud.Value
+                                    );
                             }
 
                             int relevancia =
@@ -293,24 +266,14 @@ namespace TropiNailsPro.Controllers
                         .ToList();
 
                 // ==================================================
-                // 9. ¿CUÁNTOS RESULTADOS TENEMOS?
+                // 8. ¿CUÁNTOS RESULTADOS TENEMOS?
                 // ==================================================
 
                 int cantidadTropiNails =
                     profesionales.Count;
 
                 // ==================================================
-                // 10. GOOGLE PLACES
-                // ==================================================
-                //
-                // Google es COMPLEMENTO.
-                //
-                // No sustituye a TropiNails.
-                //
-                // Si tenemos pocos profesionales dentro de la
-                // plataforma, buscamos negocios externos para que
-                // la vitrina nunca quede vacía.
-                //
+                // 9. GOOGLE PLACES
                 // ==================================================
 
                 bool necesitaGoogle =
@@ -365,7 +328,7 @@ namespace TropiNailsPro.Controllers
                 }
 
                 // ==================================================
-                // 11. RESULTADO FINAL
+                // 10. RESULTADO FINAL
                 // ==================================================
 
                 return Json(new
@@ -455,11 +418,6 @@ namespace TropiNailsPro.Controllers
 
         // ==========================================================
         // 🧠 TÉRMINOS RELACIONADOS
-        // ==========================================================
-        //
-        // Esto hace que TropiNails empiece a comportarse como un
-        // buscador especializado en belleza.
-        //
         // ==========================================================
 
         private static List<string> ObtenerTerminosRelacionados(
@@ -856,10 +814,6 @@ namespace TropiNailsPro.Controllers
         // ==========================================================
         // 🌐 CONSTRUIR CONSULTA PARA GOOGLE
         // ==========================================================
-        //
-        // Google recibe una búsqueda enriquecida.
-        //
-        // ==========================================================
 
         private static string ConstruirConsultaGoogle(
             string texto)
@@ -908,13 +862,10 @@ namespace TropiNailsPro.Controllers
             )
             {
                 string? nombre = null;
-
                 string? direccion = null;
-
                 string? mapsUrl = null;
 
                 double? placeLat = null;
-
                 double? placeLng = null;
 
                 double? rating = null;
@@ -1125,12 +1076,6 @@ namespace TropiNailsPro.Controllers
 
             // ======================================================
             // ORDEN INTELIGENTE
-            // ======================================================
-            //
-            // Primero rating.
-            // Luego cantidad de reseñas.
-            // Luego cercanía.
-            //
             // ======================================================
 
             return lista
