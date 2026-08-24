@@ -23,6 +23,7 @@ namespace TropiNailsPro.Services
         // ==========================================================
         // 🔐 OBTENER API KEY
         // ==========================================================
+
         private string? ObtenerApiKey()
         {
             return _configuration["GoogleMaps:ApiKey"];
@@ -31,6 +32,7 @@ namespace TropiNailsPro.Services
         // ==========================================================
         // 🗺️ BUSCAR NEGOCIOS EN GOOGLE PLACES
         // ==========================================================
+
         public async Task<JsonDocument?> BuscarLugaresAsync(
             string texto,
             double latitud,
@@ -38,6 +40,10 @@ namespace TropiNailsPro.Services
         {
             try
             {
+                // ==================================================
+                // 1. OBTENER API KEY
+                // ==================================================
+
                 var apiKey = ObtenerApiKey();
 
                 if (string.IsNullOrWhiteSpace(apiKey))
@@ -49,22 +55,50 @@ namespace TropiNailsPro.Services
                     return null;
                 }
 
+                // ==================================================
+                // 2. VALIDAR TEXTO
+                // ==================================================
+
                 if (string.IsNullOrWhiteSpace(texto))
                 {
+                    _logger.LogWarning(
+                        "Google Places recibió una búsqueda vacía."
+                    );
+
                     return null;
                 }
 
                 texto = texto.Trim();
 
                 // ==================================================
-                // GOOGLE PLACES - TEXT SEARCH NEW
+                // 3. VALIDAR COORDENADAS
+                // ==================================================
+
+                if (
+                    latitud < -90 ||
+                    latitud > 90 ||
+                    longitud < -180 ||
+                    longitud > 180
+                )
+                {
+                    _logger.LogWarning(
+                        "Coordenadas inválidas para Google Places. Latitud: {Latitud}, Longitud: {Longitud}",
+                        latitud,
+                        longitud
+                    );
+
+                    return null;
+                }
+
+                // ==================================================
+                // 4. GOOGLE PLACES - TEXT SEARCH NEW
                 // ==================================================
 
                 const string url =
                     "https://places.googleapis.com/v1/places:searchText";
 
                 // ==================================================
-                // PETICIÓN
+                // 5. PREPARAR PETICIÓN
                 // ==================================================
 
                 var datos = new
@@ -73,7 +107,7 @@ namespace TropiNailsPro.Services
 
                     languageCode = "es",
 
-                    pageSize = 10,
+                    pageSize = 20,
 
                     locationBias = new
                     {
@@ -86,28 +120,30 @@ namespace TropiNailsPro.Services
                             },
 
                             // 10 KM
-                            radius = 10000
+                            radius = 10000.0
                         }
                     }
                 };
 
                 var json = JsonSerializer.Serialize(datos);
 
-                using var contenido = new StringContent(
-                    json,
-                    Encoding.UTF8,
-                    "application/json"
-                );
+                using var contenido =
+                    new StringContent(
+                        json,
+                        Encoding.UTF8,
+                        "application/json"
+                    );
 
-                using var request = new HttpRequestMessage(
-                    HttpMethod.Post,
-                    url
-                );
+                using var request =
+                    new HttpRequestMessage(
+                        HttpMethod.Post,
+                        url
+                    );
 
                 request.Content = contenido;
 
                 // ==================================================
-                // API KEY
+                // 6. API KEY
                 // ==================================================
 
                 request.Headers.Add(
@@ -116,9 +152,12 @@ namespace TropiNailsPro.Services
                 );
 
                 // ==================================================
-                // FIELD MASK
+                // 7. FIELD MASK
+                // ==================================================
                 //
-                // ⚠️ SOLO PEDIMOS LO NECESARIO
+                // Pedimos exactamente los campos utilizados
+                // posteriormente por HomeController.
+                //
                 // ==================================================
 
                 request.Headers.Add(
@@ -128,11 +167,12 @@ namespace TropiNailsPro.Services
                     "places.formattedAddress," +
                     "places.location," +
                     "places.googleMapsUri," +
-                    "places.primaryType"
+                    "places.rating," +
+                    "places.userRatingCount"
                 );
 
                 // ==================================================
-                // LLAMAR A GOOGLE
+                // 8. LLAMAR A GOOGLE
                 // ==================================================
 
                 using var response =
@@ -142,13 +182,23 @@ namespace TropiNailsPro.Services
                     await response.Content.ReadAsStringAsync();
 
                 // ==================================================
-                // ERROR
+                // 9. REGISTRAR RESPUESTA
+                // ==================================================
+
+                _logger.LogInformation(
+                    "Google Places respondió con código {StatusCode} para la búsqueda: {Texto}",
+                    (int)response.StatusCode,
+                    texto
+                );
+
+                // ==================================================
+                // 10. MANEJAR ERROR DE GOOGLE
                 // ==================================================
 
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogError(
-                        "Google Places respondió {StatusCode}: {Respuesta}",
+                        "Google Places respondió con error. StatusCode: {StatusCode}. Respuesta: {Respuesta}",
                         response.StatusCode,
                         respuesta
                     );
@@ -157,16 +207,90 @@ namespace TropiNailsPro.Services
                 }
 
                 // ==================================================
-                // RESPUESTA
+                // 11. VALIDAR RESPUESTA VACÍA
                 // ==================================================
 
-                return JsonDocument.Parse(respuesta);
+                if (string.IsNullOrWhiteSpace(respuesta))
+                {
+                    _logger.LogWarning(
+                        "Google Places devolvió una respuesta vacía para: {Texto}",
+                        texto
+                    );
+
+                    return null;
+                }
+
+                // ==================================================
+                // 12. VALIDAR JSON
+                // ==================================================
+
+                try
+                {
+                    var documento =
+                        JsonDocument.Parse(respuesta);
+
+                    // ==================================================
+                    // COMPROBAR SI EXISTEN PLACES
+                    // ==================================================
+
+                    if (
+                        documento.RootElement.TryGetProperty(
+                            "places",
+                            out var places
+                        )
+                    )
+                    {
+                        _logger.LogInformation(
+                            "Google Places encontró {Cantidad} resultados para: {Texto}",
+                            places.GetArrayLength(),
+                            texto
+                        );
+                    }
+                    else
+                    {
+                        _logger.LogInformation(
+                            "Google Places respondió correctamente pero no devolvió la propiedad 'places' para: {Texto}. Respuesta: {Respuesta}",
+                            texto,
+                            respuesta
+                        );
+                    }
+
+                    return documento;
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Google Places devolvió una respuesta que no es JSON válido. Respuesta: {Respuesta}",
+                        respuesta
+                    );
+
+                    return null;
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error HTTP al consultar Google Places."
+                );
+
+                return null;
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "La petición a Google Places fue cancelada o agotó el tiempo de espera."
+                );
+
+                return null;
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                     ex,
-                    "Error al consultar Google Places."
+                    "Error inesperado al consultar Google Places."
                 );
 
                 return null;
