@@ -82,6 +82,9 @@ builder.Services.AddScoped<AzureBlobService>();
 // ✅ Estado de actividad de usuarios
 builder.Services.AddScoped<ActividadUsuarioService>();
 
+// 🗺️ Google Maps
+builder.Services.AddHttpClient<GoogleMapsService>();
+
 builder.Services.AddHttpContextAccessor();
 
 // AUTH (SIN CAMBIOS ESTRUCTURALES)
