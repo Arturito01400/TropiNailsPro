@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 
@@ -16,18 +17,15 @@ namespace TropiNailsPro.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IConfiguration _configuration;
         private readonly AppDbContext _context;
         private readonly GoogleMapsService _googleMapsService;
 
         public HomeController(
             ILogger<HomeController> logger,
-            IConfiguration configuration,
             AppDbContext context,
             GoogleMapsService googleMapsService)
         {
             _logger = logger;
-            _configuration = configuration;
             _context = context;
             _googleMapsService = googleMapsService;
         }
@@ -69,10 +67,13 @@ namespace TropiNailsPro.Controllers
                     return Json(new
                     {
                         exito = false,
+
                         mensaje =
                             "Escribe un servicio, profesional, negocio o lugar que quieras encontrar.",
+
                         profesionales = Array.Empty<object>(),
                         negocios = Array.Empty<object>(),
+
                         totalProfesionales = 0,
                         totalNegociosGoogle = 0,
                         totalResultados = 0
@@ -96,30 +97,28 @@ namespace TropiNailsPro.Controllers
                         longitud > 180
                     )
                     {
+                        _logger.LogWarning(
+                            "Coordenadas inválidas recibidas. Latitud: {Latitud}, Longitud: {Longitud}",
+                            latitud,
+                            longitud
+                        );
+
                         latitud = null;
                         longitud = null;
+
                         tieneUbicacion = false;
                     }
                 }
 
                 // ==================================================
-                // 4. PREPARAR VARIACIONES DE BÚSQUEDA
+                // 4. PREPARAR TÉRMINOS
                 // ==================================================
 
                 var terminosBusqueda =
                     ObtenerTerminosRelacionados(texto);
 
                 // ==================================================
-                // 5. BUSCAR EN TROPINAILS
-                // ==================================================
-                //
-                // IMPORTANTE:
-                // La búsqueda se hace en memoria después de traer
-                // solamente los profesionales con ubicación activa.
-                //
-                // Esto evita problemas de traducción de EF Core/MySQL
-                // con terminosBusqueda.Any(...) dentro del Where.
-                //
+                // 5. OBTENER PROFESIONALES CON UBICACIÓN ACTIVA
                 // ==================================================
 
                 var candidatosBase =
@@ -146,16 +145,7 @@ namespace TropiNailsPro.Controllers
                         .ToListAsync();
 
                 // ==================================================
-                // 6. FILTRAR CANDIDATOS
-                // ==================================================
-                //
-                // Se normaliza el texto para permitir búsquedas como:
-                //
-                // peluqueria -> Peluquería
-                // estetica   -> Estética
-                // barberia   -> Barbería
-                // pestanas   -> Pestañas
-                //
+                // 6. FILTRAR PROFESIONALES
                 // ==================================================
 
                 var candidatos =
@@ -187,17 +177,23 @@ namespace TropiNailsPro.Controllers
                                      nombre.Contains(
                                          termino,
                                          StringComparison.OrdinalIgnoreCase))
+
                                     ||
+
                                     (!string.IsNullOrWhiteSpace(direccion) &&
                                      direccion.Contains(
                                          termino,
                                          StringComparison.OrdinalIgnoreCase))
+
                                     ||
+
                                     (!string.IsNullOrWhiteSpace(ciudad) &&
                                      ciudad.Contains(
                                          termino,
                                          StringComparison.OrdinalIgnoreCase))
+
                                     ||
+
                                     (!string.IsNullOrWhiteSpace(provincia) &&
                                      provincia.Contains(
                                          termino,
@@ -207,7 +203,7 @@ namespace TropiNailsPro.Controllers
                         .ToList();
 
                 // ==================================================
-                // 7. RANKING INTELIGENTE
+                // 7. RANKING DE PROFESIONALES
                 // ==================================================
 
                 var profesionales =
@@ -226,8 +222,12 @@ namespace TropiNailsPro.Controllers
                                     CalcularDistanciaKm(
                                         latitud!.Value,
                                         longitud!.Value,
-                                        (double)m.latitud.Value,
-                                        (double)m.longitud.Value
+                                        Convert.ToDouble(
+                                            m.latitud.Value,
+                                            CultureInfo.InvariantCulture),
+                                        Convert.ToDouble(
+                                            m.longitud.Value,
+                                            CultureInfo.InvariantCulture)
                                     );
                             }
 
@@ -260,13 +260,12 @@ namespace TropiNailsPro.Controllers
                         .ThenBy(m =>
                             m.distanciaKm.HasValue
                                 ? m.distanciaKm.Value
-                                : double.MaxValue
-                        )
+                                : double.MaxValue)
                         .Take(20)
                         .ToList();
 
                 // ==================================================
-                // 8. ¿CUÁNTOS RESULTADOS TENEMOS?
+                // 8. CANTIDAD TROPINAILS
                 // ==================================================
 
                 int cantidadTropiNails =
@@ -274,6 +273,13 @@ namespace TropiNailsPro.Controllers
 
                 // ==================================================
                 // 9. GOOGLE PLACES
+                // ==================================================
+                //
+                // Google se utiliza como complemento.
+                //
+                // Si tenemos ubicación y hay menos de 10
+                // profesionales de TropiNails, buscamos en Google.
+                //
                 // ==================================================
 
                 bool necesitaGoogle =
@@ -287,14 +293,15 @@ namespace TropiNailsPro.Controllers
                 {
                     try
                     {
-                        // ==========================================
-                        // Consulta ampliada para belleza
-                        // ==========================================
-
                         string consultaGoogle =
                             ConstruirConsultaGoogle(texto);
 
-                        var resultadoGoogle =
+                        _logger.LogInformation(
+                            "🔎 Buscando también en Google Places. Consulta: {Consulta}",
+                            consultaGoogle
+                        );
+
+                        using JsonDocument? resultadoGoogle =
                             await _googleMapsService.BuscarLugaresAsync(
                                 consultaGoogle,
                                 latitud!.Value,
@@ -313,13 +320,11 @@ namespace TropiNailsPro.Controllers
                     }
                     catch (Exception ex)
                     {
-                        // ==========================================
-                        // Google falla → TropiNails sigue funcionando
-                        // ==========================================
+                        // Google no debe romper TropiNails.
 
                         _logger.LogWarning(
                             ex,
-                            "Google Places no pudo completar la búsqueda pública de TropiNails."
+                            "Google Places no pudo completar la búsqueda pública."
                         );
 
                         negociosGoogle =
@@ -354,7 +359,8 @@ namespace TropiNailsPro.Controllers
 
                     tieneUbicacion,
 
-                    terminoBuscado = texto,
+                    terminoBuscado =
+                        texto,
 
                     categoriaDetectada =
                         DetectarCategoria(texto)
@@ -394,7 +400,7 @@ namespace TropiNailsPro.Controllers
         }
 
         // ==========================================================
-        // 🧠 LIMPIAR TEXTO
+        // 🧹 LIMPIAR TEXTO
         // ==========================================================
 
         private static string LimpiarTextoBusqueda(
@@ -407,10 +413,11 @@ namespace TropiNailsPro.Controllers
 
             while (texto.Contains("  "))
             {
-                texto = texto.Replace(
-                    "  ",
-                    " "
-                );
+                texto =
+                    texto.Replace(
+                        "  ",
+                        " "
+                    );
             }
 
             return texto;
@@ -432,14 +439,16 @@ namespace TropiNailsPro.Controllers
                 NormalizarTexto(texto);
 
             if (!string.IsNullOrWhiteSpace(texto))
+            {
                 resultado.Add(texto);
+            }
 
             // ======================================================
             // UÑAS
             // ======================================================
 
             if (
-                normalizado.Contains("una") ||
+                EsPalabraOContiene(normalizado, "una") ||
                 normalizado.Contains("manicure") ||
                 normalizado.Contains("manicura") ||
                 normalizado.Contains("pedicure") ||
@@ -484,7 +493,7 @@ namespace TropiNailsPro.Controllers
             if (
                 normalizado.Contains("barber") ||
                 normalizado.Contains("barba") ||
-                normalizado.Contains("afeitado") ||
+                normalizado.Contains("afeitad") ||
                 normalizado.Contains("fade")
             )
             {
@@ -492,6 +501,7 @@ namespace TropiNailsPro.Controllers
                 resultado.Add("barberia");
                 resultado.Add("barber");
                 resultado.Add("barba");
+                resultado.Add("fade");
             }
 
             // ======================================================
@@ -543,7 +553,7 @@ namespace TropiNailsPro.Controllers
             // ======================================================
 
             if (
-                normalizado.Contains("estetica") ||
+                normalizado.Contains("estetic") ||
                 normalizado.Contains("facial") ||
                 normalizado.Contains("piel") ||
                 normalizado.Contains("skin")
@@ -552,6 +562,7 @@ namespace TropiNailsPro.Controllers
                 resultado.Add("estética");
                 resultado.Add("estetica");
                 resultado.Add("facial");
+                resultado.Add("piel");
                 resultado.Add("skin");
             }
 
@@ -571,7 +582,70 @@ namespace TropiNailsPro.Controllers
                 resultado.Add("relajación");
             }
 
+            // ======================================================
+            // DEPILACIÓN
+            // ======================================================
+
+            if (
+                normalizado.Contains("depil") ||
+                normalizado.Contains("wax") ||
+                normalizado.Contains("cera")
+            )
+            {
+                resultado.Add("depilación");
+                resultado.Add("depilacion");
+                resultado.Add("wax");
+                resultado.Add("cera");
+            }
+
+            // ======================================================
+            // MICROBLADING / CEJAS
+            // ======================================================
+
+            if (
+                normalizado.Contains("microblading") ||
+                normalizado.Contains("micropigment")
+            )
+            {
+                resultado.Add("microblading");
+                resultado.Add("micropigmentación");
+                resultado.Add("micropigmentacion");
+                resultado.Add("cejas");
+            }
+
             return resultado.ToList();
+        }
+
+        // ==========================================================
+        // 🧠 EVITAR FALSOS POSITIVOS
+        // ==========================================================
+
+        private static bool EsPalabraOContiene(
+            string texto,
+            string palabra)
+        {
+            if (string.IsNullOrWhiteSpace(texto))
+                return false;
+
+            if (texto.Equals(
+                palabra,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return
+                texto.Contains(
+                    $" {palabra} ",
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                texto.StartsWith(
+                    palabra + " ",
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                texto.EndsWith(
+                    " " + palabra,
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         // ==========================================================
@@ -585,68 +659,99 @@ namespace TropiNailsPro.Controllers
                 NormalizarTexto(texto);
 
             if (
-                normalizado.Contains("una") ||
+                EsPalabraOContiene(normalizado, "una") ||
                 normalizado.Contains("manicure") ||
                 normalizado.Contains("manicura") ||
                 normalizado.Contains("pedicure") ||
                 normalizado.Contains("pedicura") ||
                 normalizado.Contains("nail")
             )
+            {
                 return "Uñas";
+            }
 
             if (
                 normalizado.Contains("pelo") ||
                 normalizado.Contains("cabello") ||
                 normalizado.Contains("peluquer") ||
                 normalizado.Contains("hair") ||
-                normalizado.Contains("tinte")
+                normalizado.Contains("tinte") ||
+                normalizado.Contains("corte")
             )
+            {
                 return "Cabello";
+            }
 
             if (
                 normalizado.Contains("barber") ||
                 normalizado.Contains("barba") ||
-                normalizado.Contains("afeitado") ||
+                normalizado.Contains("afeitad") ||
                 normalizado.Contains("fade")
             )
+            {
                 return "Barbería";
+            }
 
             if (
                 normalizado.Contains("maquill") ||
                 normalizado.Contains("makeup") ||
                 normalizado.Contains("make up")
             )
+            {
                 return "Maquillaje";
+            }
 
             if (
                 normalizado.Contains("pestana") ||
                 normalizado.Contains("lash")
             )
+            {
                 return "Pestañas";
+            }
 
             if (
                 normalizado.Contains("ceja") ||
-                normalizado.Contains("brow")
+                normalizado.Contains("brow") ||
+                normalizado.Contains("microblading") ||
+                normalizado.Contains("micropigment")
             )
+            {
                 return "Cejas";
+            }
 
             if (
                 normalizado.Contains("spa") ||
-                normalizado.Contains("masaje")
+                normalizado.Contains("masaje") ||
+                normalizado.Contains("relaj")
             )
+            {
                 return "Spa";
+            }
 
             if (
-                normalizado.Contains("estetica") ||
-                normalizado.Contains("facial")
+                normalizado.Contains("estetic") ||
+                normalizado.Contains("facial") ||
+                normalizado.Contains("piel") ||
+                normalizado.Contains("skin")
             )
+            {
                 return "Estética";
+            }
+
+            if (
+                normalizado.Contains("depil") ||
+                normalizado.Contains("wax") ||
+                normalizado.Contains("cera")
+            )
+            {
+                return "Depilación";
+            }
 
             return "Belleza";
         }
 
         // ==========================================================
-        // 🔎 RANKING DE RESULTADOS
+        // 🔎 RANKING
         // ==========================================================
 
         private static int CalcularRelevancia(
@@ -673,34 +778,33 @@ namespace TropiNailsPro.Controllers
             string provinciaNormalizada =
                 NormalizarTexto(provincia);
 
+            if (string.IsNullOrWhiteSpace(busqueda))
+                return 0;
+
             // ======================================================
-            // COINCIDENCIA EXACTA
+            // NOMBRE EXACTO
             // ======================================================
 
             if (
-                !string.IsNullOrWhiteSpace(nombreNormalizado) &&
                 nombreNormalizado.Equals(
                     busqueda,
-                    StringComparison.OrdinalIgnoreCase
-                )
+                    StringComparison.OrdinalIgnoreCase)
             )
             {
-                puntos += 100;
+                puntos += 200;
             }
 
             // ======================================================
-            // NOMBRE EMPIEZA POR LA BÚSQUEDA
+            // NOMBRE EMPIEZA POR
             // ======================================================
 
             if (
-                !string.IsNullOrWhiteSpace(nombreNormalizado) &&
                 nombreNormalizado.StartsWith(
                     busqueda,
-                    StringComparison.OrdinalIgnoreCase
-                )
+                    StringComparison.OrdinalIgnoreCase)
             )
             {
-                puntos += 70;
+                puntos += 100;
             }
 
             // ======================================================
@@ -708,14 +812,12 @@ namespace TropiNailsPro.Controllers
             // ======================================================
 
             if (
-                !string.IsNullOrWhiteSpace(nombreNormalizado) &&
                 nombreNormalizado.Contains(
                     busqueda,
-                    StringComparison.OrdinalIgnoreCase
-                )
+                    StringComparison.OrdinalIgnoreCase)
             )
             {
-                puntos += 50;
+                puntos += 70;
             }
 
             // ======================================================
@@ -723,14 +825,12 @@ namespace TropiNailsPro.Controllers
             // ======================================================
 
             if (
-                !string.IsNullOrWhiteSpace(ciudadNormalizada) &&
                 ciudadNormalizada.Contains(
                     busqueda,
-                    StringComparison.OrdinalIgnoreCase
-                )
+                    StringComparison.OrdinalIgnoreCase)
             )
             {
-                puntos += 25;
+                puntos += 35;
             }
 
             // ======================================================
@@ -738,14 +838,12 @@ namespace TropiNailsPro.Controllers
             // ======================================================
 
             if (
-                !string.IsNullOrWhiteSpace(provinciaNormalizada) &&
                 provinciaNormalizada.Contains(
                     busqueda,
-                    StringComparison.OrdinalIgnoreCase
-                )
+                    StringComparison.OrdinalIgnoreCase)
             )
             {
-                puntos += 20;
+                puntos += 25;
             }
 
             // ======================================================
@@ -753,14 +851,12 @@ namespace TropiNailsPro.Controllers
             // ======================================================
 
             if (
-                !string.IsNullOrWhiteSpace(direccionNormalizada) &&
                 direccionNormalizada.Contains(
                     busqueda,
-                    StringComparison.OrdinalIgnoreCase
-                )
+                    StringComparison.OrdinalIgnoreCase)
             )
             {
-                puntos += 15;
+                puntos += 20;
             }
 
             return puntos;
@@ -777,27 +873,23 @@ namespace TropiNailsPro.Controllers
                 return string.Empty;
 
             string normalizado =
-                texto.Trim().ToLowerInvariant();
-
-            var caracteres =
-                normalizado.Normalize(
-                    NormalizationForm.FormD
-                );
+                texto
+                    .Trim()
+                    .ToLowerInvariant()
+                    .Normalize(NormalizationForm.FormD);
 
             var resultado =
                 new StringBuilder();
 
-            foreach (
-                char caracter
-                in caracteres)
+            foreach (char caracter in normalizado)
             {
                 var categoria =
-                    System.Globalization.CharUnicodeInfo
-                        .GetUnicodeCategory(caracter);
+                    CharUnicodeInfo.GetUnicodeCategory(
+                        caracter);
 
                 if (
                     categoria !=
-                    System.Globalization.UnicodeCategory.NonSpacingMark
+                    UnicodeCategory.NonSpacingMark
                 )
                 {
                     resultado.Append(caracter);
@@ -806,13 +898,11 @@ namespace TropiNailsPro.Controllers
 
             return resultado
                 .ToString()
-                .Normalize(
-                    NormalizationForm.FormC
-                );
+                .Normalize(NormalizationForm.FormC);
         }
 
         // ==========================================================
-        // 🌐 CONSTRUIR CONSULTA PARA GOOGLE
+        // 🌐 CONSTRUIR CONSULTA GOOGLE
         // ==========================================================
 
         private static string ConstruirConsultaGoogle(
@@ -821,14 +911,62 @@ namespace TropiNailsPro.Controllers
             string categoria =
                 DetectarCategoria(texto);
 
-            if (categoria == "Belleza")
+            string consulta;
+
+            switch (categoria)
             {
-                return
-                    $"{texto} belleza salón profesional";
+                case "Uñas":
+                    consulta =
+                        $"{texto} uñas manicure";
+                    break;
+
+                case "Cabello":
+                    consulta =
+                        $"{texto} peluquería cabello";
+                    break;
+
+                case "Barbería":
+                    consulta =
+                        $"{texto} barbería";
+                    break;
+
+                case "Maquillaje":
+                    consulta =
+                        $"{texto} maquillaje";
+                    break;
+
+                case "Pestañas":
+                    consulta =
+                        $"{texto} pestañas";
+                    break;
+
+                case "Cejas":
+                    consulta =
+                        $"{texto} cejas";
+                    break;
+
+                case "Spa":
+                    consulta =
+                        $"{texto} spa";
+                    break;
+
+                case "Estética":
+                    consulta =
+                        $"{texto} estética";
+                    break;
+
+                case "Depilación":
+                    consulta =
+                        $"{texto} depilación";
+                    break;
+
+                default:
+                    consulta =
+                        $"{texto} belleza salón";
+                    break;
             }
 
-            return
-                $"{texto} {categoria}";
+            return LimpiarTextoBusqueda(consulta);
         }
 
         // ==========================================================
@@ -846,8 +984,10 @@ namespace TropiNailsPro.Controllers
             if (
                 !root.TryGetProperty(
                     "places",
-                    out var places
-                )
+                    out var places)
+                ||
+                places.ValueKind !=
+                JsonValueKind.Array
             )
             {
                 return Array.Empty<object>();
@@ -856,33 +996,30 @@ namespace TropiNailsPro.Controllers
             var lista =
                 new List<ResultadoGoogle>();
 
-            foreach (
-                var place
-                in places.EnumerateArray()
-            )
+            foreach (var place in places.EnumerateArray())
             {
                 string? nombre = null;
                 string? direccion = null;
                 string? mapsUrl = null;
+                string? idGoogle = null;
 
                 double? placeLat = null;
                 double? placeLng = null;
 
                 double? rating = null;
-
                 int? cantidadReviews = null;
 
-                string? idGoogle = null;
-
                 // ==================================================
-                // ID
+                // ID GOOGLE
                 // ==================================================
 
                 if (
                     place.TryGetProperty(
                         "id",
-                        out var idProp
-                    )
+                        out var idProp)
+                    &&
+                    idProp.ValueKind ==
+                    JsonValueKind.String
                 )
                 {
                     idGoogle =
@@ -896,20 +1033,18 @@ namespace TropiNailsPro.Controllers
                 if (
                     place.TryGetProperty(
                         "displayName",
-                        out var displayName
-                    )
+                        out var displayName)
+                    &&
+                    displayName.ValueKind ==
+                    JsonValueKind.Object
+                    &&
+                    displayName.TryGetProperty(
+                        "text",
+                        out var nombreText)
                 )
                 {
-                    if (
-                        displayName.TryGetProperty(
-                            "text",
-                            out var nombreText
-                        )
-                    )
-                    {
-                        nombre =
-                            nombreText.GetString();
-                    }
+                    nombre =
+                        nombreText.GetString();
                 }
 
                 // ==================================================
@@ -919,8 +1054,10 @@ namespace TropiNailsPro.Controllers
                 if (
                     place.TryGetProperty(
                         "formattedAddress",
-                        out var direccionProp
-                    )
+                        out var direccionProp)
+                    &&
+                    direccionProp.ValueKind ==
+                    JsonValueKind.String
                 )
                 {
                     direccion =
@@ -928,14 +1065,16 @@ namespace TropiNailsPro.Controllers
                 }
 
                 // ==================================================
-                // GOOGLE MAPS URL
+                // GOOGLE MAPS
                 // ==================================================
 
                 if (
                     place.TryGetProperty(
                         "googleMapsUri",
-                        out var mapsProp
-                    )
+                        out var mapsProp)
+                    &&
+                    mapsProp.ValueKind ==
+                    JsonValueKind.String
                 )
                 {
                     mapsUrl =
@@ -949,42 +1088,36 @@ namespace TropiNailsPro.Controllers
                 if (
                     place.TryGetProperty(
                         "location",
-                        out var location
-                    )
+                        out var location)
+                    &&
+                    location.ValueKind ==
+                    JsonValueKind.Object
                 )
                 {
                     if (
                         location.TryGetProperty(
                             "latitude",
-                            out var latProp
-                        )
+                            out var latProp)
+                        &&
+                        latProp.ValueKind ==
+                        JsonValueKind.Number
                     )
                     {
-                        if (
-                            latProp.ValueKind ==
-                            JsonValueKind.Number
-                        )
-                        {
-                            placeLat =
-                                latProp.GetDouble();
-                        }
+                        placeLat =
+                            latProp.GetDouble();
                     }
 
                     if (
                         location.TryGetProperty(
                             "longitude",
-                            out var lngProp
-                        )
+                            out var lngProp)
+                        &&
+                        lngProp.ValueKind ==
+                        JsonValueKind.Number
                     )
                     {
-                        if (
-                            lngProp.ValueKind ==
-                            JsonValueKind.Number
-                        )
-                        {
-                            placeLng =
-                                lngProp.GetDouble();
-                        }
+                        placeLng =
+                            lngProp.GetDouble();
                     }
                 }
 
@@ -995,18 +1128,14 @@ namespace TropiNailsPro.Controllers
                 if (
                     place.TryGetProperty(
                         "rating",
-                        out var ratingProp
-                    )
+                        out var ratingProp)
+                    &&
+                    ratingProp.ValueKind ==
+                    JsonValueKind.Number
                 )
                 {
-                    if (
-                        ratingProp.ValueKind ==
-                        JsonValueKind.Number
-                    )
-                    {
-                        rating =
-                            ratingProp.GetDouble();
-                    }
+                    rating =
+                        ratingProp.GetDouble();
                 }
 
                 // ==================================================
@@ -1016,18 +1145,14 @@ namespace TropiNailsPro.Controllers
                 if (
                     place.TryGetProperty(
                         "userRatingCount",
-                        out var reviewsProp
-                    )
+                        out var reviewsProp)
+                    &&
+                    reviewsProp.ValueKind ==
+                    JsonValueKind.Number
                 )
                 {
-                    if (
-                        reviewsProp.ValueKind ==
-                        JsonValueKind.Number
-                    )
-                    {
-                        cantidadReviews =
-                            reviewsProp.GetInt32();
-                    }
+                    cantidadReviews =
+                        reviewsProp.GetInt32();
                 }
 
                 // ==================================================
@@ -1050,6 +1175,13 @@ namespace TropiNailsPro.Controllers
                         );
                 }
 
+                // ==================================================
+                // IGNORAR RESULTADOS SIN NOMBRE
+                // ==================================================
+
+                if (string.IsNullOrWhiteSpace(nombre))
+                    continue;
+
                 lista.Add(
                     new ResultadoGoogle
                     {
@@ -1070,12 +1202,11 @@ namespace TropiNailsPro.Controllers
                         Reviews = cantidadReviews,
 
                         DistanciaKm = distanciaKm
-                    }
-                );
+                    });
             }
 
             // ======================================================
-            // ORDEN INTELIGENTE
+            // ORDEN GOOGLE
             // ======================================================
 
             return lista
@@ -1125,23 +1256,17 @@ namespace TropiNailsPro.Controllers
 
             double dLat =
                 GradosARadianes(
-                    latitud2 - latitud1
-                );
+                    latitud2 - latitud1);
 
             double dLon =
                 GradosARadianes(
-                    longitud2 - longitud1
-                );
+                    longitud2 - longitud1);
 
             double lat1Rad =
-                GradosARadianes(
-                    latitud1
-                );
+                GradosARadianes(latitud1);
 
             double lat2Rad =
-                GradosARadianes(
-                    latitud2
-                );
+                GradosARadianes(latitud2);
 
             double a =
                 Math.Sin(dLat / 2) *
@@ -1152,17 +1277,21 @@ namespace TropiNailsPro.Controllers
                 Math.Sin(dLon / 2) *
                 Math.Sin(dLon / 2);
 
+            // Evitar pequeñas imprecisiones
+            // numéricas fuera del rango [0,1].
+
+            a =
+                Math.Clamp(a, 0.0, 1.0);
+
             double c =
                 2 *
                 Math.Atan2(
                     Math.Sqrt(a),
-                    Math.Sqrt(1 - a)
-                );
+                    Math.Sqrt(1 - a));
 
             return Math.Round(
                 radioTierraKm * c,
-                2
-            );
+                2);
         }
 
         // ==========================================================
@@ -1203,12 +1332,11 @@ namespace TropiNailsPro.Controllers
                     RequestId =
                         Activity.Current?.Id ??
                         HttpContext.TraceIdentifier
-                }
-            );
+                });
         }
 
         // ==========================================================
-        // 🔥 DASHBOARD INTELIGENTE
+        // 🔥 DASHBOARD
         // ==========================================================
 
         [HttpGet]
@@ -1216,8 +1344,7 @@ namespace TropiNailsPro.Controllers
         {
             var usuarioNombre =
                 HttpContext.Session.GetString(
-                    "UsuarioNombre"
-                );
+                    "UsuarioNombre");
 
             // ======================================================
             // SIN SESIÓN
@@ -1227,8 +1354,7 @@ namespace TropiNailsPro.Controllers
             {
                 return RedirectToAction(
                     "Login",
-                    "Auth"
-                );
+                    "Auth");
             }
 
             // ======================================================
@@ -1237,15 +1363,13 @@ namespace TropiNailsPro.Controllers
 
             var manicuristaId =
                 HttpContext.Session.GetInt32(
-                    "UsuarioId"
-                );
+                    "UsuarioId");
 
             if (manicuristaId != null)
             {
                 return RedirectToAction(
                     "Dashboard",
-                    "Manicuristas"
-                );
+                    "Manicuristas");
             }
 
             // ======================================================
@@ -1259,7 +1383,7 @@ namespace TropiNailsPro.Controllers
         }
 
         // ==========================================================
-        // 🧱 MODELO INTERNO PARA GOOGLE
+        // 🧱 MODELO INTERNO GOOGLE
         // ==========================================================
 
         private sealed class ResultadoGoogle
