@@ -2126,42 +2126,85 @@
             return new Promise(function (resolve) {
 
                 if (!navigator.geolocation) {
-
+                    console.warn("Este navegador no soporta geolocalización.");
                     resolve(null);
-
                     return;
                 }
 
+                let finalizado = false;
 
-                navigator.geolocation.getCurrentPosition(
+                function completar(resultado) {
+                    if (finalizado) return;
+                    finalizado = true;
+                    resolve(resultado);
+                }
 
-                    function (position) {
+                function procesarPosicion(position) {
 
-                        userLatitude =
-                            position.coords.latitude;
+                    const latitud = Number(position.coords.latitude);
+                    const longitud = Number(position.coords.longitude);
 
-                        userLongitude =
-                            position.coords.longitude;
+                    if (!Number.isFinite(latitud) ||
+                        !Number.isFinite(longitud) ||
+                        latitud < -90 ||
+                        latitud > 90 ||
+                        longitud < -180 ||
+                        longitud > 180) {
 
-                        resolve({
-                            latitud: userLatitude,
-                            longitud: userLongitude
-                        });
-
-                    },
-
-                    function () {
-
-                        resolve(null);
-
-                    },
-
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 8000,
-                        maximumAge: 300000
+                        console.warn("La geolocalización devolvió coordenadas inválidas.");
+                        completar(null);
+                        return;
                     }
 
+                    userLatitude = latitud;
+                    userLongitude = longitud;
+
+                    console.log("Ubicación obtenida:", {
+                        latitud: userLatitude,
+                        longitud: userLongitude
+                    });
+
+                    completar({
+                        latitud: userLatitude,
+                        longitud: userLongitude
+                    });
+                }
+
+                function procesarError(error) {
+
+                    if (error && error.code === 1) {
+                        console.warn("El usuario no permitió el acceso a la ubicación.");
+                        completar(null);
+                        return;
+                    }
+
+                    console.warn(
+                        "No se pudo obtener la ubicación con alta precisión. Se intentará nuevamente con una ubicación más rápida.",
+                        error
+                    );
+
+                    navigator.geolocation.getCurrentPosition(
+                        procesarPosicion,
+                        function (errorFallback) {
+                            console.warn("No se pudo obtener la ubicación:", errorFallback);
+                            completar(null);
+                        },
+                        {
+                            enableHighAccuracy: false,
+                            timeout: 10000,
+                            maximumAge: 60000
+                        }
+                    );
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    procesarPosicion,
+                    procesarError,
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 12000,
+                        maximumAge: 60000
+                    }
                 );
 
             });
@@ -2222,7 +2265,20 @@
 
             if (usarUbicacion) {
 
-                await obtenerUbicacion();
+                // Nunca reutilizamos una ubicación vieja si la nueva consulta falla.
+                userLatitude = null;
+                userLongitude = null;
+
+                const ubicacion = await obtenerUbicacion();
+
+                if (ubicacion) {
+                    console.log("Buscando con ubicación del usuario:", ubicacion);
+                }
+                else {
+                    console.warn(
+                        "La búsqueda continuará sin ubicación. Los profesionales de TropiNails seguirán funcionando, pero Google Places puede no devolver negocios cercanos."
+                    );
+                }
 
             }
 
@@ -2236,8 +2292,8 @@
                 params.append("texto", texto);
 
 
-                if (userLatitude !== null &&
-                    userLongitude !== null) {
+                if (Number.isFinite(userLatitude) &&
+                    Number.isFinite(userLongitude)) {
 
                     params.append(
                         "latitud",
@@ -2261,7 +2317,8 @@
                             headers: {
                                 "Accept":
                                     "application/json"
-                            }
+                            },
+                            cache: "no-store"
                         }
                     );
 
@@ -2299,7 +2356,7 @@
             catch (error) {
 
                 console.error(
-                    "Error buscando:",
+                    "Error buscando profesionales:",
                     error
                 );
 
@@ -2653,7 +2710,7 @@
 
                 buscar(
                     input.value,
-                    false
+                    true
                 );
 
             }
@@ -2674,7 +2731,7 @@
 
                     buscar(
                         input.value,
-                        false
+                        true
                     );
 
                 }
@@ -2731,7 +2788,7 @@
 
                     buscar(
                         input.value,
-                        false
+                        true
                     );
 
                 }
@@ -2763,7 +2820,7 @@
 
                             buscar(
                                 texto,
-                                false
+                                true
                             );
 
                         }
@@ -2809,7 +2866,7 @@
 
                                     buscar(
                                         texto,
-                                        false
+                                        true
                                     );
 
                                 },
