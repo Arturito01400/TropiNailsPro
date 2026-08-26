@@ -2445,19 +2445,17 @@
 
 
                 profesionales.forEach(
-                    function (profesional) {
+    function (profesional) {
 
-                         professionalsGrid
-   
-                         .insertAdjacentHTML(
-                                "beforeend",
-                                crearCardProfesional(
-                                    dotnet runprofesional
-                                )
-                            );
+        professionalsGrid.insertAdjacentHTML(
+            "beforeend",
+            crearCardProfesional(
+                profesional
+            )
+        );
 
-                    }
-                );
+    }
+);
 
             }
 
