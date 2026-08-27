@@ -55,13 +55,17 @@
 
         <div class="perfil-header text-center">
 
+            <div class="perfil-header-icon">
+                ✨
+            </div>
+
             <h2 class="fw-bold mb-2">
-                ✨ Personaliza tu perfil
+                Personaliza tu perfil
             </h2>
 
             <p class="mb-0">
                 Completa tu información para que tus clientes
-                puedan conocerte y contactarte.
+                puedan conocerte, descubrir tus servicios y contactarte.
             </p>
 
         </div>
@@ -71,7 +75,7 @@
 
             @if (TempData["Mensaje"] != null)
             {
-                <div class="alert alert-success text-center rounded-3">
+                <div class="alert alert-success text-center rounded-3 shadow-sm">
                     @TempData["Mensaje"]
                 </div>
             }
@@ -80,7 +84,8 @@
             <form asp-controller="Perfil"
                   asp-action="Guardar"
                   method="post"
-                  enctype="multipart/form-data">
+                  enctype="multipart/form-data"
+                  id="formPerfil">
 
                 <input type="hidden"
                        asp-for="Id" />
@@ -93,13 +98,23 @@
                 <div class="seccion-perfil">
 
                     <div class="seccion-titulo">
-                        <span>👤</span>
-                        <div>
-                            <h4>Mi información</h4>
-                            <small>
-                                Información que verán tus clientes.
-                            </small>
+
+                        <div class="seccion-icono">
+                            👤
                         </div>
+
+                        <div>
+
+                            <h4>
+                                Mi información
+                            </h4>
+
+                            <small>
+                                Información que podrán ver tus clientes.
+                            </small>
+
+                        </div>
+
                     </div>
 
 
@@ -107,14 +122,23 @@
 
                     <div class="foto-contenedor text-center mb-4">
 
-                        <img id="previewFoto"
-                             src="@fotoFinal"
-                             class="foto-perfil"
-                             onerror="this.src='/img/user-default.png'" />
+                        <div class="foto-perfil-wrapper">
+
+                            <img id="previewFoto"
+                                 src="@fotoFinal"
+                                 class="foto-perfil"
+                                 onerror="this.src='/img/user-default.png'" />
+
+                            <div class="foto-check">
+                                ✓
+                            </div>
+
+                        </div>
 
                         <div class="mt-3">
 
                             <label class="btn btn-outline-pink">
+
                                 📷 Cambiar foto de perfil
 
                                 <input type="file"
@@ -122,6 +146,7 @@
                                        accept="image/*"
                                        hidden
                                        onchange="previewImagen(event)" />
+
                             </label>
 
                         </div>
@@ -165,14 +190,18 @@
 
                     <div class="seccion-titulo">
 
-                        <span>🏪</span>
+                        <div class="seccion-icono">
+                            🏪
+                        </div>
 
                         <div>
 
-                            <h4>Mi negocio</h4>
+                            <h4>
+                                Mi negocio
+                            </h4>
 
                             <small>
-                                Presenta tu negocio profesionalmente.
+                                Presenta tu negocio de manera profesional.
                             </small>
 
                         </div>
@@ -182,10 +211,14 @@
 
                     <div class="foto-negocio-box text-center mb-4">
 
-                        <img id="previewFotoNegocio"
-                             src="@fotoNegocio"
-                             class="foto-negocio"
-                             onerror="this.src='/img/user-default.png'" />
+                        <div class="foto-negocio-wrapper">
+
+                            <img id="previewFotoNegocio"
+                                 src="@fotoNegocio"
+                                 class="foto-negocio"
+                                 onerror="this.src='/img/user-default.png'" />
+
+                        </div>
 
                         <div class="mt-3">
 
@@ -204,7 +237,9 @@
                         </div>
 
                         <small class="text-muted d-block mt-2">
+
                             Esta imagen aparecerá en tu perfil público.
+
                         </small>
 
                     </div>
@@ -243,6 +278,284 @@
 
 
                 <!-- ================================================= -->
+                <!-- SERVICIOS -->
+                <!-- ================================================= -->
+
+                <div class="seccion-perfil">
+
+                    <div class="seccion-titulo">
+
+                        <div class="seccion-icono">
+                            ✨
+                        </div>
+
+                        <div>
+
+                            <h4>
+                                Mis servicios
+                            </h4>
+
+                            <small>
+                                Agrega los servicios que ofrece tu negocio.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="servicios-intro">
+
+                        <div class="servicios-intro-icon">
+                            💎
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Haz que tus clientes sepan qué ofreces
+                            </strong>
+
+                            <p>
+                                Puedes agregar servicios de cualquier área
+                                de belleza: uñas, cabello, barbería, maquillaje,
+                                pestañas, cejas, spa, estética, masajes y mucho más.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- LISTA DE SERVICIOS -->
+                    <!-- ================================================= -->
+
+                    <div id="serviciosContainer">
+
+                        @if (negocio?.Servicios != null &&
+                             negocio.Servicios.Any())
+                        {
+                            foreach (var servicio in negocio.Servicios)
+                            {
+                                <div class="servicio-card">
+
+                                    <!-- 🔥 ID REAL DEL SERVICIO -->
+                                    <input type="hidden"
+                                           class="servicio-id"
+                                           value="@servicio.Id" />
+
+
+                                    <div class="servicio-card-header">
+
+                                        <div class="servicio-mini-icon">
+                                            ✨
+                                        </div>
+
+                                        <div class="flex-grow-1">
+
+                                            <strong class="servicio-numero">
+                                                Servicio
+                                            </strong>
+
+                                        </div>
+
+                                        <button type="button"
+                                                class="btn-eliminar-servicio"
+                                                onclick="eliminarServicio(this)"
+                                                title="Eliminar servicio">
+
+                                            🗑️
+
+                                        </button>
+
+                                    </div>
+
+
+                                    <div class="row g-3">
+
+                                        <div class="col-12">
+
+                                            <label class="form-label">
+                                                Nombre del servicio
+                                            </label>
+
+                                            <input type="text"
+                                                   class="form-control servicio-nombre"
+                                                   value="@servicio.Nombre"
+                                                   maxlength="150"
+                                                   placeholder="Ej: Manicura semipermanente" />
+
+                                        </div>
+
+
+                                        <div class="col-12">
+
+                                            <label class="form-label">
+                                                Descripción
+                                            </label>
+
+                                            <textarea class="form-control servicio-descripcion"
+                                                      rows="2"
+                                                      maxlength="500"
+                                                      placeholder="Describe brevemente este servicio">@servicio.Descripcion</textarea>
+
+                                        </div>
+
+
+                                        <div class="col-md-4">
+
+                                            <label class="form-label">
+                                                Precio
+                                            </label>
+
+                                            <div class="input-group">
+
+                                                <span class="input-group-text">
+                                                    RD$
+                                                </span>
+
+                                                <input type="number"
+                                                       class="form-control servicio-precio"
+                                                       value="@(servicio.Precio?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                                                       min="0"
+                                                       step="0.01"
+                                                       placeholder="Opcional" />
+
+                                            </div>
+
+                                            <small class="text-muted">
+                                                Opcional
+                                            </small>
+
+                                        </div>
+
+
+                                        <div class="col-md-4">
+
+                                            <label class="form-label">
+                                                Duración
+                                            </label>
+
+                                            <div class="input-group">
+
+                                                <input type="number"
+                                                       class="form-control servicio-duracion"
+                                                       value="@servicio.DuracionMinutos"
+                                                       min="1"
+                                                       max="1440"
+                                                       placeholder="Opcional" />
+
+                                                <span class="input-group-text">
+                                                    min
+                                                </span>
+
+                                            </div>
+
+                                            <small class="text-muted">
+                                                Opcional
+                                            </small>
+
+                                        </div>
+
+
+                                        <div class="col-md-4">
+
+                                            <label class="form-label">
+                                                Estado
+                                            </label>
+
+                                            <select class="form-select servicio-activo">
+
+                                                @if (servicio.Activo)
+                                                {
+                                                    <option value="true"
+                                                            selected>
+                                                        Activo
+                                                    </option>
+
+                                                    <option value="false">
+                                                        Oculto
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="true">
+                                                        Activo
+                                                    </option>
+
+                                                    <option value="false"
+                                                            selected>
+                                                        Oculto
+                                                    </option>
+                                                }
+
+                                            </select>
+
+                                            <small class="text-muted">
+                                                Visible en tu perfil público
+                                            </small>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+                        }
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- BOTÓN AGREGAR -->
+                    <!-- ================================================= -->
+
+                    <button type="button"
+                            class="btn btn-agregar-servicio mt-3"
+                            onclick="agregarServicio()">
+
+                        <span>
+                            ＋
+                        </span>
+
+                        Agregar servicio
+
+                    </button>
+
+
+                    <div id="sinServicios"
+                         class="sin-servicios @(negocio?.Servicios != null && negocio.Servicios.Any() ? "d-none" : "")">
+
+                        <div class="sin-servicios-icon">
+                            ✨
+                        </div>
+
+                        <strong>
+                            Todavía no tienes servicios agregados
+                        </strong>
+
+                        <span>
+                            Agrega los servicios que deseas mostrar
+                            en tu perfil público.
+                        </span>
+
+                    </div>
+
+
+                    <!-- ================================================= -->
+                    <!-- JSON -->
+                    <!-- ================================================= -->
+
+                    <input type="hidden"
+                           id="ServiciosJson"
+                           name="ServiciosJson"
+                           value="" />
+
+                </div>
+
+
+                <!-- ================================================= -->
                 <!-- REDES SOCIALES -->
                 <!-- ================================================= -->
 
@@ -250,11 +563,15 @@
 
                     <div class="seccion-titulo">
 
-                        <span>📱</span>
+                        <div class="seccion-icono">
+                            📱
+                        </div>
 
                         <div>
 
-                            <h4>Mis redes sociales</h4>
+                            <h4>
+                                Mis redes sociales
+                            </h4>
 
                             <small>
                                 Permite que tus clientes conozcan tu trabajo.
@@ -314,11 +631,15 @@
 
                     <div class="seccion-titulo">
 
-                        <span>💬</span>
+                        <div class="seccion-icono">
+                            💬
+                        </div>
 
                         <div>
 
-                            <h4>WhatsApp</h4>
+                            <h4>
+                                WhatsApp
+                            </h4>
 
                             <small>
                                 Tus clientes podrán contactarte directamente.
@@ -341,9 +662,13 @@
                                value="@whatsappValor" />
 
                         <div class="form-text">
+
                             Escribe el número con código de país,
                             sin espacios ni símbolos.
-                            Ejemplo: <strong>18095551234</strong>
+
+                            Ejemplo:
+                            <strong>18095551234</strong>
+
                         </div>
 
                     </div>
@@ -359,11 +684,15 @@
 
                     <div class="seccion-titulo">
 
-                        <span>📍</span>
+                        <div class="seccion-icono">
+                            📍
+                        </div>
 
                         <div>
 
-                            <h4>Ubicación de mi negocio</h4>
+                            <h4>
+                                Ubicación de mi negocio
+                            </h4>
 
                             <small>
                                 Ayuda a tus clientes a encontrarte.
@@ -460,7 +789,9 @@
 
                             <span id="estadoMapa"
                                   class="estado-mapa">
+
                                 Sin ubicación
+
                             </span>
 
                         </div>
@@ -541,8 +872,10 @@
                             </strong>
 
                             <p class="mb-2 text-muted">
+
                                 Permite que TropiNails Pro detecte
                                 automáticamente dónde está tu negocio.
+
                             </p>
 
                             <button type="button"
@@ -586,7 +919,7 @@
 
                     <a asp-controller="Perfil"
                        asp-action="Index"
-                       class="btn btn-outline-secondary btn-lg">
+                       class="btn btn-outline-secondary btn-lg btn-cancelar">
 
                         Cancelar
 
@@ -605,61 +938,151 @@
 
 <style>
 
+/* ================================================= */
+/* CONTENEDOR */
+/* ================================================= */
+
 .perfil-editar{
-    max-width:800px;
+    max-width:850px;
 }
+
+
+/* ================================================= */
+/* CABECERA */
+/* ================================================= */
 
 .perfil-header{
     background:linear-gradient(
         135deg,
         #ff4da6,
-        #e91e63
+        #e91e63,
+        #c2185b
     );
     color:white;
-    padding:35px 20px;
+    padding:42px 20px;
+    position:relative;
+}
+
+.perfil-header-icon{
+    width:65px;
+    height:65px;
+    margin:0 auto 12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:rgba(255,255,255,.18);
+    font-size:30px;
+    backdrop-filter:blur(5px);
 }
 
 .perfil-header h2{
     font-size:30px;
+    letter-spacing:-.4px;
 }
 
+.perfil-header p{
+    opacity:.92;
+    max-width:650px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+
+/* ================================================= */
+/* SECCIONES */
+/* ================================================= */
+
 .seccion-perfil{
-    margin-bottom:35px;
-    padding-bottom:30px;
+    margin-bottom:38px;
+    padding-bottom:32px;
     border-bottom:1px solid #eee;
+}
+
+.seccion-perfil:last-of-type{
+    border-bottom:none;
 }
 
 .seccion-titulo{
     display:flex;
     align-items:center;
     gap:15px;
-    margin-bottom:25px;
+    margin-bottom:27px;
 }
 
-.seccion-titulo > span{
-    font-size:32px;
+.seccion-icono{
+    width:52px;
+    height:52px;
+    min-width:52px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:16px;
+    background:linear-gradient(
+        135deg,
+        #fff0f7,
+        #ffe0ed
+    );
+    font-size:25px;
+    box-shadow:0 5px 15px rgba(255,77,166,.08);
 }
 
 .seccion-titulo h4{
     margin:0;
-    font-weight:700;
+    font-weight:750;
+    color:#2b2b2b;
 }
 
 .seccion-titulo small{
+    display:block;
     color:#777;
+    margin-top:3px;
 }
+
+
+/* ================================================= */
+/* FORMULARIOS */
+/* ================================================= */
 
 .form-label{
-    font-weight:600;
+    font-weight:650;
+    color:#333;
+    margin-bottom:7px;
 }
 
-.form-control{
-    border-radius:12px;
+.form-control,
+.form-select{
+    border-radius:13px;
+    border:1px solid #ddd;
+    min-height:48px;
 }
 
-.form-control:focus{
+textarea.form-control{
+    min-height:auto;
+}
+
+.form-control:focus,
+.form-select:focus{
     border-color:#ff4da6;
-    box-shadow:0 0 0 .2rem rgba(255,77,166,.15);
+    box-shadow:0 0 0 .2rem rgba(255,77,166,.13);
+}
+
+.input-group-text{
+    border-radius:13px 0 0 13px;
+    background:#fff5fa;
+    border-color:#ddd;
+    color:#d62978;
+    font-weight:650;
+}
+
+
+/* ================================================= */
+/* FOTOS */
+/* ================================================= */
+
+.foto-perfil-wrapper{
+    position:relative;
+    display:inline-block;
 }
 
 .foto-perfil{
@@ -668,29 +1091,59 @@
     object-fit:cover;
     border-radius:50%;
     border:5px solid #ff4da6;
-    box-shadow:0 8px 25px rgba(0,0,0,.15);
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+}
+
+.foto-check{
+    position:absolute;
+    right:7px;
+    bottom:10px;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#ff4da6;
+    color:white;
+    border:3px solid white;
+    font-weight:bold;
+}
+
+.foto-negocio-wrapper{
+    width:100%;
+    display:flex;
+    justify-content:center;
 }
 
 .foto-negocio{
     width:100%;
-    max-width:500px;
-    height:230px;
+    max-width:560px;
+    height:245px;
     object-fit:cover;
-    border-radius:20px;
+    border-radius:22px;
     border:4px solid #ff4da6;
-    box-shadow:0 8px 25px rgba(0,0,0,.12);
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
 }
+
+
+/* ================================================= */
+/* BOTONES ROSA */
+/* ================================================= */
 
 .btn-outline-pink{
     color:#ff4da6;
     border:2px solid #ff4da6;
     border-radius:12px;
-    font-weight:600;
+    font-weight:650;
+    padding:10px 17px;
+    transition:.2s ease;
 }
 
 .btn-outline-pink:hover{
     background:#ff4da6;
     color:white;
+    transform:translateY(-1px);
 }
 
 .btn-pink{
@@ -698,37 +1151,169 @@
     border:none;
     color:white;
     border-radius:12px;
-    font-weight:600;
+    font-weight:650;
     padding:10px 18px;
+    transition:.2s ease;
 }
 
 .btn-pink:hover{
     background:#e91e63;
     color:white;
+    transform:translateY(-1px);
 }
 
-.btn-guardar{
-    background:#ff4da6;
-    border-radius:14px;
-    font-weight:700;
-}
 
-.btn-guardar:hover{
-    background:#e91e63;
-}
+/* ================================================= */
+/* SERVICIOS */
+/* ================================================= */
 
-.ubicacion-box{
+.servicios-intro{
     display:flex;
-    gap:18px;
-    align-items:center;
-    background:#fff5fa;
-    border:1px solid #ffd1e5;
-    padding:20px;
-    border-radius:18px;
+    align-items:flex-start;
+    gap:15px;
+    padding:18px;
+    margin-bottom:20px;
+    border-radius:17px;
+    background:linear-gradient(
+        135deg,
+        #fff7fb,
+        #fff0f7
+    );
+    border:1px solid #ffd5e7;
 }
 
-.ubicacion-icon{
+.servicios-intro-icon{
+    width:45px;
+    height:45px;
+    min-width:45px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:13px;
+    background:white;
+    font-size:23px;
+    box-shadow:0 4px 12px rgba(0,0,0,.06);
+}
+
+.servicios-intro strong{
+    display:block;
+    color:#333;
+    margin-bottom:4px;
+}
+
+.servicios-intro p{
+    margin:0;
+    color:#777;
+    font-size:14px;
+    line-height:1.5;
+}
+
+
+/* ================================================= */
+/* TARJETA SERVICIO */
+/* ================================================= */
+
+.servicio-card{
+    background:white;
+    border:1px solid #e9e9e9;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:15px;
+    box-shadow:0 5px 18px rgba(0,0,0,.05);
+    animation:servicioEntrada .25s ease;
+}
+
+.servicio-card-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
+}
+
+.servicio-mini-icon{
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    background:#fff0f7;
+    color:#ff4da6;
+    font-size:19px;
+}
+
+.servicio-numero{
+    color:#555;
+}
+
+.btn-eliminar-servicio{
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:10px;
+    background:#fff1f1;
+    color:#dc3545;
+    transition:.2s ease;
+}
+
+.btn-eliminar-servicio:hover{
+    background:#dc3545;
+    color:white;
+    transform:scale(1.03);
+}
+
+
+/* ================================================= */
+/* AGREGAR SERVICIO */
+/* ================================================= */
+
+.btn-agregar-servicio{
+    width:100%;
+    min-height:52px;
+    border:2px dashed #ff9bc5;
+    background:#fff8fb;
+    color:#d62978;
+    border-radius:15px;
+    font-weight:700;
+    transition:.2s ease;
+}
+
+.btn-agregar-servicio span{
+    font-size:22px;
+    margin-right:6px;
+}
+
+.btn-agregar-servicio:hover{
+    background:#fff0f7;
+    border-color:#ff4da6;
+    color:#d62978;
+}
+
+
+/* ================================================= */
+/* SIN SERVICIOS */
+/* ================================================= */
+
+.sin-servicios{
+    text-align:center;
+    padding:25px 15px;
+    color:#777;
+}
+
+.sin-servicios-icon{
     font-size:35px;
+    margin-bottom:7px;
+}
+
+.sin-servicios strong{
+    display:block;
+    color:#555;
+    margin-bottom:4px;
+}
+
+.sin-servicios span{
+    display:block;
+    font-size:14px;
 }
 
 
@@ -771,7 +1356,7 @@
     padding:6px 10px;
     border-radius:20px;
     font-size:12px;
-    font-weight:600;
+    font-weight:650;
     white-space:nowrap;
 }
 
@@ -863,13 +1448,92 @@
 
 
 /* ================================================= */
+/* UBICACIÓN */
+/* ================================================= */
+
+.ubicacion-box{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    background:#fff5fa;
+    border:1px solid #ffd1e5;
+    padding:20px;
+    border-radius:18px;
+}
+
+.ubicacion-icon{
+    font-size:35px;
+}
+
+
+/* ================================================= */
+/* GUARDAR */
+/* ================================================= */
+
+.btn-guardar{
+    background:linear-gradient(
+        135deg,
+        #ff4da6,
+        #e91e63
+    );
+    border:none;
+    border-radius:14px;
+    font-weight:700;
+    padding:13px;
+    box-shadow:0 7px 20px rgba(233,30,99,.18);
+    transition:.2s ease;
+}
+
+.btn-guardar:hover{
+    background:linear-gradient(
+        135deg,
+        #e91e63,
+        #c2185b
+    );
+    transform:translateY(-1px);
+}
+
+.btn-cancelar{
+    border-radius:14px;
+}
+
+
+/* ================================================= */
+/* ANIMACIÓN */
+/* ================================================= */
+
+@@keyframes servicioEntrada{
+
+    from{
+        opacity:0;
+        transform:translateY(8px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+
+/* ================================================= */
 /* RESPONSIVE */
 /* ================================================= */
 
 @@media(max-width:576px){
 
+    .perfil-header{
+        padding:32px 18px;
+    }
+
     .perfil-header h2{
         font-size:24px;
+    }
+
+    .foto-perfil{
+        width:140px;
+        height:140px;
     }
 
     .foto-negocio{
@@ -896,6 +1560,10 @@
     .acciones-mapa a{
         width:100%;
         text-align:center;
+    }
+
+    .servicio-card{
+        padding:16px;
     }
 
 }
@@ -960,49 +1628,458 @@ function previewFotoNegocio(event){
 
 
 /* ================================================= */
+/* SERVICIOS */
+/* ================================================= */
+
+function agregarServicio(){
+
+    const container =
+        document.getElementById(
+            "serviciosContainer"
+        );
+
+    const tarjeta =
+        document.createElement("div");
+
+    tarjeta.className =
+        "servicio-card";
+
+    tarjeta.innerHTML = `
+
+        <!-- Servicio nuevo: todavía no tiene ID -->
+
+        <input type="hidden"
+               class="servicio-id"
+               value="" />
+
+
+        <div class="servicio-card-header">
+
+            <div class="servicio-mini-icon">
+                ✨
+            </div>
+
+            <div class="flex-grow-1">
+
+                <strong class="servicio-numero">
+                    Nuevo servicio
+                </strong>
+
+            </div>
+
+            <button type="button"
+                    class="btn-eliminar-servicio"
+                    onclick="eliminarServicio(this)"
+                    title="Eliminar servicio">
+
+                🗑️
+
+            </button>
+
+        </div>
+
+
+        <div class="row g-3">
+
+            <div class="col-12">
+
+                <label class="form-label">
+                    Nombre del servicio
+                </label>
+
+                <input type="text"
+                       class="form-control servicio-nombre"
+                       maxlength="150"
+                       placeholder="Ej: Manicura semipermanente">
+
+            </div>
+
+
+            <div class="col-12">
+
+                <label class="form-label">
+                    Descripción
+                </label>
+
+                <textarea class="form-control servicio-descripcion"
+                          rows="2"
+                          maxlength="500"
+                          placeholder="Describe brevemente este servicio"></textarea>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Precio
+                </label>
+
+                <div class="input-group">
+
+                    <span class="input-group-text">
+                        RD$
+                    </span>
+
+                    <input type="number"
+                           class="form-control servicio-precio"
+                           min="0"
+                           step="0.01"
+                           placeholder="Opcional">
+
+                </div>
+
+                <small class="text-muted">
+                    Opcional
+                </small>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Duración
+                </label>
+
+                <div class="input-group">
+
+                    <input type="number"
+                           class="form-control servicio-duracion"
+                           min="1"
+                           max="1440"
+                           placeholder="Opcional">
+
+                    <span class="input-group-text">
+                        min
+                    </span>
+
+                </div>
+
+                <small class="text-muted">
+                    Opcional
+                </small>
+
+            </div>
+
+
+            <div class="col-md-4">
+
+                <label class="form-label">
+                    Estado
+                </label>
+
+                <select class="form-select servicio-activo">
+
+                    <option value="true" selected>
+                        Activo
+                    </option>
+
+                    <option value="false">
+                        Oculto
+                    </option>
+
+                </select>
+
+                <small class="text-muted">
+                    Visible en tu perfil público
+                </small>
+
+            </div>
+
+        </div>
+
+    `;
+
+    container.appendChild(tarjeta);
+
+    actualizarNumerosServicios();
+
+    actualizarEstadoSinServicios();
+
+}
+
+
+/* ================================================= */
+/* ELIMINAR SERVICIO */
+/* ================================================= */
+
+function eliminarServicio(boton){
+
+    const tarjeta =
+        boton.closest(
+            ".servicio-card"
+        );
+
+    if(!tarjeta)
+        return;
+
+    tarjeta.remove();
+
+    actualizarNumerosServicios();
+
+    actualizarEstadoSinServicios();
+
+}
+
+
+/* ================================================= */
+/* NUMERACIÓN */
+/* ================================================= */
+
+function actualizarNumerosServicios(){
+
+    const tarjetas =
+        document.querySelectorAll(
+            "#serviciosContainer .servicio-card"
+        );
+
+    tarjetas.forEach(
+        function(tarjeta, index){
+
+            const numero =
+                tarjeta.querySelector(
+                    ".servicio-numero"
+                );
+
+            if(numero){
+
+                numero.innerText =
+                    "Servicio " + (index + 1);
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ================================================= */
+/* ESTADO SIN SERVICIOS */
+/* ================================================= */
+
+function actualizarEstadoSinServicios(){
+
+    const tarjetas =
+        document.querySelectorAll(
+            "#serviciosContainer .servicio-card"
+        );
+
+    const mensaje =
+        document.getElementById(
+            "sinServicios"
+        );
+
+    if(!mensaje)
+        return;
+
+    if(tarjetas.length === 0){
+
+        mensaje.classList.remove(
+            "d-none"
+        );
+
+    }
+    else{
+
+        mensaje.classList.add(
+            "d-none"
+        );
+
+    }
+
+}
+
+
+/* ================================================= */
+/* PREPARAR SERVICIOS PARA GUARDAR */
+/* ================================================= */
+
+function prepararServicios(){
+
+    const tarjetas =
+        document.querySelectorAll(
+            "#serviciosContainer .servicio-card"
+        );
+
+    const servicios = [];
+
+    tarjetas.forEach(
+        function(tarjeta){
+
+            /* ========================================= */
+            /* ID DEL SERVICIO */
+            /* ========================================= */
+
+            const idTexto =
+                tarjeta.querySelector(
+                    ".servicio-id"
+                )?.value;
+
+
+            const id =
+                idTexto &&
+                idTexto.trim() !== ""
+                    ? parseInt(idTexto)
+                    : null;
+
+
+            /* ========================================= */
+            /* DATOS */
+            /* ========================================= */
+
+            const nombre =
+                tarjeta.querySelector(
+                    ".servicio-nombre"
+                )?.value.trim();
+
+            const descripcion =
+                tarjeta.querySelector(
+                    ".servicio-descripcion"
+                )?.value.trim();
+
+            const precioTexto =
+                tarjeta.querySelector(
+                    ".servicio-precio"
+                )?.value;
+
+            const duracionTexto =
+                tarjeta.querySelector(
+                    ".servicio-duracion"
+                )?.value;
+
+            const activoTexto =
+                tarjeta.querySelector(
+                    ".servicio-activo"
+                )?.value;
+
+
+            /*
+             * No enviamos tarjetas completamente vacías.
+             */
+
+            if(!nombre)
+                return;
+
+
+            /* ========================================= */
+            /* PRECIO OPCIONAL */
+            /* ========================================= */
+
+            const precio =
+                precioTexto &&
+                precioTexto.trim() !== ""
+                    ? parseFloat(precioTexto)
+                    : null;
+
+
+            /* ========================================= */
+            /* DURACIÓN OPCIONAL */
+            /* ========================================= */
+
+            const duracion =
+                duracionTexto &&
+                duracionTexto.trim() !== ""
+                    ? parseInt(duracionTexto)
+                    : null;
+
+
+            /* ========================================= */
+            /* ESTADO */
+            /* ========================================= */
+
+            const activo =
+                activoTexto !== "false";
+
+
+            /* ========================================= */
+            /* AGREGAR */
+            /* ========================================= */
+
+            servicios.push({
+
+                Id:
+                    id,
+
+                Nombre:
+                    nombre,
+
+                Descripcion:
+                    descripcion || null,
+
+                Precio:
+                    precio,
+
+                DuracionMinutos:
+                    duracion,
+
+                Activo:
+                    activo
+
+            });
+
+        }
+    );
+
+
+    document.getElementById(
+        "ServiciosJson"
+    ).value =
+        JSON.stringify(servicios);
+
+}
+
+
+/* ================================================= */
 /* CREAR MAPA */
 /* ================================================= */
 
 function mostrarMapa(lat, lon){
 
     const mapa =
-        document.getElementById("mapaGoogle");
-
-    const placeholder =
-        document.getElementById("mapaPlaceholder");
+        document.getElementById(
+            "mapaGoogle"
+        );
 
     const acciones =
-        document.getElementById("accionesMapa");
+        document.getElementById(
+            "accionesMapa"
+        );
 
     const estadoMapa =
-        document.getElementById("estadoMapa");
+        document.getElementById(
+            "estadoMapa"
+        );
+
 
     if(!lat || !lon){
 
         return;
+
     }
 
 
-    /*
-     * Google Maps puede mostrar la ubicación
-     * mediante esta URL sin necesidad de
-     * colocar una API Key dentro del código.
-     */
-
     const mapaUrl =
         "https://www.google.com/maps?q=" +
-        encodeURIComponent(lat + "," + lon) +
+        encodeURIComponent(
+            lat + "," + lon
+        ) +
         "&output=embed";
 
 
     const googleMapsUrl =
         "https://www.google.com/maps/search/?api=1&query=" +
-        encodeURIComponent(lat + "," + lon);
+        encodeURIComponent(
+            lat + "," + lon
+        );
 
 
     const comoLlegarUrl =
         "https://www.google.com/maps/dir/?api=1&destination=" +
-        encodeURIComponent(lat + "," + lon);
+        encodeURIComponent(
+            lat + "," + lon
+        );
 
 
     mapa.innerHTML =
@@ -1016,12 +2093,14 @@ function mostrarMapa(lat, lon){
 
     document.getElementById(
         "btnGoogleMaps"
-    ).href = googleMapsUrl;
+    ).href =
+        googleMapsUrl;
 
 
     document.getElementById(
         "btnComoLlegar"
-    ).href = comoLlegarUrl;
+    ).href =
+        comoLlegarUrl;
 
 
     acciones.style.display =
@@ -1031,9 +2110,11 @@ function mostrarMapa(lat, lon){
     estadoMapa.innerText =
         "✓ Ubicación activa";
 
+
     estadoMapa.classList.add(
         "activo"
     );
+
 }
 
 
@@ -1058,6 +2139,7 @@ function obtenerUbicacion(){
             "#dc3545";
 
         return;
+
     }
 
 
@@ -1106,6 +2188,7 @@ function obtenerUbicacion(){
             estado.innerText =
                 "✅ Ubicación detectada correctamente. Guarda los cambios para conservarla.";
 
+
             estado.style.color =
                 "#12a150";
 
@@ -1116,8 +2199,10 @@ function obtenerUbicacion(){
 
             console.error(error);
 
+
             estado.innerText =
                 "❌ No pudimos obtener tu ubicación. Revisa los permisos del navegador.";
+
 
             estado.style.color =
                 "#dc3545";
@@ -1137,17 +2222,23 @@ function obtenerUbicacion(){
 
 
 /* ================================================= */
-/* CARGAR MAPA SI YA EXISTE UBICACIÓN */
+/* AL CARGAR */
 /* ================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     function(){
 
+        actualizarNumerosServicios();
+
+        actualizarEstadoSinServicios();
+
+
         const lat =
             document.getElementById(
                 "Latitud"
             ).value;
+
 
         const lon =
             document.getElementById(
@@ -1168,6 +2259,22 @@ document.addEventListener(
             );
 
         }
+
+    }
+);
+
+
+/* ================================================= */
+/* ANTES DE GUARDAR */
+/* ================================================= */
+
+document.getElementById(
+    "formPerfil"
+).addEventListener(
+    "submit",
+    function(){
+
+        prepararServicios();
 
     }
 );

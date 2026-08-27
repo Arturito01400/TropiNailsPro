@@ -1350,178 +1350,263 @@
 
     @@media (max-width: 768px) {
 
-        .public-home {
-            min-height:
-                calc(100vh - 56px);
+    .public-home {
+        min-height:
+            calc(100vh - 56px);
 
-            align-items: flex-end;
+        align-items: flex-end;
 
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(8,6,12,.38) 0%,
-                    rgba(8,6,12,.75) 45%,
-                    rgba(8,6,12,.97) 100%
-                ),
-                url('/images/tropinails-public-hero.png')
-                62% center / cover no-repeat;
-        }
-
-        .premium-container,
-        .results-container,
-        .categories-container,
-        .discovery-grid {
-            padding-left: 18px;
-            padding-right: 18px;
-        }
-
-        .public-content {
-            padding:
-                100px 0 45px;
-        }
-
-        .brand-badge {
-            margin-bottom: 19px;
-            font-size: .72rem;
-        }
-
-        .hero-title {
-            font-size: 3.25rem;
-
-            letter-spacing: -2.5px;
-
-            line-height: .94;
-
-            margin-bottom: 22px;
-        }
-
-        .hero-description {
-            font-size: .98rem;
-
-            line-height: 1.6;
-
-            margin-bottom: 24px;
-        }
-
-        .hero-search {
-            min-height: auto;
-
-            flex-wrap: wrap;
-
-            padding: 7px;
-
-            border-radius: 17px;
-        }
-
-        .hero-search input {
-            width:
-                calc(100% - 60px);
-
-            padding-right: 5px;
-        }
-
-        .search-button {
-            width: 100%;
-
-            min-height: 48px;
-        }
-
-        .search-suggestions {
-            gap: 6px;
-        }
-
-        .suggestion-chip {
-            font-size: .68rem;
-        }
-
-        .hero-actions {
-            gap: 9px;
-        }
-
-        .btn-premium {
-            flex: 1;
-
-            min-width: 150px;
-
-            min-height: 50px;
-        }
-
-        .trust-row {
-            gap: 12px 17px;
-
-            font-size: .72rem;
-        }
-
-        .login-link {
-            top: 17px;
-
-            right: 17px;
-
-            padding: 9px 13px;
-
-            font-size: .76rem;
-        }
-
-        .results-header {
-            align-items: flex-start;
-
-            flex-direction: column;
-        }
-
-        .professionals-grid {
-            grid-template-columns:
-                repeat(2,minmax(0,1fr));
-
-            gap: 12px;
-        }
-
-        .professional-image {
-            height: 200px;
-        }
-
-        .categories-grid {
-            grid-template-columns:
-                repeat(2,minmax(0,1fr));
-        }
-
-        .external-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .discovery-card {
-            padding: 25px;
-
-            min-height: 270px;
-        }
+        background:
+            linear-gradient(
+                180deg,
+                rgba(8,6,12,.38) 0%,
+                rgba(8,6,12,.75) 45%,
+                rgba(8,6,12,.97) 100%
+            ),
+            url('/images/tropinails-public-hero.png')
+            62% center / cover no-repeat;
     }
 
-    @@media (max-width: 480px) {
 
-        .hero-title {
-            font-size: 2.85rem;
-        }
-
-        .hero-actions {
-            flex-direction: column;
-        }
-
-        .btn-premium {
-            width: 100%;
-        }
-
-        .professionals-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .categories-grid {
-            grid-template-columns:
-                repeat(2,minmax(0,1fr));
-        }
-
-        .professional-image {
-            height: 245px;
-        }
+    .premium-container,
+    .results-container,
+    .categories-container,
+    .discovery-grid {
+        padding-left: 18px;
+        padding-right: 18px;
     }
+
+
+    .public-content {
+        padding:
+            100px 0 45px;
+    }
+
+
+    .brand-badge {
+        margin-bottom: 19px;
+        font-size: .72rem;
+    }
+
+
+    .hero-title {
+        font-size: 3.25rem;
+
+        letter-spacing: -2.5px;
+
+        line-height: .94;
+
+        margin-bottom: 22px;
+    }
+
+
+    .hero-description {
+        font-size: .98rem;
+
+        line-height: 1.6;
+
+        margin-bottom: 24px;
+    }
+
+
+    .hero-search {
+        min-height: auto;
+
+        flex-wrap: wrap;
+
+        padding: 7px;
+
+        border-radius: 17px;
+    }
+
+
+    .hero-search input {
+        width:
+            calc(100% - 60px);
+
+        padding-right: 5px;
+    }
+
+
+    .search-button {
+        width: 100%;
+
+        min-height: 48px;
+    }
+
+
+    .search-suggestions {
+        gap: 6px;
+    }
+
+
+    .suggestion-chip {
+        font-size: .68rem;
+    }
+
+
+    .hero-actions {
+        gap: 9px;
+    }
+
+
+    .btn-premium {
+        flex: 1;
+
+        min-width: 150px;
+
+        min-height: 50px;
+    }
+
+
+    .trust-row {
+        gap: 12px 17px;
+
+        font-size: .72rem;
+    }
+
+
+    /* =========================================================
+       NAVEGACIÓN SUPERIOR — MÓVIL
+       ========================================================= */
+
+    .public-top-navigation {
+        top: 17px;
+        right: 17px;
+
+        gap: 7px;
+    }
+
+
+    /* =========================================================
+       BOTÓN PROFESIONALES — MÓVIL
+       ========================================================= */
+
+    .professionals-link,
+    .public-top-navigation .login-link {
+        min-height: 39px;
+
+        padding: 0 11px;
+
+        border-radius: 12px;
+
+        font-size: .72rem;
+    }
+
+
+    .professionals-link i {
+        font-size: .82rem;
+    }
+
+
+    /* =========================================================
+       RESULTADOS
+       ========================================================= */
+
+    .results-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .professionals-grid {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+
+        gap: 12px;
+    }
+
+
+    .professional-image {
+        height: 200px;
+    }
+
+
+    /* =========================================================
+       CATEGORÍAS
+       ========================================================= */
+
+    .categories-grid {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+
+    /* =========================================================
+       NEGOCIOS EXTERNOS
+       ========================================================= */
+
+    .external-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    /* =========================================================
+       DESCUBRIMIENTO
+       ========================================================= */
+
+    .discovery-card {
+        padding: 25px;
+
+        min-height: 270px;
+    }
+
+}
+
+
+@@media (max-width: 480px) {
+
+    .hero-title {
+        font-size: 2.85rem;
+    }
+
+
+    .hero-actions {
+        flex-direction: column;
+    }
+
+
+    .btn-premium {
+        width: 100%;
+    }
+
+
+    .professionals-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .categories-grid {
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+
+    .professional-image {
+        height: 245px;
+    }
+
+
+    /* =========================================================
+       NAVEGACIÓN SUPERIOR — TELÉFONOS PEQUEÑOS
+       ========================================================= */
+
+    .public-top-navigation {
+        right: 12px;
+
+        gap: 5px;
+    }
+
+
+    .professionals-link,
+    .public-top-navigation .login-link {
+        padding: 0 9px;
+
+        font-size: .68rem;
+    }
+
+}
 
 </style>
 
@@ -1532,6 +1617,25 @@
 
 <section class="public-home">
 
+    <!-- =========================================================
+     NAVEGACIÓN PÚBLICA
+     ========================================================= -->
+
+<div class="public-top-navigation">
+
+    <!-- VITRINA DE PROFESIONALES -->
+
+    <a asp-controller="Salones"
+       asp-action="Index"
+       class="professionals-link">
+
+        <i class="bi bi-people"></i>
+
+        Profesionales de la App🌺
+
+    </a>
+
+
     <!-- LOGIN -->
 
     <a asp-controller="Auth"
@@ -1541,6 +1645,8 @@
         Iniciar sesión
 
     </a>
+
+</div>
 
 
     <div class="public-content">

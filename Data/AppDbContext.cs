@@ -31,6 +31,7 @@ namespace TropiNailsPro.Data
         public DbSet<MensajeEliminadoUsuario> MensajesEliminadosUsuarios { get; set; }
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Manicurista> Manicuristas { get; set; }
+        public DbSet<Servicio> Servicios { get; set; }
         public DbSet<SuscripcionPago> SuscripcionPagos { get; set; }
         public DbSet<Suscripcion> Suscripciones { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
@@ -80,6 +81,21 @@ namespace TropiNailsPro.Data
             modelBuilder.Entity<SuscripcionPago>().ToTable("SuscripcionPagos");
             modelBuilder.Entity<Suscripcion>().ToTable("Suscripciones");
             modelBuilder.Entity<Manicurista>().ToTable("Manicuristas");
+
+// ======================================================
+// SERVICIOS → MANICURISTA
+// ======================================================
+
+modelBuilder.Entity<Servicio>()
+    .HasOne(s => s.Manicurista)
+    .WithMany(m => m.Servicios)
+    .HasForeignKey(s => s.ManicuristaId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+modelBuilder.Entity<Servicio>()
+    .HasIndex(s => s.ManicuristaId);
+
+
 
             // ======================================================
 // 📍 UBICACIÓN DE MANICURISTAS

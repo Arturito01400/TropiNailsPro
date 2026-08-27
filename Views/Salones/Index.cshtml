@@ -1,22 +1,33 @@
+@using System.Globalization
+@using System.Linq
+@using TropiNailsPro.Models
+
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 
+    // ============================================================
+    // TROPINAILS PRO
+    // VITRINA PÚBLICA PREMIUM
+    // BELLEZA · ESTÉTICA · CUIDADO PERSONAL
+    // ============================================================
+
     var manicurista =
-        ViewBag.Manicurista as TropiNailsPro.Models.Manicurista;
+        ViewBag.Manicurista as Manicurista;
 
     var modelos =
-        ViewBag.Modelos as List<TropiNailsPro.Models.ModeloUnas>
-        ?? new();
+        ViewBag.Modelos as List<ModeloUnas>
+        ?? new List<ModeloUnas>();
 
     var feed =
-        ViewBag.Feed as List<TropiNailsPro.Models.Publicacion>
-        ?? new();
+        ViewBag.Feed as List<Publicacion>
+        ?? new List<Publicacion>();
 
-    var usuario = manicurista?.Usuario;
+    var usuario =
+        manicurista?.Usuario;
 
-    // =========================================================
+    // ============================================================
     // FOTOS
-    // =========================================================
+    // ============================================================
 
     var fotoNegocio =
         ViewBag.FotoNegocio as string
@@ -26,6 +37,7 @@
     var fotoPerfil =
         ViewBag.FotoPerfil as string
         ?? usuario?.FotoPerfilUrl
+        ?? usuario?.FotoPerfil
         ?? "/img/user-default.png";
 
     if (string.IsNullOrWhiteSpace(fotoNegocio))
@@ -38,9 +50,9 @@
         fotoPerfil = "/img/user-default.png";
     }
 
-    // =========================================================
+    // ============================================================
     // WHATSAPP
-    // =========================================================
+    // ============================================================
 
     var telefonoWhatsApp =
         manicurista?.TelefonoNegocio
@@ -70,9 +82,9 @@
         }
     }
 
-    // =========================================================
+    // ============================================================
     // UBICACIÓN
-    // =========================================================
+    // ============================================================
 
     bool ubicacionActiva =
         ViewBag.UbicacionActiva != null &&
@@ -96,17 +108,19 @@
         ViewBag.Provincia as string
         ?? manicurista?.Provincia;
 
-    // =========================================================
-    // INFORMACIÓN
-    // =========================================================
+    // ============================================================
+    // IDENTIDAD
+    // ============================================================
 
     var nombreNegocio =
-        !string.IsNullOrWhiteSpace(manicurista?.NombreNegocio)
+        !string.IsNullOrWhiteSpace(
+            manicurista?.NombreNegocio)
             ? manicurista!.NombreNegocio
-            : "Negocio de belleza";
+            : "Espacio de belleza";
 
     var nombreProfesional =
-        !string.IsNullOrWhiteSpace(usuario?.Nombre)
+        !string.IsNullOrWhiteSpace(
+            usuario?.Nombre)
             ? usuario!.Nombre
             : "Profesional de belleza";
 
@@ -117,8 +131,19 @@
                 ? provincia
                 : "República Dominicana";
 
-    var totalModelos = modelos.Count;
-    var totalPublicaciones = feed.Count;
+    // ============================================================
+    // CONTADORES
+    // ============================================================
+
+    var totalModelos =
+        modelos.Count;
+
+    var totalPublicaciones =
+        feed.Count;
+
+    // ============================================================
+    // SLUG / AGENDAR
+    // ============================================================
 
     var slug =
         manicurista?.Slug;
@@ -131,402 +156,1285 @@
             "/Agendar?slug=" +
             Uri.EscapeDataString(slug);
     }
+
+    // ============================================================
+    // SERVICIOS
+    // ============================================================
+
+    var servicios =
+        manicurista?.Servicios?
+            .Where(s =>
+                s != null &&
+                s.Activo &&
+                !string.IsNullOrWhiteSpace(s.Nombre))
+            .OrderBy(s => s.Nombre)
+            .ToList()
+        ?? new List<Servicio>();
+
+    var totalServicios =
+        servicios.Count;
+
+    // ============================================================
+    // CATEGORÍA VISUAL
+    //
+    // No limitamos la plataforma a uñas.
+    // Si el modelo todavía no tiene una categoría profesional,
+    // utilizamos una descripción universal.
+    // ============================================================
+
+    var especialidad =
+        "Profesional de belleza";
+
+    // ============================================================
+    // GOOGLE MAPS
+    // ============================================================
+
+    string? mapaUrl = null;
+
+    if (ubicacionActiva &&
+        latitud.HasValue &&
+        longitud.HasValue)
+    {
+        mapaUrl =
+            "https://www.google.com/maps/search/?api=1&query=" +
+            latitud.Value.ToString(
+                CultureInfo.InvariantCulture) +
+            "," +
+            longitud.Value.ToString(
+                CultureInfo.InvariantCulture);
+    }
 }
 
 <style>
 
 /* ============================================================
    TROPINAILS PRO
-   PERFIL PÚBLICO PREMIUM
-============================================================ */
+   PUBLIC BEAUTY EXPERIENCE
+   ============================================================ */
 
 :root {
-    --tn-pink: #ff3f91;
-    --tn-pink-light: #ff72b2;
-    --tn-purple: #8b3dff;
-    --tn-dark: #17121d;
-    --tn-text: #29222f;
-    --tn-muted: #817985;
-    --tn-bg: #f7f5f8;
+
+    --tn-pink: #ff3d91;
+    --tn-pink-2: #ff75b5;
+    --tn-purple: #8c42ff;
+    --tn-violet: #6827d9;
+
+    --tn-dark: #18131f;
+    --tn-text: #2c2433;
+    --tn-muted: #817786;
+
+    --tn-bg: #f8f6fa;
+    --tn-card: rgba(255,255,255,.94);
     --tn-white: #ffffff;
-    --tn-border: rgba(35, 25, 45, .08);
-    --tn-shadow: 0 15px 50px rgba(40, 20, 55, .09);
-    --tn-shadow-hover: 0 22px 60px rgba(40, 20, 55, .15);
+
+    --tn-border:
+        rgba(40,25,55,.08);
+
+    --tn-shadow:
+        0 18px 55px rgba(39,19,55,.09);
+
+    --tn-shadow-hover:
+        0 28px 70px rgba(39,19,55,.15);
+
+    --tn-radius:
+        28px;
 }
 
 /* ============================================================
-   BASE
-============================================================ */
+   RESET LOCAL
+   ============================================================ */
+
+.public-profile-page,
+.public-profile-page * {
+    box-sizing: border-box;
+}
 
 .public-profile-page {
+    min-height: 100vh;
+
     background:
         radial-gradient(
-            circle at 10% 0%,
-            rgba(255, 83, 157, .08),
-            transparent 30%
+            circle at 0% 0%,
+            rgba(255,61,145,.09),
+            transparent 28%
         ),
         radial-gradient(
-            circle at 90% 10%,
-            rgba(139, 61, 255, .07),
+            circle at 100% 10%,
+            rgba(140,66,255,.09),
             transparent 30%
         ),
-        var(--tn-bg);
+        linear-gradient(
+            180deg,
+            #faf8fb 0%,
+            #f7f4f9 100%
+        );
 
-    min-height: 100vh;
-    padding-bottom: 70px;
+    color: var(--tn-text);
+
+    padding-bottom: 80px;
+
+    overflow-x: hidden;
 }
 
 .public-profile {
-    width: min(1180px, calc(100% - 30px));
-    margin: 0 auto;
-}
-
-/* ============================================================
-   HERO
-============================================================ */
-
-.business-hero {
-    position: relative;
-    min-height: 470px;
-    border-radius: 0 0 38px 38px;
-    overflow: hidden;
-    background: #17121d;
-    box-shadow: 0 20px 60px rgba(20, 10, 30, .16);
-}
-
-.hero-cover {
-    position: absolute;
-    inset: 0;
-    background:
-        linear-gradient(
-            180deg,
-            rgba(0,0,0,.08) 0%,
-            rgba(0,0,0,.16) 35%,
-            rgba(16,8,20,.88) 100%
+    width:
+        min(
+            1220px,
+            calc(100% - 28px)
         );
-    z-index: 1;
-}
 
-.hero-image {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scale(1.02);
-    filter: saturate(1.08);
-}
-
-.hero-top-bar {
-    position: relative;
-    z-index: 3;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 25px 28px;
-}
-
-.brand-mini {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 14px;
-    border-radius: 999px;
-    color: white;
-    background: rgba(255,255,255,.13);
-    border: 1px solid rgba(255,255,255,.2);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    font-weight: 800;
-    font-size: 13px;
-}
-
-.brand-mini span {
-    font-size: 18px;
-}
-
-.hero-location {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    color: white;
-    background: rgba(0,0,0,.22);
-    border: 1px solid rgba(255,255,255,.16);
-    padding: 9px 14px;
-    border-radius: 999px;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.hero-content {
-    position: absolute;
-    z-index: 3;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 35px 45px 42px;
-    color: white;
-}
-
-.hero-profile-row {
-    display: flex;
-    align-items: flex-end;
-    gap: 22px;
-}
-
-.profile-avatar-wrap {
-    position: relative;
-    flex-shrink: 0;
-}
-
-.profile-avatar {
-    width: 112px;
-    height: 112px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 5px solid rgba(255,255,255,.95);
-    box-shadow:
-        0 10px 35px rgba(0,0,0,.35);
-    background: white;
-}
-
-.verified-badge {
-    position: absolute;
-    right: 2px;
-    bottom: 5px;
-    width: 31px;
-    height: 31px;
-    border-radius: 50%;
-    background: linear-gradient(
-        135deg,
-        #ff3f91,
-        #8b3dff
-    );
-    border: 3px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-}
-
-.hero-info {
-    min-width: 0;
-}
-
-.hero-title {
-    font-size: clamp(32px, 5vw, 54px);
-    line-height: 1.02;
-    font-weight: 900;
-    margin: 0 0 9px;
-    letter-spacing: -1.5px;
-    text-shadow: 0 4px 25px rgba(0,0,0,.25);
-}
-
-.hero-subtitle {
-    margin: 0;
-    color: rgba(255,255,255,.85);
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 15px;
-}
-
-.hero-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.12);
-    border: 1px solid rgba(255,255,255,.16);
-    backdrop-filter: blur(12px);
-    font-size: 12px;
-    font-weight: 700;
+    margin:
+        0 auto;
 }
 
 /* ============================================================
-   ACTION BAR
-============================================================ */
+   FLOATING TOP BRAND
+   ============================================================ */
 
-.action-panel {
-    position: relative;
-    z-index: 5;
-    width: min(1080px, calc(100% - 30px));
-    margin: -28px auto 0;
-    background: rgba(255,255,255,.96);
-    border: 1px solid rgba(255,255,255,.8);
-    border-radius: 25px;
-    box-shadow: var(--tn-shadow);
-    padding: 15px;
+.profile-floating-brand {
+    position: absolute;
+
+    top: 22px;
+    left: 25px;
+
+    z-index: 20;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 10px 15px;
+
+    color: white;
+
+    background:
+        rgba(255,255,255,.13);
+
+    border:
+        1px solid
+        rgba(255,255,255,.20);
+
+    border-radius: 999px;
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+
+    font-size: 13px;
+    font-weight: 900;
+
+    box-shadow:
+        0 10px 30px
+        rgba(0,0,0,.10);
 }
 
-.action-grid {
-    display: grid;
-    grid-template-columns: 1.25fr 1fr 1fr;
-    gap: 10px;
-}
+.profile-floating-brand-icon {
+    width: 25px;
+    height: 25px;
 
-.action-button {
-    min-height: 56px;
-    border-radius: 17px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    text-decoration: none !important;
-    font-weight: 850;
-    font-size: 14px;
-    transition: .22s ease;
-}
 
-.action-button:hover {
-    transform: translateY(-2px);
-}
+    border-radius: 50%;
 
-.action-primary {
-    color: white !important;
     background:
         linear-gradient(
             135deg,
             var(--tn-pink),
             var(--tn-purple)
         );
-    box-shadow: 0 8px 25px rgba(255,63,145,.22);
-}
 
-.action-whatsapp {
-    color: white !important;
-    background: #25D366;
-    box-shadow: 0 8px 25px rgba(37,211,102,.18);
-}
-
-.action-secondary {
-    color: var(--tn-text) !important;
-    background: #f5f2f7;
+    font-size: 13px;
 }
 
 /* ============================================================
-   CONTENT
-============================================================ */
+   HERO
+   ============================================================ */
 
-.profile-content {
-    padding-top: 35px;
+.business-hero {
+
+    position: relative;
+
+    min-height: 570px;
+
+    margin-top: 0;
+
+    overflow: hidden;
+
+    border-radius:
+        0 0 42px 42px;
+
+    background:
+        #17121d;
+
+    box-shadow:
+        0 25px 75px
+        rgba(25,10,35,.20);
 }
 
-.section {
-    margin-top: 35px;
+.hero-image {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    transform:
+        scale(1.025);
+
+    filter:
+        saturate(1.08)
+        contrast(1.02);
 }
 
-.section-heading {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 15px;
-    margin-bottom: 18px;
+.hero-cover {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 1;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            rgba(11,7,15,.08) 0%,
+            rgba(11,7,15,.10) 28%,
+            rgba(11,7,15,.45) 55%,
+            rgba(13,7,18,.94) 100%
+        );
+
 }
 
-.section-title {
-    margin: 0;
-    font-size: 25px;
-    font-weight: 900;
-    color: var(--tn-dark);
-    letter-spacing: -.5px;
+.hero-glow {
+
+    position: absolute;
+
+    width: 430px;
+    height: 430px;
+
+    right: -150px;
+    top: -180px;
+
+    z-index: 2;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,83,160,.40),
+            transparent 65%
+        );
+
+    filter: blur(20px);
+
+    pointer-events: none;
 }
 
-.section-subtitle {
-    color: var(--tn-muted);
-    font-size: 13px;
-    margin-top: 4px;
-}
+.hero-location {
 
-.section-count {
-    background: white;
-    border: 1px solid var(--tn-border);
+    position: absolute;
+
+    top: 22px;
+    right: 25px;
+
+    z-index: 20;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 10px 15px;
+
     border-radius: 999px;
+
+    color: white;
+
+    background:
+        rgba(0,0,0,.23);
+
+    border:
+        1px solid
+        rgba(255,255,255,.16);
+
+    backdrop-filter:
+        blur(18px);
+
+    -webkit-backdrop-filter:
+        blur(18px);
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.hero-content {
+
+    position: absolute;
+
+    z-index: 5;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    padding:
+        45px
+        55px
+        55px;
+}
+
+.hero-profile-row {
+
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: 25px;
+}
+
+.profile-avatar-wrap {
+
+    position: relative;
+
+    flex-shrink: 0;
+}
+
+.profile-avatar {
+
+    width: 132px;
+    height: 132px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    border:
+        5px solid
+        rgba(255,255,255,.97);
+
+    background: white;
+
+    box-shadow:
+        0 15px 45px
+        rgba(0,0,0,.38);
+}
+
+.verified-badge {
+
+    position: absolute;
+
+    right: 2px;
+    bottom: 6px;
+
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--tn-pink),
+            var(--tn-purple)
+        );
+
+    border:
+        3px solid white;
+
+    font-size: 14px;
+    font-weight: 900;
+
+    box-shadow:
+        0 7px 20px
+        rgba(0,0,0,.25);
+}
+
+.hero-info {
+    min-width: 0;
+    max-width: 850px;
+}
+
+.hero-eyebrow {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
     padding: 7px 12px;
-    color: var(--tn-pink);
+
+    margin-bottom: 12px;
+
+    border-radius: 999px;
+
+    background:
+        rgba(255,255,255,.13);
+
+    border:
+        1px solid
+        rgba(255,255,255,.16);
+
+    color:
+        rgba(255,255,255,.88);
+
+    backdrop-filter:
+        blur(14px);
+
+    font-size: 11px;
+    font-weight: 900;
+
+    letter-spacing: .5px;
+
+    text-transform: uppercase;
+}
+
+.hero-title {
+
+    margin: 0;
+
+    color: white;
+
+    font-size:
+        clamp(
+            36px,
+            6vw,
+            66px
+        );
+
+    line-height: .98;
+
+    font-weight: 950;
+
+    letter-spacing:
+        -2.4px;
+
+    text-shadow:
+        0 6px 30px
+        rgba(0,0,0,.28);
+}
+
+.hero-subtitle {
+
+    margin:
+        13px 0 0;
+
+    color:
+        rgba(255,255,255,.88);
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    line-height: 1.5;
+}
+
+.hero-meta {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 18px;
+}
+
+.hero-pill {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding:
+        8px 12px;
+
+    color:
+        rgba(255,255,255,.92);
+
+    background:
+        rgba(255,255,255,.11);
+
+    border:
+        1px solid
+        rgba(255,255,255,.15);
+
+    border-radius: 999px;
+
+    backdrop-filter:
+        blur(14px);
+
     font-size: 12px;
     font-weight: 800;
 }
 
 /* ============================================================
-   ABOUT CARD
-============================================================ */
+   ACTION BAR
+   ============================================================ */
+
+.action-panel {
+
+    position: relative;
+
+    z-index: 15;
+
+    width:
+        min(
+            1080px,
+            calc(100% - 35px)
+        );
+
+    margin:
+        -32px auto 0;
+
+    padding: 14px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.90);
+
+    border-radius: 27px;
+
+    background:
+        rgba(255,255,255,.92);
+
+    box-shadow:
+        0 20px 55px
+        rgba(35,15,50,.13);
+
+    backdrop-filter:
+        blur(20px);
+
+    -webkit-backdrop-filter:
+        blur(20px);
+}
+
+.action-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1.45fr
+        1fr
+        1fr;
+
+    gap: 10px;
+}
+
+.action-button {
+
+    min-height: 62px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    padding:
+        12px 17px;
+
+    border-radius: 18px;
+
+    text-decoration: none !important;
+
+    font-size: 14px;
+
+    font-weight: 900;
+
+    transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        background .22s ease;
+}
+
+.action-button:hover {
+
+    transform:
+        translateY(-3px);
+}
+
+.action-primary {
+
+    color: white !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--tn-pink),
+            var(--tn-purple)
+        );
+
+    box-shadow:
+        0 12px 30px
+        rgba(255,61,145,.24);
+}
+
+.action-primary:hover {
+
+    box-shadow:
+        0 18px 38px
+        rgba(255,61,145,.32);
+}
+
+.action-whatsapp {
+
+    color: white !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #25D366,
+            #18b957
+        );
+
+    box-shadow:
+        0 10px 28px
+        rgba(37,211,102,.17);
+}
+
+.action-secondary {
+
+    color:
+        var(--tn-text) !important;
+
+    background:
+        #f5f2f8;
+
+    border:
+        1px solid
+        rgba(40,25,55,.05);
+}
+
+/* ============================================================
+   CONTENT
+   ============================================================ */
+
+.profile-content {
+
+    padding-top: 48px;
+}
+
+.section {
+
+    margin-top: 58px;
+}
+
+.section-heading {
+
+    display: flex;
+
+    align-items: flex-end;
+
+    justify-content: space-between;
+
+    gap: 18px;
+
+    margin-bottom: 22px;
+}
+
+.section-kicker {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color:
+        var(--tn-pink);
+
+    font-size: 11px;
+
+    font-weight: 950;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 5px;
+}
+
+.section-title {
+
+    margin: 0;
+
+    color:
+        var(--tn-dark);
+
+    font-size:
+        clamp(
+            24px,
+            3vw,
+            31px
+        );
+
+    line-height: 1.1;
+
+    font-weight: 950;
+
+    letter-spacing:
+        -.8px;
+}
+
+.section-subtitle {
+
+    margin-top: 7px;
+
+    color:
+        var(--tn-muted);
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.section-count {
+
+    flex-shrink: 0;
+
+    padding:
+        8px 13px;
+
+    color:
+        var(--tn-pink);
+
+    background: white;
+
+    border:
+        1px solid
+        var(--tn-border);
+
+    border-radius: 999px;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    box-shadow:
+        0 5px 18px
+        rgba(40,20,55,.04);
+}
+
+/* ============================================================
+   QUICK INTRO
+   ============================================================ */
+
+.intro-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 30px;
+
+    border:
+        1px solid
+        var(--tn-border);
+
+    border-radius:
+        var(--tn-radius);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,.98),
+            rgba(255,248,252,.96)
+        );
+
+    box-shadow:
+        var(--tn-shadow);
+}
+
+.intro-card::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 230px;
+    height: 230px;
+
+    right: -90px;
+    top: -100px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255,63,145,.13),
+            transparent 65%
+        );
+}
+
+.intro-grid {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: grid;
+
+    grid-template-columns:
+        1.4fr
+        .6fr;
+
+    gap: 25px;
+
+    align-items: center;
+}
+
+.intro-title {
+
+    margin: 0 0 9px;
+
+    color: var(--tn-dark);
+
+    font-size: 21px;
+
+    font-weight: 950;
+}
+
+.intro-text {
+
+    margin: 0;
+
+    color: var(--tn-muted);
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+    max-width: 720px;
+}
+
+.intro-stat {
+
+    padding: 18px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(255,255,255,.72);
+
+    border:
+        1px solid
+        rgba(255,255,255,.9);
+
+    text-align: center;
+}
+
+.intro-stat-number {
+
+    display: block;
+
+    color:
+        var(--tn-pink);
+
+    font-size: 30px;
+
+    line-height: 1;
+
+    font-weight: 950;
+}
+
+.intro-stat-label {
+
+    display: block;
+
+    margin-top: 7px;
+
+    color:
+        var(--tn-muted);
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+/* ============================================================
+   SERVICES
+   ============================================================ */
+
+.services-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap: 17px;
+}
+
+.service-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 23px;
+
+    border-radius: 24px;
+
+    border:
+        1px solid
+        var(--tn-border);
+
+    background:
+        rgba(255,255,255,.96);
+
+    box-shadow:
+        var(--tn-shadow);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+}
+
+.service-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 4px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--tn-pink),
+            var(--tn-purple)
+        );
+}
+
+.service-card:hover {
+
+    transform:
+        translateY(-5px);
+
+    box-shadow:
+        var(--tn-shadow-hover);
+}
+
+.service-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    align-items: flex-start;
+}
+
+.service-icon {
+
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff0f7,
+            #f0e9ff
+        );
+
+    font-size: 21px;
+}
+
+.service-active {
+
+    padding:
+        6px 9px;
+
+    border-radius: 999px;
+
+    background:
+        #effcf5;
+
+    color:
+        #18a85a;
+
+    font-size: 10px;
+
+    font-weight: 900;
+}
+
+.service-name {
+
+    margin-top: 18px;
+
+    color:
+        var(--tn-dark);
+
+    font-size: 17px;
+
+    font-weight: 950;
+}
+
+.service-description {
+
+    min-height: 42px;
+
+    margin-top: 7px;
+
+    color:
+        var(--tn-muted);
+
+    font-size: 13px;
+
+    line-height: 1.55;
+}
+
+.service-meta {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin-top: 17px;
+}
+
+.service-meta-pill {
+
+    padding:
+        7px 9px;
+
+    border-radius: 10px;
+
+    color:
+        #655b6a;
+
+    background:
+        #f8f5f9;
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+.service-price {
+
+    margin-top: 17px;
+
+    color:
+        var(--tn-pink);
+
+    font-size: 18px;
+
+    font-weight: 950;
+}
+
+.service-price small {
+
+    color:
+        var(--tn-muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+.service-book {
+
+    width: 100%;
+
+    margin-top: 17px;
+
+    min-height: 43px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    border-radius: 13px;
+
+    color:
+        var(--tn-purple) !important;
+
+    background:
+        #f5efff;
+
+    text-decoration: none !important;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    transition:
+        .2s ease;
+}
+
+.service-book:hover {
+
+    color: white !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--tn-pink),
+            var(--tn-purple)
+        );
+}
+
+/* ============================================================
+   INFORMATION
+   ============================================================ */
 
 .about-grid {
+
     display: grid;
-    grid-template-columns: 1.15fr .85fr;
+
+    grid-template-columns:
+        1.1fr
+        .9fr;
+
     gap: 18px;
 }
 
 .info-card {
-    background: white;
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: var(--tn-shadow);
-    border: 1px solid var(--tn-border);
+
+    padding: 25px;
+
+    border:
+        1px solid
+        var(--tn-border);
+
+    border-radius:
+        var(--tn-radius);
+
+    background:
+        white;
+
+    box-shadow:
+        var(--tn-shadow);
 }
 
 .info-card-title {
-    font-weight: 900;
+
+    margin-bottom: 17px;
+
+    color:
+        var(--tn-dark);
+
     font-size: 17px;
-    margin-bottom: 18px;
-    color: var(--tn-dark);
+
+    font-weight: 950;
 }
 
 .info-row {
+
     display: flex;
+
     align-items: flex-start;
+
     gap: 13px;
-    padding: 13px 0;
-    border-bottom: 1px solid #f0edf2;
+
+    padding:
+        13px 0;
+
+    border-bottom:
+        1px solid
+        #f0edf2;
 }
 
 .info-row:last-child {
+
     border-bottom: none;
+
     padding-bottom: 0;
 }
 
 .info-icon {
-    width: 38px;
-    height: 38px;
+
+    width: 40px;
+    height: 40px;
+
     flex-shrink: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 13px;
-    background: linear-gradient(
-        135deg,
-        #fff0f7,
-        #f1eaff
-    );
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff0f7,
+            #f1eaff
+        );
+
     font-size: 17px;
 }
 
 .info-label {
-    color: #8a808e;
-    font-size: 11px;
-    font-weight: 700;
+
+    color:
+        #938895;
+
+    font-size: 10px;
+
+    font-weight: 900;
+
     text-transform: uppercase;
-    letter-spacing: .4px;
+
+    letter-spacing: .5px;
 }
 
 .info-value {
-    color: var(--tn-text);
+
+    margin-top: 3px;
+
+    color:
+        var(--tn-text);
+
     font-size: 14px;
-    font-weight: 700;
-    margin-top: 2px;
+
+    font-weight: 750;
+
     word-break: break-word;
 }
 
+/* ============================================================
+   SOCIAL
+   ============================================================ */
+
 .social-card {
+
     background:
         linear-gradient(
             145deg,
@@ -536,60 +1444,429 @@
 }
 
 .social-buttons {
+
     display: grid;
-    grid-template-columns: 1fr 1fr;
+
+    grid-template-columns:
+        1fr 1fr;
+
     gap: 10px;
 }
 
 .social-button {
+
     display: flex;
+
     align-items: center;
+
     gap: 9px;
-    padding: 12px;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        #eee9f0;
+
     border-radius: 14px;
-    background: #faf8fb;
-    color: #3a313f !important;
+
+    color:
+        #3a313f !important;
+
+    background:
+        #faf8fb;
+
     text-decoration: none !important;
+
     font-size: 13px;
-    font-weight: 800;
-    border: 1px solid #eee9f0;
-    transition: .2s;
+
+    font-weight: 850;
+
+    transition: .2s ease;
 }
 
 .social-button:hover {
+
+    transform:
+        translateY(-2px);
+
     background: white;
-    transform: translateY(-2px);
-    box-shadow: 0 7px 20px rgba(40,20,55,.08);
+
+    box-shadow:
+        0 8px 22px
+        rgba(40,20,55,.08);
+}
+
+/* ============================================================
+   PORTFOLIO
+   ============================================================ */
+
+.portfolio-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0,1fr)
+        );
+
+    gap: 15px;
+}
+
+.portfolio-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    aspect-ratio:
+        4 / 5;
+
+    border-radius: 21px;
+
+    background:
+        #17121d;
+
+    box-shadow:
+        0 12px 35px
+        rgba(35,15,50,.09);
+}
+
+.portfolio-media {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition:
+        transform .4s ease;
+}
+
+.portfolio-card:hover
+.portfolio-media {
+
+    transform:
+        scale(1.055);
+}
+
+.portfolio-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    padding: 17px;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent 50%,
+            rgba(0,0,0,.78)
+        );
+
+    pointer-events: none;
+}
+
+.portfolio-info {
+
+    color: white;
+}
+
+.portfolio-name {
+
+    font-size: 14px;
+
+    font-weight: 950;
+}
+
+.portfolio-description {
+
+    margin-top: 4px;
+
+    color:
+        rgba(255,255,255,.76);
+
+    font-size: 11px;
+
+    line-height: 1.4;
+}
+
+.portfolio-badge {
+
+    position: absolute;
+
+    top: 12px;
+    left: 12px;
+
+    padding:
+        7px 10px;
+
+    border-radius: 999px;
+
+    color: white;
+
+    background:
+        rgba(0,0,0,.46);
+
+    border:
+        1px solid
+        rgba(255,255,255,.16);
+
+    backdrop-filter:
+        blur(10px);
+
+    font-size: 10px;
+
+    font-weight: 900;
+}
+
+.portfolio-price {
+
+    position: absolute;
+
+    right: 12px;
+    top: 12px;
+
+    padding:
+        7px 9px;
+
+    border-radius: 10px;
+
+    color:
+        var(--tn-pink);
+
+    background:
+        rgba(255,255,255,.94);
+
+    font-size: 10px;
+
+    font-weight: 950;
+}
+
+/* ============================================================
+   FEED
+   ============================================================ */
+
+.feed-layout {
+
+    width:
+        min(
+            780px,
+            100%
+        );
+
+    margin:
+        0 auto;
+}
+
+.post-card {
+
+    overflow: hidden;
+
+    margin-bottom: 21px;
+
+    border:
+        1px solid
+        var(--tn-border);
+
+    border-radius:
+        var(--tn-radius);
+
+    background: white;
+
+    box-shadow:
+        var(--tn-shadow);
+}
+
+.post-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding:
+        17px 18px;
+}
+
+.post-avatar {
+
+    width: 49px;
+    height: 49px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    border:
+        2px solid white;
+
+    box-shadow:
+        0 0 0 2px
+        #ff69aa;
+}
+
+.post-user {
+
+    color:
+        var(--tn-dark);
+
+    font-size: 14px;
+
+    font-weight: 950;
+}
+
+.post-business {
+
+    margin-top: 2px;
+
+    color:
+        var(--tn-muted);
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+.post-media-wrap {
+
+    background:
+        #111;
+}
+
+.post-media {
+
+    width: 100%;
+
+    max-height: 720px;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+.post-video {
+
+    width: 100%;
+
+    max-height: 720px;
+
+    display: block;
+
+    background:
+        #000;
+}
+
+.post-body {
+
+    padding:
+        18px 19px 21px;
+}
+
+.post-text {
+
+    margin: 0;
+
+    color:
+        #413847;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+    white-space: pre-line;
 }
 
 /* ============================================================
    MAP
-============================================================ */
+   ============================================================ */
 
 .map-card {
-    overflow: hidden;
+
     padding: 0;
+
+    overflow: hidden;
 }
 
 .map-header {
-    padding: 20px 22px 15px;
+
+    padding:
+        22px 23px 17px;
 }
 
 .map-frame {
+
     width: 100%;
-    height: 340px;
-    border: 0;
+
+    height: 370px;
+
     display: block;
+
+    border: 0;
+}
+
+.map-actions {
+
+    display: flex;
+
+    justify-content: center;
+
+    padding:
+        14px 20px 20px;
+}
+
+.map-open {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    padding:
+        11px 17px;
+
+    border-radius: 999px;
+
+    color:
+        var(--tn-purple) !important;
+
+    background:
+        #f5efff;
+
+    text-decoration: none !important;
+
+    font-size: 12px;
+
+    font-weight: 900;
 }
 
 .map-placeholder {
-    min-height: 240px;
+
+    min-height: 260px;
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
+
+    padding: 35px;
+
     text-align: center;
-    padding: 30px;
+
     background:
         radial-gradient(
             circle at center,
@@ -599,427 +1876,621 @@
 }
 
 .map-placeholder-icon {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background: white;
+
+    width: 74px;
+    height: 74px;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
-    font-size: 30px;
-    box-shadow: 0 10px 30px rgba(40,20,55,.08);
+
     margin-bottom: 15px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow:
+        0 12px 30px
+        rgba(40,20,55,.08);
+
+    font-size: 30px;
 }
 
 .map-placeholder h4 {
-    font-weight: 900;
-    margin-bottom: 6px;
+
+    margin:
+        0 0 6px;
+
+    color:
+        var(--tn-dark);
+
+    font-size: 18px;
+
+    font-weight: 950;
 }
 
 .map-placeholder p {
-    color: var(--tn-muted);
+
+    max-width: 460px;
+
     margin: 0;
-    max-width: 450px;
+
+    color:
+        var(--tn-muted);
+
     font-size: 14px;
-}
 
-/* ============================================================
-   MODELOS
-============================================================ */
-
-.models-grid {
-    display: grid;
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-    gap: 18px;
-}
-
-.model-card {
-    background: white;
-    border-radius: 22px;
-    overflow: hidden;
-    border: 1px solid var(--tn-border);
-    box-shadow: var(--tn-shadow);
-    transition: .25s ease;
-}
-
-.model-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--tn-shadow-hover);
-}
-
-.model-media-wrap {
-    position: relative;
-    height: 330px;
-    overflow: hidden;
-    background: #17121d;
-}
-
-.model-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform .35s ease;
-}
-
-.model-card:hover .model-image {
-    transform: scale(1.035);
-}
-
-.model-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background: #000;
-}
-
-.model-type {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    padding: 7px 10px;
-    border-radius: 999px;
-    background: rgba(0,0,0,.5);
-    color: white;
-    backdrop-filter: blur(10px);
-    font-size: 11px;
-    font-weight: 800;
-}
-
-.model-body {
-    padding: 17px;
-}
-
-.model-name {
-    font-weight: 900;
-    font-size: 17px;
-    color: var(--tn-dark);
-}
-
-.model-description {
-    color: var(--tn-muted);
-    font-size: 13px;
-    line-height: 1.55;
-    margin-top: 6px;
-}
-
-.model-price {
-    margin-top: 13px;
-    display: inline-flex;
-    align-items: center;
-    padding: 7px 11px;
-    border-radius: 10px;
-    background: #fff0f7;
-    color: var(--tn-pink);
-    font-size: 13px;
-    font-weight: 900;
-}
-
-/* ============================================================
-   FEED
-============================================================ */
-
-.feed-layout {
-    width: min(760px, 100%);
-    margin: 0 auto;
-}
-
-.post-card {
-    background: white;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: var(--tn-shadow);
-    border: 1px solid var(--tn-border);
-    margin-bottom: 20px;
-}
-
-.post-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 17px 18px;
-}
-
-.post-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid white;
-    box-shadow:
-        0 0 0 2px #ff69aa;
-}
-
-.post-user {
-    font-weight: 900;
-    color: var(--tn-dark);
-    font-size: 14px;
-}
-
-.post-business {
-    color: var(--tn-muted);
-    font-size: 12px;
-    margin-top: 2px;
-}
-
-.post-media-wrap {
-    background: #111;
-}
-
-.post-media {
-    width: 100%;
-    max-height: 700px;
-    object-fit: cover;
-    display: block;
-}
-
-.post-video {
-    width: 100%;
-    max-height: 700px;
-    display: block;
-    background: #000;
-}
-
-.post-body {
-    padding: 17px 18px 20px;
-}
-
-.post-text {
-    color: #413847;
-    font-size: 14px;
-    line-height: 1.65;
-    margin: 0;
-    white-space: pre-line;
+    line-height: 1.6;
 }
 
 /* ============================================================
    EMPTY
-============================================================ */
+   ============================================================ */
 
 .empty-state {
-    background: white;
-    border: 1px dashed #ded7e2;
-    border-radius: 24px;
-    padding: 45px 25px;
+
+    padding:
+        50px 25px;
+
     text-align: center;
-    color: var(--tn-muted);
+
+    border:
+        1px dashed
+        #ddd5e1;
+
+    border-radius:
+        var(--tn-radius);
+
+    background:
+        rgba(255,255,255,.68);
+
+    color:
+        var(--tn-muted);
 }
 
 .empty-icon {
-    width: 70px;
-    height: 70px;
-    margin: 0 auto 15px;
-    border-radius: 50%;
-    background: #fff0f7;
+
+    width: 72px;
+    height: 72px;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
+    margin:
+        0 auto 15px;
+
+    border-radius: 50%;
+
+    background:
+        #fff0f7;
+
     font-size: 30px;
 }
 
 .empty-state h4 {
-    color: var(--tn-dark);
-    font-weight: 900;
-    margin-bottom: 6px;
+
+    margin:
+        0 0 7px;
+
+    color:
+        var(--tn-dark);
+
+    font-size: 18px;
+
+    font-weight: 950;
 }
 
 .empty-state p {
+
     margin: 0;
+
     font-size: 14px;
 }
 
 /* ============================================================
-   FOOTER CTA
-============================================================ */
+   FINAL CTA
+   ============================================================ */
 
 .final-cta {
-    margin-top: 50px;
-    border-radius: 30px;
-    padding: 38px 30px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    margin-top: 65px;
+
+    padding:
+        58px 30px;
+
     text-align: center;
+
     color: white;
+
+    border-radius:
+        34px;
+
     background:
+
         radial-gradient(
-            circle at 15% 20%,
-            rgba(255,255,255,.18),
-            transparent 28%
+            circle at 15% 15%,
+            rgba(255,255,255,.20),
+            transparent 25%
         ),
+
+        radial-gradient(
+            circle at 85% 80%,
+            rgba(255,255,255,.14),
+            transparent 30%
+        ),
+
         linear-gradient(
             135deg,
-            #ff3f91,
-            #8b3dff
+            #ff3d91,
+            #8c42ff
         );
-    box-shadow: 0 20px 50px rgba(139,61,255,.2);
+
+    box-shadow:
+        0 25px 65px
+        rgba(111,39,190,.25);
 }
 
 .final-cta h3 {
-    font-size: 26px;
-    font-weight: 900;
-    margin-bottom: 8px;
+
+    position: relative;
+
+    z-index: 2;
+
+    margin:
+        0 0 10px;
+
+    font-size:
+        clamp(
+            26px,
+            4vw,
+            38px
+        );
+
+    font-weight: 950;
+
+    letter-spacing:
+        -1px;
 }
 
 .final-cta p {
-    margin: 0 auto 20px;
-    max-width: 600px;
-    color: rgba(255,255,255,.86);
+
+    position: relative;
+
+    z-index: 2;
+
+    max-width: 650px;
+
+    margin:
+        0 auto 25px;
+
+    color:
+        rgba(255,255,255,.87);
+
     font-size: 14px;
+
+    line-height: 1.65;
 }
 
 .final-cta-button {
+
+    position: relative;
+
+    z-index: 2;
+
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
-    padding: 12px 22px;
+
+    gap: 9px;
+
+    min-height: 52px;
+
+    padding:
+        13px 24px;
+
     border-radius: 999px;
-    background: white;
-    color: #8b3dff !important;
+
+    color:
+        #7627d7 !important;
+
+    background:
+        white;
+
     text-decoration: none !important;
-    font-weight: 900;
+
+    font-size: 13px;
+
+    font-weight: 950;
+
+    box-shadow:
+        0 12px 30px
+        rgba(0,0,0,.13);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.final-cta-button:hover {
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 18px 35px
+        rgba(0,0,0,.18);
+}
+
+/* ============================================================
+   MOBILE FLOATING ACTION
+   ============================================================ */
+
+.mobile-book-bar {
+
+    display: none;
 }
 
 /* ============================================================
    RESPONSIVE
-============================================================ */
+   ============================================================ */
 
-@@media (max-width: 900px) {
+@@media (max-width: 1000px) {
 
-    .models-grid {
+    .services-grid {
+
         grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
     }
 
-    .about-grid {
+    .portfolio-grid {
+
+        grid-template-columns:
+            repeat(3, minmax(0,1fr));
+    }
+
+    .intro-grid {
+
         grid-template-columns: 1fr;
-    }
-
-    .business-hero {
-        min-height: 500px;
     }
 }
 
-@@media (max-width: 700px) {
+@@media (max-width: 800px) {
 
-    .public-profile {
-        width: min(100% - 18px, 600px);
+    .about-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+    .portfolio-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
     }
 
     .business-hero {
-        min-height: 550px;
-        border-radius: 0 0 28px 28px;
-    }
 
-    .hero-top-bar {
-        padding: 18px 15px;
-    }
-
-    .hero-location {
-        max-width: 160px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        min-height: 590px;
     }
 
     .hero-content {
-        padding: 28px 20px 38px;
+
+        padding:
+            35px 30px 45px;
     }
 
     .hero-profile-row {
+
         align-items: center;
+
         flex-direction: column;
+
         text-align: center;
     }
 
-    .profile-avatar {
-        width: 105px;
-        height: 105px;
+    .hero-info {
+
+        width: 100%;
     }
 
     .hero-meta {
+
         justify-content: center;
     }
 
-    .action-panel {
-        width: calc(100% - 18px);
-        margin-top: -22px;
-        padding: 10px;
-        border-radius: 20px;
-    }
-
     .action-grid {
+
         grid-template-columns: 1fr;
     }
 
     .action-button {
-        min-height: 52px;
+
+        min-height: 55px;
+    }
+}
+
+@@media (max-width: 600px) {
+
+    .public-profile {
+
+        width:
+            min(
+                100% - 12px,
+                600px
+            );
+    }
+
+    .business-hero {
+
+        min-height: 620px;
+
+        border-radius:
+            0 0 30px 30px;
+    }
+
+    .profile-floating-brand {
+
+        left: 14px;
+        top: 14px;
+
+        padding:
+            8px 11px;
+
+        font-size: 11px;
+    }
+
+    .profile-floating-brand-icon {
+
+        width: 22px;
+        height: 22px;
+    }
+
+    .hero-location {
+
+        right: 14px;
+        top: 14px;
+
+        max-width: 150px;
+
+        overflow: hidden;
+
+        white-space: nowrap;
+
+        text-overflow: ellipsis;
+
+        padding:
+            8px 11px;
+
+        font-size: 10px;
+    }
+
+    .hero-content {
+
+        padding:
+            25px 18px 38px;
+    }
+
+    .profile-avatar {
+
+        width: 105px;
+        height: 105px;
+    }
+
+    .hero-title {
+
+        font-size: 35px;
+
+        letter-spacing:
+            -1.4px;
+    }
+
+    .hero-subtitle {
+
+        font-size: 13px;
+    }
+
+    .action-panel {
+
+        width:
+            calc(100% - 14px);
+
+        margin-top:
+            -20px;
+
+        padding: 9px;
+
+        border-radius: 21px;
     }
 
     .profile-content {
-        padding-top: 20px;
+
+        padding-top: 28px;
     }
 
     .section {
-        margin-top: 27px;
+
+        margin-top: 40px;
     }
 
     .section-title {
-        font-size: 22px;
+
+        font-size: 23px;
     }
 
-    .models-grid {
+    .section-heading {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        margin-bottom: 16px;
+    }
+
+    .services-grid {
+
         grid-template-columns: 1fr;
-        gap: 15px;
+
+        gap: 14px;
     }
 
-    .model-media-wrap {
-        height: 360px;
+    .service-card {
+
+        padding: 20px;
+    }
+
+    .portfolio-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+
+        gap: 9px;
+    }
+
+    .portfolio-card {
+
+        border-radius: 16px;
+    }
+
+    .portfolio-overlay {
+
+        padding: 11px;
+    }
+
+    .portfolio-name {
+
+        font-size: 11px;
+    }
+
+    .portfolio-description {
+
+        display: none;
+    }
+
+    .about-grid {
+
+        gap: 13px;
+    }
+
+    .info-card {
+
+        padding: 20px;
     }
 
     .social-buttons {
+
         grid-template-columns: 1fr;
     }
 
     .map-frame {
-        height: 280px;
+
+        height: 300px;
     }
 
     .final-cta {
-        padding: 32px 20px;
+
+        margin-top: 45px;
+
+        padding:
+            42px 20px;
+
+        border-radius:
+            27px;
+    }
+
+    .mobile-book-bar {
+
+        position: fixed;
+
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+
+        z-index: 100;
+
+        display: flex;
+
+        padding: 8px;
+
+        border-radius: 19px;
+
+        background:
+            rgba(255,255,255,.94);
+
+        border:
+            1px solid
+            rgba(255,255,255,.9);
+
+        box-shadow:
+            0 15px 45px
+            rgba(30,10,40,.18);
+
+        backdrop-filter:
+            blur(18px);
+
+        -webkit-backdrop-filter:
+            blur(18px);
+    }
+
+    .mobile-book-button {
+
+        width: 100%;
+
+        min-height: 49px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 8px;
+
+        border-radius: 14px;
+
+        color: white !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--tn-pink),
+                var(--tn-purple)
+            );
+
+        text-decoration: none !important;
+
+        font-size: 13px;
+
+        font-weight: 950;
     }
 }
 
-@@media (max-width: 430px) {
-
-    .brand-mini {
-        padding: 7px 10px;
-        font-size: 11px;
-    }
-
-    .hero-location {
-        padding: 7px 10px;
-        font-size: 11px;
-        max-width: 135px;
-    }
+@@media (max-width: 390px) {
 
     .hero-title {
+
         font-size: 31px;
     }
 
-    .hero-subtitle {
-        font-size: 13px;
+    .portfolio-grid {
+
+        grid-template-columns: 1fr 1fr;
     }
 
-    .profile-avatar {
-        width: 92px;
-        height: 92px;
-    }
+    .service-name {
 
-    .model-media-wrap {
-        height: 330px;
-    }
-
-    .post-card {
-        border-radius: 19px;
+        font-size: 16px;
     }
 }
 
@@ -1028,9 +2499,9 @@
 
 <div class="public-profile-page">
 
-    <!-- =====================================================
-         HERO DEL NEGOCIO
-    ====================================================== -->
+    <!-- ========================================================
+         HERO
+    ========================================================= -->
 
     <section class="business-hero">
 
@@ -1038,21 +2509,33 @@
             src="@fotoNegocio"
             class="hero-image"
             alt="@nombreNegocio"
+            loading="eager"
             onerror="this.onerror=null;this.src='/img/user-default.png';"
         />
 
         <div class="hero-cover"></div>
 
-        <div class="hero-top-bar">
+        <div class="hero-glow"></div>
 
-            <div class="brand-mini">
-                <span>✨</span>
-                TropiNails Pro
-            </div>
 
-            <div class="hero-location">
-                📍 @ubicacionTexto
-            </div>
+        <div class="profile-floating-brand">
+
+            <span class="profile-floating-brand-icon">
+                ✨
+            </span>
+
+            TropiNails Pro
+
+        </div>
+
+
+        <div class="hero-location">
+
+            📍
+
+            <span>
+                @ubicacionTexto
+            </span>
 
         </div>
 
@@ -1067,6 +2550,7 @@
                         src="@fotoPerfil"
                         class="profile-avatar"
                         alt="@nombreProfesional"
+                        loading="eager"
                         onerror="this.onerror=null;this.src='/img/user-default.png';"
                     />
 
@@ -1079,13 +2563,20 @@
 
                 <div class="hero-info">
 
+                    <div class="hero-eyebrow">
+                        ✨ Profesional de belleza
+                    </div>
+
                     <h1 class="hero-title">
                         @nombreNegocio
                     </h1>
 
                     <p class="hero-subtitle">
-                        ✨ @nombreProfesional · Profesional de belleza
+                        @nombreProfesional
+                        ·
+                        @especialidad
                     </p>
+
 
                     <div class="hero-meta">
 
@@ -1100,6 +2591,13 @@
                         {
                             <span class="hero-pill">
                                 🗺️ @provincia
+                            </span>
+                        }
+
+                        @if (totalServicios > 0)
+                        {
+                            <span class="hero-pill">
+                                ✨ @totalServicios servicios
                             </span>
                         }
 
@@ -1128,9 +2626,9 @@
     </section>
 
 
-    <!-- =====================================================
-         BOTONES PRINCIPALES
-    ====================================================== -->
+    <!-- ========================================================
+         ACCIONES
+    ========================================================= -->
 
     <div class="action-panel">
 
@@ -1142,16 +2640,24 @@
                     href="@agendarUrl"
                     class="action-button action-primary">
 
-                    📅
-                    <span>Agendar cita</span>
+                    💬
+
+                    <span>
+                        Hablar y agendar
+                    </span>
 
                 </a>
             }
             else
             {
                 <div class="action-button action-secondary">
-                    📅
-                    <span>Reservas próximamente</span>
+
+                    💬
+
+                    <span>
+                        Contactar profesional
+                    </span>
+
                 </div>
             }
 
@@ -1164,23 +2670,29 @@
                     rel="noopener noreferrer"
                     class="action-button action-whatsapp">
 
-                    💬
-                    <span>WhatsApp</span>
+                    💚
+
+                    <span>
+                        WhatsApp
+                    </span>
 
                 </a>
             }
 
 
             @if (ubicacionActiva &&
-                latitud.HasValue &&
-                longitud.HasValue)
+                 latitud.HasValue &&
+                 longitud.HasValue)
             {
                 <a
                     href="#ubicacion"
                     class="action-button action-secondary">
 
                     📍
-                    <span>Ver ubicación</span>
+
+                    <span>
+                        Ver ubicación
+                    </span>
 
                 </a>
             }
@@ -1191,7 +2703,10 @@
                     class="action-button action-secondary">
 
                     ✨
-                    <span>Conocer negocio</span>
+
+                    <span>
+                        Conocer espacio
+                    </span>
 
                 </a>
             }
@@ -1203,9 +2718,227 @@
 
     <main class="public-profile profile-content">
 
-        <!-- =================================================
-             INFORMACIÓN DEL NEGOCIO
-        ================================================== -->
+
+        <!-- ====================================================
+             INTRO
+        ===================================================== -->
+
+        <section class="section">
+
+            <div class="intro-card">
+
+                <div class="intro-grid">
+
+                    <div>
+
+                        <div class="section-kicker">
+                            ✨ Belleza en un solo lugar
+                        </div>
+
+                        <h2 class="intro-title">
+                            Conoce @nombreNegocio
+                        </h2>
+
+                        <p class="intro-text">
+                            Descubre los servicios, trabajos,
+                            novedades y formas de contacto de
+                            @nombreProfesional. Todo lo que necesitas
+                            para elegir tu próxima experiencia de
+                            belleza está aquí.
+                        </p>
+
+                    </div>
+
+
+                    <div class="intro-stat">
+
+                        <span class="intro-stat-number">
+                            @totalServicios
+                        </span>
+
+                        <span class="intro-stat-label">
+                            servicios disponibles
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
+             SERVICIOS
+        ===================================================== -->
+
+        <section class="section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="section-kicker">
+                        💖 Lo que ofrece
+                    </div>
+
+                    <h2 class="section-title">
+                        Servicios de belleza
+                    </h2>
+
+                    <div class="section-subtitle">
+                        Elige lo que deseas y comienza a conversar
+                        con tu profesional.
+                    </div>
+
+                </div>
+
+
+                @if (totalServicios > 0)
+                {
+                    <div class="section-count">
+                        @totalServicios servicios
+                    </div>
+                }
+
+            </div>
+
+
+            @if (servicios.Any())
+            {
+                <div class="services-grid">
+
+                    @foreach (var servicio in servicios)
+                    {
+                        <article class="service-card">
+
+                            <div class="service-top">
+
+                                <div class="service-icon">
+                                    ✨
+                                </div>
+
+                                <span class="service-active">
+                                    DISPONIBLE
+                                </span>
+
+                            </div>
+
+
+                            <div class="service-name">
+                                @servicio.Nombre
+                            </div>
+
+
+                            <div class="service-description">
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    servicio.Descripcion))
+                                {
+                                    @servicio.Descripcion
+                                }
+                                else
+                                {
+                                    <span>
+                                        Servicio profesional
+                                        de belleza.
+                                    </span>
+                                }
+
+                            </div>
+
+
+                            <div class="service-meta">
+
+                                @if (servicio.DuracionMinutos.HasValue &&
+                                     servicio.DuracionMinutos.Value > 0)
+                                {
+                                    <span class="service-meta-pill">
+
+                                        ⏱
+                                        @servicio.DuracionMinutos
+                                        min
+
+                                    </span>
+                                }
+
+                                <span class="service-meta-pill">
+                                    💬 Consulta disponibilidad
+                                </span>
+
+                            </div>
+
+
+                            @if (servicio.Precio.HasValue)
+                            {
+                                <div class="service-price">
+
+                                    RD$
+                                    @servicio.Precio.Value.ToString(
+                                        "N2",
+                                        CultureInfo.InvariantCulture)
+
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="service-price">
+
+                                    <small>
+                                        PRECIO
+                                    </small>
+
+                                    A consultar
+
+                                </div>
+                            }
+
+
+                            @if (!string.IsNullOrWhiteSpace(agendarUrl))
+                            {
+                                <a
+                                    href="@agendarUrl"
+                                    class="service-book">
+
+                                    💬
+
+                                    Hablar y agendar
+
+                                </a>
+                            }
+
+                        </article>
+                    }
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ✨
+                    </div>
+
+                    <h4>
+                        Próximamente
+                    </h4>
+
+                    <p>
+                        Esta profesional todavía está
+                        preparando sus servicios.
+                    </p>
+
+                </div>
+            }
+
+        </section>
+
+
+        <!-- ====================================================
+             INFORMACIÓN
+        ===================================================== -->
 
         <section
             id="informacion"
@@ -1214,19 +2947,29 @@
             <div class="section-heading">
 
                 <div>
+
+                    <div class="section-kicker">
+                        ✨ Descubre más
+                    </div>
+
                     <h2 class="section-title">
-                        ✨ Conoce el negocio
+                        Conoce el espacio
                     </h2>
 
                     <div class="section-subtitle">
-                        Todo lo que necesitas saber antes de reservar.
+                        Todo lo que necesitas saber antes de
+                        contactar o reservar.
                     </div>
+
                 </div>
 
             </div>
 
 
             <div class="about-grid">
+
+
+                <!-- INFORMACIÓN -->
 
                 <div class="info-card">
 
@@ -1238,7 +2981,7 @@
                     <div class="info-row">
 
                         <div class="info-icon">
-                            💅
+                            ✨
                         </div>
 
                         <div>
@@ -1289,7 +3032,7 @@
                             <div>
 
                                 <div class="info-label">
-                                    Teléfono
+                                    Contacto
                                 </div>
 
                                 <div class="info-value">
@@ -1333,8 +3076,9 @@
                 <div class="info-card social-card">
 
                     <div class="info-card-title">
-                        💖 Síguenos
+                        💖 Encuéntrala también
                     </div>
+
 
                     <div class="social-buttons">
 
@@ -1347,7 +3091,9 @@
                                 rel="noopener noreferrer"
                                 class="social-button">
 
-                                📸 Instagram
+                                📸
+
+                                Instagram
 
                             </a>
                         }
@@ -1362,7 +3108,9 @@
                                 rel="noopener noreferrer"
                                 class="social-button">
 
-                                🎵 TikTok
+                                🎵
+
+                                TikTok
 
                             </a>
                         }
@@ -1377,7 +3125,9 @@
                                 rel="noopener noreferrer"
                                 class="social-button">
 
-                                📘 Facebook
+                                📘
+
+                                Facebook
 
                             </a>
                         }
@@ -1392,7 +3142,9 @@
                                 rel="noopener noreferrer"
                                 class="social-button">
 
-                                💬 WhatsApp
+                                💬
+
+                                WhatsApp
 
                             </a>
                         }
@@ -1406,100 +3158,31 @@
         </section>
 
 
-        <!-- =================================================
-             UBICACIÓN
-        ================================================== -->
-
-        <section
-            id="ubicacion"
-            class="section">
-
-            <div class="section-heading">
-
-                <div>
-                    <h2 class="section-title">
-                        📍 Encuentra el negocio
-                    </h2>
-
-                    <div class="section-subtitle">
-                        Visítanos y descubre tu próximo lugar favorito.
-                    </div>
-                </div>
-
-            </div>
-
-
-            <div class="info-card map-card">
-
-                @if (ubicacionActiva &&
-                     latitud.HasValue &&
-                     longitud.HasValue)
-                {
-                    <div class="map-header">
-
-                        <div class="info-card-title mb-1">
-                            📍 Ubicación del negocio
-                        </div>
-
-                        @if (!string.IsNullOrWhiteSpace(direccion))
-                        {
-                            <div class="section-subtitle">
-                                @direccion
-                            </div>
-                        }
-
-                    </div>
-
-                    <iframe
-                        class="map-frame"
-                        loading="lazy"
-                        allowfullscreen
-                        referrerpolicy="no-referrer-when-downgrade"
-                        src="https://www.google.com/maps?q=@latitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),@longitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)&output=embed">
-                    </iframe>
-                }
-                else
-                {
-                    <div class="map-placeholder">
-
-                        <div class="map-placeholder-icon">
-                            📍
-                        </div>
-
-                        <h4>
-                            Ubicación privada
-                        </h4>
-
-                        <p>
-                            Este negocio todavía no ha habilitado
-                            su ubicación pública.
-                        </p>
-
-                    </div>
-                }
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             TRABAJOS
-        ================================================== -->
+        <!-- ====================================================
+             PORTAFOLIO
+        ===================================================== -->
 
         <section class="section">
 
             <div class="section-heading">
 
                 <div>
+
+                    <div class="section-kicker">
+                        💎 Trabajo real
+                    </div>
+
                     <h2 class="section-title">
-                        💎 Trabajos y servicios
+                        Portafolio
                     </h2>
 
                     <div class="section-subtitle">
-                        Inspírate con algunos de los trabajos publicados.
+                        Inspírate con algunos de los trabajos
+                        publicados por esta profesional.
                     </div>
+
                 </div>
+
 
                 @if (totalModelos > 0)
                 {
@@ -1513,70 +3196,76 @@
 
             @if (modelos.Any())
             {
-                <div class="models-grid">
+                <div class="portfolio-grid">
 
                     @foreach (var m in modelos)
                     {
-                        <article class="model-card">
+                        <article class="portfolio-card">
 
-                            <div class="model-media-wrap">
+                            @if (m.EsVideo)
+                            {
+                                <video
+                                    class="portfolio-media"
+                                    controls
+                                    preload="metadata"
+                                    playsinline>
 
-                                @if (m.EsVideo)
-                                {
-                                    <video
-                                        class="model-video"
-                                        controls
-                                        preload="metadata">
-
-                                        <source
-                                            src="@m.ImagenSegura"
-                                            type="video/mp4" />
-
-                                    </video>
-
-                                    <div class="model-type">
-                                        🎬 VIDEO
-                                    </div>
-                                }
-                                else
-                                {
-                                    <img
+                                    <source
                                         src="@m.ImagenSegura"
-                                        class="model-image"
-                                        alt="@m.Nombre"
-                                        loading="lazy"
-                                        onerror="this.onerror=null;this.src='/uploads/default-modelo.png';"
-                                    />
+                                        type="video/mp4" />
 
-                                    <div class="model-type">
-                                        ✨ TRABAJO
-                                    </div>
-                                }
+                                </video>
 
-                            </div>
-
-
-                            <div class="model-body">
-
-                                <div class="model-name">
-                                    @m.Nombre
+                                <div class="portfolio-badge">
+                                    🎬 VIDEO
                                 </div>
+                            }
+                            else
+                            {
+                                <img
+                                    src="@m.ImagenSegura"
+                                    class="portfolio-media"
+                                    alt="@m.Nombre"
+                                    loading="lazy"
+                                    onerror="this.onerror=null;this.src='/uploads/default-modelo.png';"
+                                />
 
-                                @if (!string.IsNullOrWhiteSpace(
-                                    m.Descripcion))
-                                {
-                                    <div class="model-description">
-                                        @m.Descripcion
-                                    </div>
-                                }
+                                <div class="portfolio-badge">
+                                    ✨ TRABAJO
+                                </div>
+                            }
 
-                                @if (m.Precio.HasValue)
-                                {
-                                    <div class="model-price">
-                                        Desde RD$
-                                        @m.Precio.Value.ToString("N2")
+
+                            @if (m.Precio.HasValue)
+                            {
+                                <div class="portfolio-price">
+
+                                    RD$
+                                    @m.Precio.Value.ToString(
+                                        "N0",
+                                        CultureInfo.InvariantCulture)
+
+                                </div>
+                            }
+
+
+                            <div class="portfolio-overlay">
+
+                                <div class="portfolio-info">
+
+                                    <div class="portfolio-name">
+                                        @m.Nombre
                                     </div>
-                                }
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        m.Descripcion))
+                                    {
+                                        <div class="portfolio-description">
+                                            @m.Descripcion
+                                        </div>
+                                    }
+
+                                </div>
 
                             </div>
 
@@ -1594,12 +3283,12 @@
                     </div>
 
                     <h4>
-                        Próximamente
+                        El portafolio está creciendo
                     </h4>
 
                     <p>
-                        Este negocio todavía no ha publicado
-                        sus trabajos y servicios.
+                        Aquí aparecerán los próximos trabajos
+                        publicados por esta profesional.
                     </p>
 
                 </div>
@@ -1608,23 +3297,31 @@
         </section>
 
 
-        <!-- =================================================
+        <!-- ====================================================
              PUBLICACIONES
-        ================================================== -->
+        ===================================================== -->
 
         <section class="section">
 
             <div class="section-heading">
 
                 <div>
+
+                    <div class="section-kicker">
+                        🔥 Actualizaciones
+                    </div>
+
                     <h2 class="section-title">
-                        🔥 Últimas publicaciones
+                        Últimas publicaciones
                     </h2>
 
                     <div class="section-subtitle">
-                        Descubre las novedades de @nombreNegocio.
+                        Mira lo más reciente de
+                        @nombreNegocio.
                     </div>
+
                 </div>
+
 
                 @if (totalPublicaciones > 0)
                 {
@@ -1650,14 +3347,12 @@
 
                         <article class="post-card">
 
-                            <!-- CABECERA -->
-
                             <div class="post-header">
 
                                 <img
                                     src="@postFoto"
                                     class="post-avatar"
-                                    alt="Perfil"
+                                    alt="@nombreProfesional"
                                     loading="lazy"
                                     onerror="this.onerror=null;this.src='/img/user-default.png';"
                                 />
@@ -1677,8 +3372,6 @@
 
                             </div>
 
-
-                            <!-- MEDIA -->
 
                             @if (!string.IsNullOrWhiteSpace(
                                 p.MediaUrl))
@@ -1716,8 +3409,6 @@
                             }
 
 
-                            <!-- TEXTO -->
-
                             @if (!string.IsNullOrWhiteSpace(
                                 p.Texto))
                             {
@@ -1748,8 +3439,8 @@
                     </h4>
 
                     <p>
-                        Este negocio todavía no ha publicado
-                        contenido.
+                        Las próximas novedades de
+                        @nombreNegocio aparecerán aquí.
                     </p>
 
                 </div>
@@ -1758,29 +3449,136 @@
         </section>
 
 
-        <!-- =================================================
+        <!-- ====================================================
+             UBICACIÓN
+        ===================================================== -->
+
+        <section
+            id="ubicacion"
+            class="section">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="section-kicker">
+                        📍 Encuentra tu próximo lugar favorito
+                    </div>
+
+                    <h2 class="section-title">
+                        Ubicación
+                    </h2>
+
+                    <div class="section-subtitle">
+                        Visita @nombreNegocio.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-card map-card">
+
+                @if (ubicacionActiva &&
+                     latitud.HasValue &&
+                     longitud.HasValue)
+                {
+                    <div class="map-header">
+
+                        <div class="info-card-title">
+                            📍 Estamos aquí
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            direccion))
+                        {
+                            <div class="section-subtitle">
+                                @direccion
+                            </div>
+                        }
+
+                    </div>
+
+
+                    <iframe
+                        class="map-frame"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://www.google.com/maps?q=@latitud.Value.ToString(CultureInfo.InvariantCulture),@longitud.Value.ToString(CultureInfo.InvariantCulture)&output=embed">
+                    </iframe>
+
+
+                    @if (!string.IsNullOrWhiteSpace(mapaUrl))
+                    {
+                        <div class="map-actions">
+
+                            <a
+                                href="@mapaUrl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="map-open">
+
+                                🧭
+                                Abrir en Google Maps
+
+                            </a>
+
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="map-placeholder">
+
+                        <div class="map-placeholder-icon">
+                            📍
+                        </div>
+
+                        <h4>
+                            Ubicación privada
+                        </h4>
+
+                        <p>
+                            Este espacio de belleza todavía
+                            no ha habilitado su ubicación pública.
+                        </p>
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================
              CTA FINAL
-        ================================================== -->
+        ===================================================== -->
 
         @if (!string.IsNullOrWhiteSpace(agendarUrl))
         {
             <section class="final-cta">
 
                 <h3>
-                    ✨ ¿Te gustó este negocio?
+                    ✨ ¿Lista para tu próxima experiencia?
                 </h3>
 
                 <p>
-                    Reserva tu cita fácilmente y deja que
-                    esta profesional se encargue de hacerte
-                    sentir espectacular.
+                    Habla directamente con
+                    @nombreProfesional,
+                    conoce la disponibilidad y coordina
+                    tu próxima cita de belleza.
                 </p>
 
                 <a
                     href="@agendarUrl"
                     class="final-cta-button">
 
-                    📅 Reservar mi cita
+                    💬
+
+                    Hablar y agendar
 
                 </a>
 
@@ -1789,4 +3587,31 @@
 
     </main>
 
-</div>
+
+    <!-- ========================================================
+         MOBILE CTA
+    ========================================================= -->
+
+   @if (!string.IsNullOrWhiteSpace(whatsappUrl))
+{
+    <div class="mobile-book-bar">
+
+        <a
+            href="@whatsappUrl"
+            class="mobile-book-button"
+            target="_blank"
+            rel="noopener noreferrer">
+
+            <span class="mobile-book-icon">💬</span>
+
+            <span>
+                <strong>Hablar y agendar</strong>
+                <small>Chatea directamente con la profesional</small>
+            </span>
+
+            <span class="mobile-book-arrow">→</span>
+
+        </a>
+
+    </div>
+}

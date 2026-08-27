@@ -11,6 +11,8 @@ using System.IO;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace TropiNailsPro.Controllers
 {
@@ -65,6 +67,7 @@ namespace TropiNailsPro.Controllers
             // =====================================================
 
             var manicurista = await _context.Manicuristas
+                .Include(m => m.Servicios)
                 .FirstOrDefaultAsync(m => m.UsuarioId == usuario.Id);
 
             ViewBag.Manicurista = manicurista;
@@ -163,6 +166,7 @@ namespace TropiNailsPro.Controllers
             // =====================================================
 
             var manicurista = await _context.Manicuristas
+                .Include(m => m.Servicios)
                 .FirstOrDefaultAsync(m => m.UsuarioId == usuario.Id);
 
             ViewBag.Manicurista =
@@ -251,6 +255,7 @@ namespace TropiNailsPro.Controllers
             // =====================================================
 
             var manicurista = await _context.Manicuristas
+                .Include(m => m.Servicios)
                 .FirstOrDefaultAsync(m =>
                     m.UsuarioId == usuario.Id);
 
@@ -424,6 +429,156 @@ namespace TropiNailsPro.Controllers
                         ubicacionTexto == "1" ||
                         ubicacionTexto == "on";
                 }
+
+                // =================================================
+                // SERVICIOS
+                // =================================================
+                //
+                // La vista envía los servicios mediante:
+                //
+                // ServiciosJson
+                //
+                // Aquí sincronizamos la colección de servicios
+                // perteneciente EXCLUSIVAMENTE a este negocio.
+                //
+                // =================================================
+
+                if (Request.Form.ContainsKey("ServiciosJson"))
+                {
+                    var serviciosJson =
+                        Request.Form["ServiciosJson"].ToString();
+
+                    try
+                    {
+                        var serviciosRecibidos =
+                            string.IsNullOrWhiteSpace(serviciosJson)
+                                ? new List<ServicioInput>()
+                                : JsonSerializer.Deserialize<List<ServicioInput>>(
+                                    serviciosJson,
+                                    new JsonSerializerOptions
+                                    {
+                                        PropertyNameCaseInsensitive = true
+                                    }) ?? new List<ServicioInput>();
+
+                        // -------------------------------------------------
+                        // IDS DE SERVICIOS QUE VIENEN DESDE LA VISTA
+                        // -------------------------------------------------
+
+                        var idsRecibidos =
+                            serviciosRecibidos
+                                .Where(s => s.Id.HasValue && s.Id.Value > 0)
+                                .Select(s => s.Id!.Value)
+                                .ToHashSet();
+
+                        // -------------------------------------------------
+                        // ELIMINAR SERVICIOS QUE EL USUARIO QUITÓ
+                        //
+                        // MUY IMPORTANTE:
+                        // solamente se eliminan servicios que pertenecen
+                        // al manicurista actual.
+                        // -------------------------------------------------
+
+                        var serviciosEliminar =
+                            manicurista.Servicios
+                                .Where(s =>
+                                    s.Id > 0 &&
+                                    !idsRecibidos.Contains(s.Id))
+                                .ToList();
+
+                        foreach (var servicioEliminar in serviciosEliminar)
+                        {
+                            _context.Servicios.Remove(
+                                servicioEliminar);
+                        }
+
+                        // -------------------------------------------------
+                        // CREAR / ACTUALIZAR
+                        // -------------------------------------------------
+
+                        foreach (var servicioData in serviciosRecibidos)
+                        {
+                            // No guardar servicios sin nombre
+                            if (string.IsNullOrWhiteSpace(
+                                servicioData.Nombre))
+                            {
+                                continue;
+                            }
+
+                            Servicio? servicio = null;
+
+                            // =============================================
+                            // ACTUALIZAR EXISTENTE
+                            // =============================================
+
+                            if (servicioData.Id.HasValue &&
+                                servicioData.Id.Value > 0)
+                            {
+                                servicio =
+                                    manicurista.Servicios
+                                    .FirstOrDefault(s =>
+                                        s.Id ==
+                                        servicioData.Id.Value);
+                            }
+
+                            // =============================================
+                            // NUEVO SERVICIO
+                            // =============================================
+
+                            if (servicio == null)
+                            {
+                                servicio =
+                                    new Servicio
+                                    {
+                                        ManicuristaId =
+                                            manicurista.Id
+                                    };
+
+                                manicurista.Servicios.Add(
+                                    servicio);
+                            }
+
+                            // =============================================
+                            // DATOS
+                            // =============================================
+
+                            servicio.Nombre =
+                                servicioData.Nombre.Trim();
+
+                            servicio.Descripcion =
+                                string.IsNullOrWhiteSpace(
+                                    servicioData.Descripcion)
+                                    ? null
+                                    : servicioData.Descripcion.Trim();
+
+                            servicio.Precio =
+                                servicioData.Precio;
+
+                            servicio.DuracionMinutos =
+                                servicioData.DuracionMinutos;
+
+                            servicio.Activo =
+                                servicioData.Activo;
+
+                            // Garantía adicional:
+                            // el servicio siempre pertenece
+                            // al negocio que está guardando el perfil.
+                            servicio.ManicuristaId =
+                                manicurista.Id;
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                        // Si el JSON llega corrupto, no rompemos
+                        // el resto del guardado del perfil.
+                        //
+                        // Los servicios simplemente no se modifican.
+                    }
+                    catch (Exception)
+                    {
+                        // Protección adicional para no afectar
+                        // las demás funcionalidades existentes.
+                    }
+                }
             }
 
             // =====================================================
@@ -550,6 +705,30 @@ namespace TropiNailsPro.Controllers
                 "Perfil actualizado correctamente";
 
             return RedirectToAction("Index");
+        }
+
+        // =====================================================
+        // DTO PARA RECIBIR SERVICIOS DESDE LA VISTA
+        // =====================================================
+        //
+        // No modifica tu modelo Servicio.
+        // Solo representa el JSON enviado por Editar.cshtml.
+        //
+        // =====================================================
+
+        private class ServicioInput
+        {
+            public int? Id { get; set; }
+
+            public string? Nombre { get; set; }
+
+            public string? Descripcion { get; set; }
+
+            public decimal? Precio { get; set; }
+
+            public int? DuracionMinutos { get; set; }
+
+            public bool Activo { get; set; } = true;
         }
     }
 }

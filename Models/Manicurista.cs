@@ -97,5 +97,9 @@ public bool UbicacionActiva { get; set; } = false;
         public virtual ICollection<Suscripcion> Suscripciones { get; set; } = new List<Suscripcion>();
         // 🔥 Gastos registrados por la manicurista
 public virtual ICollection<Gasto> Gastos { get; set; } = new List<Gasto>();
+
+// 🔥 SERVICIOS OFRECIDOS POR LA PROFESIONAL
+public virtual ICollection<Servicio> Servicios { get; set; }
+    = new List<Servicio>();
     }
 }
