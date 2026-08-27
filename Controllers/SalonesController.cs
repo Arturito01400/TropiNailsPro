@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using TropiNailsPro.Data;
+using TropiNailsPro.Models;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace TropiNailsPro.Controllers
 {
@@ -19,41 +22,75 @@ namespace TropiNailsPro.Controllers
         // PERFIL PÚBLICO DEL NEGOCIO
         // =====================================================
         //
-        // Ejemplo:
+        // Acepta:
+        //
+        // /Salones/Index/14
+        //
+        // /Salones/Index?id=14
+        //
         // /Salones/Index?slug=nombre-del-negocio
         //
-        // Este controlador está preparado para trabajar con
-        // cualquier negocio de belleza registrado en TropiNails Pro.
+        // El ID se mantiene por compatibilidad con enlaces
+        // existentes.
         //
-        // NO depende exclusivamente de que sea una manicurista.
+        // El slug permite utilizar URLs públicas más amigables.
         //
         // =====================================================
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Index(string slug)
+        public async Task<IActionResult> Index(
+            string? slug,
+            int? id)
         {
-            // =================================================
-            // VALIDAR SLUG
-            // =================================================
-
-            if (string.IsNullOrWhiteSpace(slug))
-                return NotFound();
-
-            slug = slug.Trim();
-
             // =================================================
             // BUSCAR NEGOCIO
             // =================================================
 
-            var manicurista = await _context.Manicuristas
-                .Include(m => m.Usuario)
-                .FirstOrDefaultAsync(m =>
-                    m.Slug != null &&
-                    m.Slug.ToLower() == slug.ToLower());
+            Manicurista? manicurista = null;
+
+            // =================================================
+            // OPCIÓN 1: BUSCAR POR ID
+            // Ejemplo:
+            // /Salones/Index/14
+            // =================================================
+
+            if (id.HasValue)
+            {
+                manicurista = await _context.Manicuristas
+                    .Include(m => m.Usuario)
+                    .Include(m => m.Servicios)
+                    .FirstOrDefaultAsync(m =>
+                        m.Id == id.Value);
+            }
+
+            // =================================================
+            // OPCIÓN 2: BUSCAR POR SLUG
+            // Ejemplo:
+            // /Salones/Index?slug=nombre-del-negocio
+            // =================================================
+
+            if (manicurista == null &&
+                !string.IsNullOrWhiteSpace(slug))
+            {
+                slug = slug.Trim();
+
+                manicurista = await _context.Manicuristas
+                    .Include(m => m.Usuario)
+                    .Include(m => m.Servicios)
+                    .FirstOrDefaultAsync(m =>
+                        m.Slug != null &&
+                        m.Slug.ToLower() == slug.ToLower());
+            }
+
+            // =================================================
+            // SI NO EXISTE EL NEGOCIO
+            // =================================================
 
             if (manicurista == null)
+            {
                 return NotFound();
+            }
 
             // =================================================
             // WHATSAPP DEL NEGOCIO
@@ -64,6 +101,7 @@ namespace TropiNailsPro.Controllers
 
             // Si el negocio no tiene teléfono propio,
             // intentamos utilizar el WhatsApp del usuario.
+
             if (string.IsNullOrWhiteSpace(whatsapp))
             {
                 whatsapp =
@@ -72,6 +110,7 @@ namespace TropiNailsPro.Controllers
 
             // Si tampoco existe WhatsApp,
             // utilizamos el teléfono personal.
+
             if (string.IsNullOrWhiteSpace(whatsapp))
             {
                 whatsapp =
@@ -97,7 +136,8 @@ namespace TropiNailsPro.Controllers
                 }
             }
 
-            ViewBag.WhatsApp = whatsapp;
+            ViewBag.WhatsApp =
+                whatsapp;
 
             // =================================================
             // FOTO DEL NEGOCIO
@@ -113,14 +153,17 @@ namespace TropiNailsPro.Controllers
                     manicurista.FotoNegocio.Trim();
 
                 // Azure Blob Storage
-                if (fotoNegocio.StartsWith(
+                if (
+                    fotoNegocio.StartsWith(
                         "http://",
-                        System.StringComparison.OrdinalIgnoreCase) ||
+                        StringComparison.OrdinalIgnoreCase)
+                    ||
                     fotoNegocio.StartsWith(
                         "https://",
-                        System.StringComparison.OrdinalIgnoreCase))
+                        StringComparison.OrdinalIgnoreCase)
+                   )
                 {
-                    // Ya es una URL válida.
+                    // Ya es una URL absoluta válida.
                 }
                 else
                 {
@@ -141,13 +184,14 @@ namespace TropiNailsPro.Controllers
 
             string fotoPerfil =
                 manicurista.Usuario?.FotoPerfilUrl
+                ?? manicurista.Usuario?.FotoPerfil
                 ?? "/img/user-default.png";
 
             ViewBag.FotoPerfil =
                 fotoPerfil;
 
             // =================================================
-            // MODELOS / TRABAJOS
+            // MODELOS / TRABAJOS / PORTAFOLIO
             // =================================================
 
             var modelos =
@@ -212,6 +256,10 @@ namespace TropiNailsPro.Controllers
 
             ViewBag.EsPerfilPublico =
                 true;
+
+            // =================================================
+            // RETORNAR VISTA
+            // =================================================
 
             return View();
         }

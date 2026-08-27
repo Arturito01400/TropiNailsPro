@@ -20,13 +20,23 @@
         --tn-border: rgba(255,255,255,.16);
     }
 
-    * {
+    *,
+    *::before,
+    *::after {
         box-sizing: border-box;
+    }
+
+    html {
+        overflow-x: hidden;
+        scroll-behavior: smooth;
     }
 
     body {
         overflow-x: hidden;
+        margin: 0;
+        background: var(--tn-dark);
     }
+
 
     /* =========================================================
        HERO
@@ -34,10 +44,14 @@
 
     .public-home {
         position: relative;
+
         min-height: calc(100vh - 56px);
+
         display: flex;
         align-items: center;
+
         overflow: hidden;
+
         color: #fff;
 
         background:
@@ -54,6 +68,7 @@
 
     .public-home::before {
         content: "";
+
         position: absolute;
         inset: 0;
 
@@ -75,6 +90,7 @@
 
     .public-home::after {
         content: "";
+
         position: absolute;
         inset: 0;
 
@@ -90,19 +106,40 @@
         z-index: 1;
     }
 
+
+    /* =========================================================
+       NAVEGACIÓN SUPERIOR
+       ========================================================= */
+
+    .public-top-navigation {
+        position: absolute;
+
+        top: 25px;
+        right: 30px;
+
+        z-index: 20;
+
+        display: flex;
+        align-items: center;
+
+        gap: 9px;
+    }
+
+
     /* =========================================================
        LOGIN
        ========================================================= */
 
     .login-link {
-        position: absolute;
-        top: 25px;
-        right: 30px;
-        z-index: 20;
+        position: relative;
 
         display: inline-flex;
         align-items: center;
+        justify-content: center;
+
         gap: 9px;
+
+        min-height: 44px;
 
         padding: 11px 17px;
 
@@ -125,7 +162,11 @@
             0 12px 35px rgba(0,0,0,.18),
             inset 0 1px rgba(255,255,255,.08);
 
-        transition: .25s ease;
+        transition:
+            transform .25s ease,
+            background .25s ease,
+            border-color .25s ease,
+            box-shadow .25s ease;
     }
 
     .login-link::before {
@@ -133,6 +174,8 @@
 
         width: 7px;
         height: 7px;
+
+        flex: 0 0 7px;
 
         border-radius: 50%;
 
@@ -144,13 +187,84 @@
 
     .login-link:hover {
         color: #fff;
+
         transform: translateY(-2px);
 
         background: rgba(255,255,255,.13);
 
         border-color:
             rgba(255,255,255,.30);
+
+        box-shadow:
+            0 16px 40px rgba(0,0,0,.25);
     }
+
+
+    /* =========================================================
+       BOTÓN PROFESIONALES
+       ========================================================= */
+
+    .professionals-link {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 8px;
+
+        min-height: 44px;
+
+        padding: 11px 17px;
+
+        border-radius: 14px;
+
+        color: rgba(255,255,255,.94);
+        text-decoration: none;
+
+        font-size: .82rem;
+        font-weight: 700;
+
+        background:
+            rgba(255,255,255,.065);
+
+        border:
+            1px solid rgba(255,255,255,.17);
+
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+
+        box-shadow:
+            0 12px 35px rgba(0,0,0,.18),
+            inset 0 1px rgba(255,255,255,.08);
+
+        transition:
+            transform .25s ease,
+            background .25s ease,
+            border-color .25s ease,
+            box-shadow .25s ease;
+    }
+
+    .professionals-link i {
+        color: #ff82bc;
+
+        font-size: .9rem;
+    }
+
+    .professionals-link:hover {
+        color: #fff;
+
+        transform: translateY(-2px);
+
+        background:
+            rgba(255,255,255,.13);
+
+        border-color:
+            rgba(255,114,182,.35);
+
+        box-shadow:
+            0 16px 40px rgba(0,0,0,.25);
+    }
+
 
     /* =========================================================
        CONTENIDO HERO
@@ -166,10 +280,14 @@
     }
 
     .premium-container {
+        width: 100%;
         max-width: 1450px;
+
         margin: auto;
+
         padding: 0 50px;
     }
+
 
     /* =========================================================
        BADGE
@@ -177,21 +295,26 @@
 
     .brand-badge {
         display: inline-flex;
+
         align-items: center;
+
         gap: 10px;
 
         padding: 9px 15px;
 
         border-radius: 999px;
 
-        background: rgba(255,255,255,.07);
+        background:
+            rgba(255,255,255,.07);
 
-        border: 1px solid rgba(255,255,255,.15);
+        border:
+            1px solid rgba(255,255,255,.15);
 
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
 
-        color: rgba(255,255,255,.92);
+        color:
+            rgba(255,255,255,.92);
 
         font-size: .78rem;
         font-weight: 600;
@@ -205,6 +328,8 @@
         width: 7px;
         height: 7px;
 
+        flex: 0 0 7px;
+
         border-radius: 50%;
 
         background: #ff72b6;
@@ -214,14 +339,16 @@
             0 0 20px rgba(255,114,182,.9);
     }
 
+
     /* =========================================================
-       TITULO
+       TÍTULO
        ========================================================= */
 
     .hero-title {
         color: #fff;
 
-        font-size: clamp(3.8rem, 6.4vw, 7rem);
+        font-size:
+            clamp(3.8rem, 6.4vw, 7rem);
 
         line-height: .91;
 
@@ -252,12 +379,14 @@
         background-clip: text;
     }
 
+
     /* =========================================================
        DESCRIPCIÓN
        ========================================================= */
 
     .hero-description {
-        color: rgba(255,255,255,.76);
+        color:
+            rgba(255,255,255,.76);
 
         font-size: 1.12rem;
 
@@ -267,6 +396,7 @@
 
         margin-bottom: 31px;
     }
+
 
     /* =========================================================
        BUSCADOR
@@ -282,6 +412,7 @@
         padding: 8px;
 
         display: flex;
+
         align-items: center;
 
         gap: 7px;
@@ -311,14 +442,17 @@
         flex: 0 0 49px;
 
         display: flex;
+
         align-items: center;
         justify-content: center;
 
         border-radius: 15px;
 
-        color: rgba(255,255,255,.85);
+        color:
+            rgba(255,255,255,.85);
 
-        background: rgba(255,255,255,.06);
+        background:
+            rgba(255,255,255,.06);
 
         font-size: 1rem;
     }
@@ -327,6 +461,8 @@
         flex: 1;
 
         min-width: 0;
+
+        width: 100%;
 
         border: 0;
         outline: 0;
@@ -341,13 +477,16 @@
     }
 
     .hero-search input::placeholder {
-        color: rgba(255,255,255,.54);
+        color:
+            rgba(255,255,255,.54);
     }
 
     .search-button {
         border: 0;
 
         min-height: 50px;
+
+        flex: 0 0 auto;
 
         padding: 0 24px;
 
@@ -363,7 +502,10 @@
 
         cursor: pointer;
 
-        transition: .25s ease;
+        transition:
+            transform .25s ease,
+            box-shadow .25s ease,
+            opacity .25s ease;
     }
 
     .search-button:hover {
@@ -375,9 +517,14 @@
 
     .search-button:disabled {
         opacity: .65;
+
         cursor: wait;
+
         transform: none;
+
+        box-shadow: none;
     }
+
 
     /* =========================================================
        SUGERENCIAS
@@ -387,6 +534,7 @@
         width: min(720px,100%);
 
         display: flex;
+
         flex-wrap: wrap;
 
         gap: 8px;
@@ -395,11 +543,14 @@
     }
 
     .suggestion-chip {
-        border: 1px solid rgba(255,255,255,.13);
+        border:
+            1px solid rgba(255,255,255,.13);
 
-        background: rgba(255,255,255,.055);
+        background:
+            rgba(255,255,255,.055);
 
-        color: rgba(255,255,255,.75);
+        color:
+            rgba(255,255,255,.75);
 
         border-radius: 999px;
 
@@ -409,9 +560,14 @@
 
         cursor: pointer;
 
-        transition: .2s ease;
+        transition:
+            color .2s ease,
+            background .2s ease,
+            border-color .2s ease,
+            transform .2s ease;
 
         backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
     }
 
     .suggestion-chip:hover {
@@ -426,12 +582,14 @@
         transform: translateY(-1px);
     }
 
+
     /* =========================================================
-       BOTONES
+       BOTONES HERO
        ========================================================= */
 
     .hero-actions {
         display: flex;
+
         flex-wrap: wrap;
 
         gap: 11px;
@@ -459,7 +617,10 @@
 
         font-weight: 700;
 
-        transition: .25s ease;
+        transition:
+            transform .25s ease,
+            box-shadow .25s ease,
+            background .25s ease;
     }
 
     .btn-primary-premium {
@@ -507,17 +668,20 @@
         transform: translateY(-3px);
     }
 
+
     /* =========================================================
        CONFIANZA
        ========================================================= */
 
     .trust-row {
         display: flex;
+
         flex-wrap: wrap;
 
         gap: 22px;
 
-        color: rgba(255,255,255,.65);
+        color:
+            rgba(255,255,255,.65);
 
         font-size: .78rem;
 
@@ -535,6 +699,7 @@
     .trust-item i {
         color: #ff9ccc;
     }
+
 
     /* =========================================================
        RESULTADOS
@@ -566,6 +731,8 @@
     }
 
     .results-container {
+        width: 100%;
+
         max-width: 1450px;
 
         margin: auto;
@@ -577,6 +744,7 @@
         display: flex;
 
         align-items: flex-end;
+
         justify-content: space-between;
 
         gap: 20px;
@@ -603,7 +771,8 @@
 
         color: #fff;
 
-        font-size: clamp(1.8rem,3vw,3rem);
+        font-size:
+            clamp(1.8rem,3vw,3rem);
 
         font-weight: 800;
 
@@ -611,10 +780,12 @@
     }
 
     .results-count {
-        color: rgba(255,255,255,.55);
+        color:
+            rgba(255,255,255,.55);
 
         font-size: .85rem;
     }
+
 
     /* =========================================================
        GRID PROFESIONALES
@@ -627,9 +798,13 @@
             repeat(4, minmax(0,1fr));
 
         gap: 20px;
+
+        width: 100%;
     }
 
     .professional-card {
+        min-width: 0;
+
         overflow: hidden;
 
         border-radius: 22px;
@@ -643,7 +818,10 @@
         box-shadow:
             0 20px 50px rgba(0,0,0,.18);
 
-        transition: .3s ease;
+        transition:
+            transform .3s ease,
+            border-color .3s ease,
+            box-shadow .3s ease;
     }
 
     .professional-card:hover {
@@ -672,12 +850,15 @@
     }
 
     .professional-image img {
+        display: block;
+
         width: 100%;
         height: 100%;
 
         object-fit: cover;
 
-        transition: transform .5s ease;
+        transition:
+            transform .5s ease;
     }
 
     .professional-card:hover
@@ -694,7 +875,8 @@
         align-items: center;
         justify-content: center;
 
-        color: rgba(255,255,255,.35);
+        color:
+            rgba(255,255,255,.35);
 
         font-size: 3rem;
     }
@@ -713,6 +895,7 @@
             rgba(0,0,0,.55);
 
         backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
 
         color: #fff;
 
@@ -733,6 +916,8 @@
         font-weight: 750;
 
         margin-bottom: 6px;
+
+        overflow-wrap: anywhere;
     }
 
     .professional-location {
@@ -742,14 +927,19 @@
 
         gap: 6px;
 
-        color: rgba(255,255,255,.58);
+        color:
+            rgba(255,255,255,.58);
 
         font-size: .76rem;
 
         margin-bottom: 14px;
+
+        min-width: 0;
     }
 
     .professional-location i {
+        flex: 0 0 auto;
+
         color: #ff82bc;
     }
 
@@ -777,7 +967,9 @@
 
         font-weight: 700;
 
-        transition: .2s ease;
+        transition:
+            transform .2s ease,
+            background .2s ease;
     }
 
     .professional-action.primary {
@@ -792,7 +984,8 @@
     }
 
     .professional-action.secondary {
-        color: rgba(255,255,255,.82);
+        color:
+            rgba(255,255,255,.82);
 
         background:
             rgba(255,255,255,.07);
@@ -806,6 +999,7 @@
 
         transform: translateY(-1px);
     }
+
 
     /* =========================================================
        GOOGLE / OTROS NEGOCIOS
@@ -830,7 +1024,8 @@
     }
 
     .external-heading p {
-        color: rgba(255,255,255,.50);
+        color:
+            rgba(255,255,255,.50);
 
         font-size: .8rem;
 
@@ -847,6 +1042,8 @@
     }
 
     .external-card {
+        min-width: 0;
+
         padding: 17px;
 
         border-radius: 17px;
@@ -864,10 +1061,13 @@
         font-size: .92rem;
 
         margin-bottom: 6px;
+
+        overflow-wrap: anywhere;
     }
 
     .external-card p {
-        color: rgba(255,255,255,.53);
+        color:
+            rgba(255,255,255,.53);
 
         font-size: .74rem;
 
@@ -897,6 +1097,7 @@
     .external-link:hover {
         color: #fff;
     }
+
 
     /* =========================================================
        SIN RESULTADOS
@@ -941,7 +1142,8 @@
     }
 
     .empty-results p {
-        color: rgba(255,255,255,.55);
+        color:
+            rgba(255,255,255,.55);
 
         font-size: .85rem;
 
@@ -949,6 +1151,7 @@
 
         margin: auto;
     }
+
 
     /* =========================================================
        CATEGORÍAS
@@ -968,6 +1171,8 @@
     }
 
     .categories-container {
+        width: 100%;
+
         max-width: 1450px;
 
         margin: auto;
@@ -994,7 +1199,8 @@
     .section-heading h2 {
         color: #fff;
 
-        font-size: clamp(1.8rem,3vw,2.8rem);
+        font-size:
+            clamp(1.8rem,3vw,2.8rem);
 
         font-weight: 800;
 
@@ -1004,13 +1210,16 @@
     }
 
     .section-heading p {
-        color: rgba(255,255,255,.52);
+        color:
+            rgba(255,255,255,.52);
 
         max-width: 620px;
 
         margin: 0;
 
         font-size: .9rem;
+
+        line-height: 1.6;
     }
 
     .categories-grid {
@@ -1051,7 +1260,10 @@
         border:
             1px solid rgba(255,255,255,.09);
 
-        transition: .3s ease;
+        transition:
+            transform .3s ease,
+            border-color .3s ease,
+            box-shadow .3s ease;
     }
 
     .beauty-category::before {
@@ -1070,7 +1282,8 @@
 
         opacity: .7;
 
-        transition: .3s ease;
+        transition:
+            opacity .3s ease;
     }
 
     .beauty-category:hover {
@@ -1083,8 +1296,13 @@
             0 20px 45px rgba(0,0,0,.22);
     }
 
+    .beauty-category:hover::before {
+        opacity: 1;
+    }
+
     .category-icon {
         position: relative;
+
         z-index: 2;
 
         width: 48px;
@@ -1109,6 +1327,7 @@
 
     .beauty-category strong {
         position: relative;
+
         z-index: 2;
 
         color: #fff;
@@ -1118,14 +1337,17 @@
 
     .beauty-category small {
         position: relative;
+
         z-index: 2;
 
-        color: rgba(255,255,255,.45);
+        color:
+            rgba(255,255,255,.45);
 
         font-size: .68rem;
 
         margin-top: 4px;
     }
+
 
     /* =========================================================
        DESCUBRIMIENTO
@@ -1170,6 +1392,8 @@
     }
 
     .discovery-grid {
+        width: 100%;
+
         max-width: 1450px;
 
         margin: auto;
@@ -1221,7 +1445,8 @@
     }
 
     .discovery-card p {
-        color: rgba(255,255,255,.55);
+        color:
+            rgba(255,255,255,.55);
 
         font-size: .86rem;
 
@@ -1258,6 +1483,7 @@
             0 15px 35px rgba(255,77,166,.20);
     }
 
+
     /* =========================================================
        LOADING
        ========================================================= */
@@ -1269,7 +1495,8 @@
 
         gap: 10px;
 
-        color: rgba(255,255,255,.60);
+        color:
+            rgba(255,255,255,.60);
 
         font-size: .78rem;
 
@@ -1283,6 +1510,8 @@
     .loading-spinner {
         width: 16px;
         height: 16px;
+
+        flex: 0 0 16px;
 
         border-radius: 50%;
 
@@ -1302,8 +1531,9 @@
         }
     }
 
+
     /* =========================================================
-       RESPONSIVE
+       RESPONSIVE — 1200px
        ========================================================= */
 
     @@media (max-width: 1200px) {
@@ -1319,6 +1549,11 @@
         }
     }
 
+
+    /* =========================================================
+       RESPONSIVE — 992px
+       ========================================================= */
+
     @@media (max-width: 992px) {
 
         .premium-container,
@@ -1330,7 +1565,8 @@
         }
 
         .public-home {
-            background-position: 64% center;
+            background-position:
+                64% center;
         }
 
         .hero-title {
@@ -1348,265 +1584,446 @@
         }
     }
 
+
+    /* =========================================================
+       RESPONSIVE — 768px
+       ========================================================= */
+
     @@media (max-width: 768px) {
 
-    .public-home {
-        min-height:
-            calc(100vh - 56px);
+        .public-home {
+            min-height:
+                calc(100vh - 56px);
 
-        align-items: flex-end;
+            align-items: flex-end;
 
-        background:
-            linear-gradient(
-                180deg,
-                rgba(8,6,12,.38) 0%,
-                rgba(8,6,12,.75) 45%,
-                rgba(8,6,12,.97) 100%
-            ),
-            url('/images/tropinails-public-hero.png')
-            62% center / cover no-repeat;
-    }
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(8,6,12,.38) 0%,
+                    rgba(8,6,12,.75) 45%,
+                    rgba(8,6,12,.97) 100%
+                ),
+                url('/images/tropinails-public-hero.png')
+                62% center / cover no-repeat;
+        }
 
 
-    .premium-container,
-    .results-container,
-    .categories-container,
-    .discovery-grid {
-        padding-left: 18px;
-        padding-right: 18px;
-    }
+        .premium-container,
+        .results-container,
+        .categories-container,
+        .discovery-grid {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
 
 
-    .public-content {
-        padding:
-            100px 0 45px;
-    }
+        /* =====================================================
+           NAVEGACIÓN SUPERIOR — MÓVIL
+           ===================================================== */
 
+        .public-top-navigation {
+            top: 17px;
+            right: 17px;
 
-    .brand-badge {
-        margin-bottom: 19px;
-        font-size: .72rem;
-    }
+            gap: 7px;
 
+            max-width:
+                calc(100% - 34px);
+        }
 
-    .hero-title {
-        font-size: 3.25rem;
 
-        letter-spacing: -2.5px;
+        .professionals-link,
+        .public-top-navigation .login-link {
+            min-height: 39px;
 
-        line-height: .94;
+            padding: 0 11px;
 
-        margin-bottom: 22px;
-    }
+            border-radius: 12px;
 
+            font-size: .72rem;
 
-    .hero-description {
-        font-size: .98rem;
+            white-space: nowrap;
+        }
 
-        line-height: 1.6;
+        .professionals-link i {
+            font-size: .82rem;
+        }
 
-        margin-bottom: 24px;
-    }
 
+        /* =====================================================
+           HERO
+           ===================================================== */
 
-    .hero-search {
-        min-height: auto;
+        .public-content {
+            padding:
+                100px 0 45px;
+        }
 
-        flex-wrap: wrap;
+        .brand-badge {
+            margin-bottom: 19px;
 
-        padding: 7px;
+            font-size: .72rem;
+        }
 
-        border-radius: 17px;
-    }
+        .hero-title {
+            font-size: 3.25rem;
 
+            letter-spacing: -2.5px;
 
-    .hero-search input {
-        width:
-            calc(100% - 60px);
+            line-height: .94;
 
-        padding-right: 5px;
-    }
+            margin-bottom: 22px;
+        }
 
+        .hero-description {
+            font-size: .98rem;
 
-    .search-button {
-        width: 100%;
+            line-height: 1.6;
 
-        min-height: 48px;
-    }
+            margin-bottom: 24px;
+        }
 
 
-    .search-suggestions {
-        gap: 6px;
-    }
+        /* =====================================================
+           BUSCADOR MÓVIL
+           ===================================================== */
 
+        .hero-search {
+            min-height: auto;
 
-    .suggestion-chip {
-        font-size: .68rem;
-    }
+            flex-wrap: wrap;
 
+            padding: 7px;
 
-    .hero-actions {
-        gap: 9px;
-    }
+            border-radius: 17px;
+        }
 
+        .search-icon {
+            width: 45px;
+            height: 45px;
 
-    .btn-premium {
-        flex: 1;
+            flex-basis: 45px;
 
-        min-width: 150px;
+            border-radius: 13px;
+        }
 
-        min-height: 50px;
-    }
+        .hero-search input {
+            width:
+                calc(100% - 60px);
 
+            padding-right: 5px;
+        }
 
-    .trust-row {
-        gap: 12px 17px;
+        .search-button {
+            width: 100%;
 
-        font-size: .72rem;
-    }
+            min-height: 48px;
 
+            flex: 0 0 100%;
+        }
 
-    /* =========================================================
-       NAVEGACIÓN SUPERIOR — MÓVIL
-       ========================================================= */
 
-    .public-top-navigation {
-        top: 17px;
-        right: 17px;
+        /* =====================================================
+           SUGERENCIAS
+           ===================================================== */
 
-        gap: 7px;
-    }
+        .search-suggestions {
+            gap: 6px;
+        }
 
+        .suggestion-chip {
+            font-size: .68rem;
+        }
 
-    /* =========================================================
-       BOTÓN PROFESIONALES — MÓVIL
-       ========================================================= */
 
-    .professionals-link,
-    .public-top-navigation .login-link {
-        min-height: 39px;
+        /* =====================================================
+           BOTONES
+           ===================================================== */
 
-        padding: 0 11px;
+        .hero-actions {
+            gap: 9px;
+        }
 
-        border-radius: 12px;
+        .btn-premium {
+            flex: 1;
 
-        font-size: .72rem;
-    }
+            min-width: 150px;
 
+            min-height: 50px;
+        }
 
-    .professionals-link i {
-        font-size: .82rem;
-    }
 
+        /* =====================================================
+           CONFIANZA
+           ===================================================== */
 
-    /* =========================================================
-       RESULTADOS
-       ========================================================= */
+        .trust-row {
+            gap: 12px 17px;
 
-    .results-header {
-        align-items: flex-start;
+            font-size: .72rem;
+        }
 
-        flex-direction: column;
-    }
 
+        /* =====================================================
+           RESULTADOS
+           ===================================================== */
 
-    .professionals-grid {
-        grid-template-columns:
-            repeat(2,minmax(0,1fr));
+        .results-header {
+            align-items: flex-start;
 
-        gap: 12px;
-    }
+            flex-direction: column;
+        }
 
+        .professionals-grid {
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
 
-    .professional-image {
-        height: 200px;
-    }
+            gap: 12px;
+        }
 
+        .professional-image {
+            height: 200px;
+        }
 
-    /* =========================================================
-       CATEGORÍAS
-       ========================================================= */
 
-    .categories-grid {
-        grid-template-columns:
-            repeat(2,minmax(0,1fr));
-    }
+        /* =====================================================
+           CATEGORÍAS
+           ===================================================== */
 
+        .categories-grid {
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+        }
 
-    /* =========================================================
-       NEGOCIOS EXTERNOS
-       ========================================================= */
 
-    .external-grid {
-        grid-template-columns: 1fr;
-    }
+        /* =====================================================
+           NEGOCIOS EXTERNOS
+           ===================================================== */
 
+        .external-grid {
+            grid-template-columns: 1fr;
+        }
 
-    /* =========================================================
-       DESCUBRIMIENTO
-       ========================================================= */
 
-    .discovery-card {
-        padding: 25px;
+        /* =====================================================
+           DESCUBRIMIENTO
+           ===================================================== */
 
-        min-height: 270px;
-    }
+        .discovery-card {
+            padding: 25px;
 
-}
-
-
-@@media (max-width: 480px) {
-
-    .hero-title {
-        font-size: 2.85rem;
-    }
-
-
-    .hero-actions {
-        flex-direction: column;
-    }
-
-
-    .btn-premium {
-        width: 100%;
-    }
-
-
-    .professionals-grid {
-        grid-template-columns: 1fr;
-    }
-
-
-    .categories-grid {
-        grid-template-columns:
-            repeat(2,minmax(0,1fr));
-    }
-
-
-    .professional-image {
-        height: 245px;
+            min-height: 270px;
+        }
     }
 
 
     /* =========================================================
-       NAVEGACIÓN SUPERIOR — TELÉFONOS PEQUEÑOS
+       RESPONSIVE — 480px
        ========================================================= */
 
-    .public-top-navigation {
-        right: 12px;
+    @@media (max-width: 480px) {
 
-        gap: 5px;
+        .public-top-navigation {
+            top: 12px;
+
+            right: 12px;
+
+            gap: 5px;
+
+            max-width:
+                calc(100% - 24px);
+        }
+
+        .professionals-link,
+        .public-top-navigation .login-link {
+            min-height: 37px;
+
+            padding: 0 9px;
+
+            font-size: .68rem;
+        }
+
+        .professionals-link i {
+            font-size: .76rem;
+        }
+
+
+        .public-content {
+            padding:
+                95px 0 35px;
+        }
+
+
+        .hero-title {
+            font-size: 2.85rem;
+
+            letter-spacing: -2px;
+        }
+
+
+        .hero-description {
+            font-size: .93rem;
+        }
+
+
+        .hero-search {
+            border-radius: 15px;
+        }
+
+
+        .search-icon {
+            width: 43px;
+            height: 43px;
+
+            flex-basis: 43px;
+        }
+
+
+        .hero-search input {
+            font-size: .9rem;
+        }
+
+
+        .hero-actions {
+            flex-direction: column;
+        }
+
+
+        .btn-premium {
+            width: 100%;
+        }
+
+
+        .professionals-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .categories-grid {
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+
+            gap: 10px;
+        }
+
+
+        .beauty-category {
+            min-height: 145px;
+
+            padding: 16px;
+        }
+
+
+        .category-icon {
+            width: 43px;
+            height: 43px;
+
+            border-radius: 13px;
+        }
+
+
+        .professional-image {
+            height: 245px;
+        }
+
+
+        .professional-content {
+            padding: 16px;
+        }
+
+
+        .professional-actions {
+            flex-direction: row;
+        }
+
+
+        .results-container,
+        .categories-container,
+        .discovery-grid,
+        .premium-container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
     }
 
 
-    .professionals-link,
-    .public-top-navigation .login-link {
-        padding: 0 9px;
+    /* =========================================================
+       RESPONSIVE — TELÉFONOS MUY PEQUEÑOS
+       ========================================================= */
 
-        font-size: .68rem;
+    @@media (max-width: 360px) {
+
+        .public-top-navigation {
+            right: 8px;
+
+            gap: 4px;
+        }
+
+        .professionals-link,
+        .public-top-navigation .login-link {
+            padding: 0 7px;
+
+            font-size: .64rem;
+        }
+
+        .hero-title {
+            font-size: 2.55rem;
+        }
+
+        .hero-description {
+            font-size: .88rem;
+        }
+
+        .suggestion-chip {
+            padding:
+                6px 9px;
+
+            font-size: .64rem;
+        }
+
+        .categories-grid {
+            grid-template-columns: 1fr 1fr;
+        }
     }
 
-}
+
+    /* =========================================================
+       ACCESIBILIDAD / TOUCH
+       ========================================================= */
+
+    @@media (hover: none) {
+
+        .professional-card:hover,
+        .beauty-category:hover,
+        .btn-primary-premium:hover,
+        .btn-glass-premium:hover,
+        .login-link:hover,
+        .professionals-link:hover {
+            transform: none;
+        }
+    }
+
+
+    /* =========================================================
+       REDUCCIÓN DE MOVIMIENTO
+       ========================================================= */
+
+    @@media (prefers-reduced-motion: reduce) {
+
+        html {
+            scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
 
 </style>
 
