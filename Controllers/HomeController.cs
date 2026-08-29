@@ -148,26 +148,30 @@ namespace TropiNailsPro.Controllers
                         .AsNoTracking()
                         .Where(m => m.UbicacionActiva == true)
                         .Select(m => new
-                        {
-                            id = m.Id,
+{
+    id = m.Id,
 
-                            nombreNegocio = m.NombreNegocio,
+    nombreNegocio = m.NombreNegocio,
 
-                            nombreProfesional =
-                                m.Usuario != null
-                                    ? m.Usuario.Nombre
-                                    : null,
+    nombreProfesional =
+        m.Usuario != null
+            ? m.Usuario.Nombre
+            : null,
 
-                            fotoPerfilUrl =
-                                m.Usuario != null
-                                    ? m.Usuario.FotoPerfilUrl
-                                    : null,
+    fotoPerfilUrl =
+        m.Usuario != null
+            ? (
+                !string.IsNullOrWhiteSpace(m.Usuario.FotoPerfilUrl)
+                    ? m.Usuario.FotoPerfilUrl
+                    : m.Usuario.FotoPerfil
+              )
+            : null,
 
-                            fotoNegocio =
-                                m.FotoNegocio,
+    fotoNegocio =
+        m.FotoNegocio,
 
-                            slug =
-                                m.Slug,
+    slug =
+        m.Slug,
 
                             direccion =
                                 m.DireccionNegocio,
