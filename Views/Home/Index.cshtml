@@ -3023,105 +3023,123 @@
 
 
         /* =====================================================
-           CARD PROFESIONAL
-           ===================================================== */
+   CARD PROFESIONAL — RESULTADO DE BÚSQUEDA
+   ===================================================== */
 
-        function crearCardProfesional(
-            profesional
-        ) {
+function crearCardProfesional(profesional) {
 
-            const id =
-                profesional.id || "";
+    const id =
+        profesional.id || "";
 
-            const nombre =
-                profesional.nombre ||
-                "Profesional de belleza";
+    const nombre =
+        profesional.nombre ||
+        "Profesional de belleza";
 
+    const direccion =
+        profesional.direccion ||
+        profesional.ciudad ||
+        profesional.provincia ||
+        "Ubicación disponible";
 
-            const direccion =
-                profesional.direccion ||
-                profesional.ciudad ||
-                profesional.provincia ||
-                "Ubicación disponible";
+    const foto =
+        profesional.fotoPerfil ||
+        profesional.foto ||
+        profesional.imagen ||
+        profesional.imagenUrl ||
+        "";
 
-
-            /*
-             * De momento usamos placeholder.
-             * Cuando conectemos FotoPerfil / portafolio,
-             * esta card podrá mostrar automáticamente
-             * la imagen real del profesional.
-             */
-
-            const perfilUrl =
-                "/Salones/Index/" +
-                encodeURIComponent(id);
+    const perfilUrl =
+        "/Salones/Index/" +
+        encodeURIComponent(id);
 
 
-            return `
-                <article class="professional-card">
+    const imagenHtml = foto
+        ? `
+            <img
+                src="${escapeHtml(foto)}"
+                alt="${escapeHtml(nombre)}"
+                loading="lazy"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            />
 
-                    <div class="professional-image">
+            <div class="professional-placeholder"
+                 style="display:none;">
 
-                        <div class="professional-placeholder">
+                <i class="bi bi-person-heart"></i>
 
-                            <i class="bi bi-person-heart"></i>
+            </div>
+          `
+        : `
+            <div class="professional-placeholder">
 
-                        </div>
+                <i class="bi bi-person-heart"></i>
 
-                        <span class="professional-badge">
-
-                            TROPINAILS
-
-                        </span>
-
-                    </div>
-
-
-                    <div class="professional-content">
-
-                        <div class="professional-name">
-
-                            ${escapeHtml(nombre)}
-
-                        </div>
+            </div>
+          `;
 
 
-                        <div class="professional-location">
+    return `
+        <article class="professional-card">
 
-                            <i class="bi bi-geo-alt-fill"></i>
+            <div class="professional-image">
 
-                            ${escapeHtml(direccion)}
+                ${imagenHtml}
 
-                        </div>
+                <span class="professional-badge">
+                    TROPINAILS
+                </span>
 
-
-                        <div class="professional-actions">
-
-                            <a href="${perfilUrl}"
-                               class="professional-action primary">
-
-                                Ver perfil
-
-                            </a>
+            </div>
 
 
-                            <a href="${perfilUrl}"
-                               class="professional-action secondary">
+            <div class="professional-content">
 
-                                <i class="bi bi-calendar-check"></i>
+                <div class="professional-name">
 
-                                &nbsp;Agendar
+                    ${escapeHtml(nombre)}
 
-                            </a>
+                </div>
 
-                        </div>
 
-                    </div>
+                <div class="professional-location">
 
-                </article>
-            `;
+                    <i class="bi bi-geo-alt-fill"></i>
 
-        }
+                    <span>
+                        ${escapeHtml(direccion)}
+                    </span>
+
+                </div>
+
+
+                <div class="professional-actions">
+
+                    <a href="${perfilUrl}"
+                       class="professional-action primary">
+
+                        <i class="bi bi-person-circle"></i>
+
+                        &nbsp;Ver perfil
+
+                    </a>
+
+
+                    <a href="${perfilUrl}"
+                       class="professional-action secondary">
+
+                        <i class="bi bi-calendar-check"></i>
+
+                        &nbsp;Agendar
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </article>
+    `;
+}
 
 
         /* =====================================================

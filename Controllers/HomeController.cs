@@ -117,8 +117,30 @@ namespace TropiNailsPro.Controllers
                 var terminosBusqueda =
                     ObtenerTerminosRelacionados(texto);
 
+                var terminosNormalizados =
+                    terminosBusqueda
+                        .Select(NormalizarTexto)
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
                 // ==================================================
-                // 5. OBTENER PROFESIONALES CON UBICACIÓN ACTIVA
+                // 5. OBTENER PROFESIONALES
+                // ==================================================
+                //
+                // IMPORTANTE:
+                //
+                // Ahora también obtenemos:
+                //
+                // - Usuario.Nombre
+                // - Usuario.FotoPerfilUrl
+                // - Slug
+                // - FotoNegocio
+                // - Servicios.Nombre
+                // - Servicios.Descripcion
+                //
+                // No modificamos ningún modelo ni la BD.
+                //
                 // ==================================================
 
                 var candidatosBase =
@@ -129,31 +151,63 @@ namespace TropiNailsPro.Controllers
                         {
                             id = m.Id,
 
-                            nombre = m.NombreNegocio,
+                            nombreNegocio = m.NombreNegocio,
 
-                            direccion = m.DireccionNegocio,
+                            nombreProfesional =
+                                m.Usuario != null
+                                    ? m.Usuario.Nombre
+                                    : null,
 
-                            ciudad = m.Ciudad,
+                            fotoPerfilUrl =
+                                m.Usuario != null
+                                    ? m.Usuario.FotoPerfilUrl
+                                    : null,
 
-                            provincia = m.Provincia,
+                            fotoNegocio =
+                                m.FotoNegocio,
 
-                            latitud = m.Latitud,
+                            slug =
+                                m.Slug,
 
-                            longitud = m.Longitud
+                            direccion =
+                                m.DireccionNegocio,
+
+                            ciudad =
+                                m.Ciudad,
+
+                            provincia =
+                                m.Provincia,
+
+                            latitud =
+                                m.Latitud,
+
+                            longitud =
+                                m.Longitud,
+
+                            servicios =
+                                m.Servicios
+                                    .Select(s => new
+                                    {
+                                        nombre = s.Nombre,
+                                        descripcion = s.Descripcion
+                                    })
+                                    .ToList()
                         })
-                        .Take(500)
                         .ToListAsync();
 
                 // ==================================================
-                // 6. FILTRAR PROFESIONALES
+                // 6. FILTRAR Y RANKING DE PROFESIONALES
                 // ==================================================
 
                 var candidatos =
                     candidatosBase
-                        .Where(m =>
+                        .Select(m =>
                         {
-                            string nombre =
-                                NormalizarTexto(m.nombre);
+                            string nombreNegocio =
+                                NormalizarTexto(m.nombreNegocio);
+
+                            string nombreProfesional =
+                                NormalizarTexto(m.nombreProfesional);
 
                             string direccion =
                                 NormalizarTexto(m.direccion);
@@ -164,26 +218,45 @@ namespace TropiNailsPro.Controllers
                             string provincia =
                                 NormalizarTexto(m.provincia);
 
-                            return terminosBusqueda.Any(t =>
-                            {
-                                string termino =
-                                    NormalizarTexto(t);
+                            var servicios =
+                                m.servicios
+                                    .Select(s => new
+                                    {
+                                        nombre = NormalizarTexto(s.nombre),
+                                        descripcion =
+                                            NormalizarTexto(s.descripcion)
+                                    })
+                                    .ToList();
 
-                                if (string.IsNullOrWhiteSpace(termino))
-                                    return false;
-
-                                return
-                                    (!string.IsNullOrWhiteSpace(nombre) &&
-                                     nombre.Contains(
+                            bool coincide =
+                                terminosNormalizados.Any(termino =>
+                                    (!string.IsNullOrWhiteSpace(nombreNegocio) &&
+                                     nombreNegocio.Contains(
                                          termino,
                                          StringComparison.OrdinalIgnoreCase))
 
                                     ||
 
-                                    (!string.IsNullOrWhiteSpace(direccion) &&
-                                     direccion.Contains(
+                                    (!string.IsNullOrWhiteSpace(nombreProfesional) &&
+                                     nombreProfesional.Contains(
                                          termino,
                                          StringComparison.OrdinalIgnoreCase))
+
+                                    ||
+
+                                    servicios.Any(s =>
+                                        (!string.IsNullOrWhiteSpace(s.nombre) &&
+                                         s.nombre.Contains(
+                                             termino,
+                                             StringComparison.OrdinalIgnoreCase))
+
+                                        ||
+
+                                        (!string.IsNullOrWhiteSpace(s.descripcion) &&
+                                         s.descripcion.Contains(
+                                             termino,
+                                             StringComparison.OrdinalIgnoreCase))
+                                    )
 
                                     ||
 
@@ -197,9 +270,46 @@ namespace TropiNailsPro.Controllers
                                     (!string.IsNullOrWhiteSpace(provincia) &&
                                      provincia.Contains(
                                          termino,
-                                         StringComparison.OrdinalIgnoreCase));
-                            });
+                                         StringComparison.OrdinalIgnoreCase))
+
+                                    ||
+
+                                    (!string.IsNullOrWhiteSpace(direccion) &&
+                                     direccion.Contains(
+                                         termino,
+                                         StringComparison.OrdinalIgnoreCase))
+                                );
+
+                            return new
+                            {
+                                m.id,
+
+                                m.nombreNegocio,
+
+                                m.nombreProfesional,
+
+                                m.fotoPerfilUrl,
+
+                                m.fotoNegocio,
+
+                                m.slug,
+
+                                m.direccion,
+
+                                m.ciudad,
+
+                                m.provincia,
+
+                                m.latitud,
+
+                                m.longitud,
+
+                                m.servicios,
+
+                                coincide
+                            };
                         })
+                        .Where(m => m.coincide)
                         .ToList();
 
                 // ==================================================
@@ -234,22 +344,56 @@ namespace TropiNailsPro.Controllers
                             int relevancia =
                                 CalcularRelevancia(
                                     texto,
-                                    m.nombre,
+                                    m.nombreNegocio,
+                                    m.nombreProfesional,
                                     m.direccion,
                                     m.ciudad,
-                                    m.provincia
+                                    m.provincia,
+                                    m.servicios
                                 );
 
                             return new
                             {
-                                m.id,
-                                m.nombre,
-                                m.direccion,
-                                m.ciudad,
-                                m.provincia,
+                                id = m.id,
 
-                                m.latitud,
-                                m.longitud,
+                                nombreNegocio =
+                                    m.nombreNegocio,
+
+                                nombreProfesional =
+                                    m.nombreProfesional,
+
+                                fotoPerfilUrl =
+                                    m.fotoPerfilUrl,
+
+                                fotoNegocio =
+                                    m.fotoNegocio,
+
+                                slug =
+                                    m.slug,
+
+                                direccion =
+                                    m.direccion,
+
+                                ciudad =
+                                    m.ciudad,
+
+                                provincia =
+                                    m.provincia,
+
+                                latitud =
+                                    m.latitud,
+
+                                longitud =
+                                    m.longitud,
+
+                                servicios =
+                                    m.servicios
+                                        .Select(s => new
+                                        {
+                                            nombre = s.nombre,
+                                            descripcion = s.descripcion
+                                        })
+                                        .ToArray(),
 
                                 distanciaKm,
 
@@ -261,7 +405,7 @@ namespace TropiNailsPro.Controllers
                             m.distanciaKm.HasValue
                                 ? m.distanciaKm.Value
                                 : double.MaxValue)
-                        .Take(20)
+                        .Take(30)
                         .ToList();
 
                 // ==================================================
@@ -272,19 +416,40 @@ namespace TropiNailsPro.Controllers
                     profesionales.Count;
 
                 // ==================================================
-                // 9. GOOGLE PLACES
+                // 9. CALCULAR CUÁNTOS RESULTADOS FALTAN
+                // ==================================================
+
+                const int MAXIMO_RESULTADOS = 30;
+
+                int resultadosFaltantes =
+                    Math.Max(
+                        0,
+                        MAXIMO_RESULTADOS -
+                        cantidadTropiNails
+                    );
+
+                // ==================================================
+                // 10. GOOGLE PLACES
                 // ==================================================
                 //
-                // Google se utiliza como complemento.
+                // Google entra SIEMPRE que:
                 //
-                // Si tenemos ubicación y hay menos de 10
-                // profesionales de TropiNails, buscamos en Google.
+                // - haya ubicación
+                // - TropiNails todavía tenga menos de 30
+                //
+                // Ejemplos:
+                //
+                // 30 TropiNails -> Google NO entra
+                // 25 TropiNails -> faltan 5
+                // 10 TropiNails -> faltan 20
+                //  5 TropiNails -> faltan 25
+                //  0 TropiNails -> faltan 30
                 //
                 // ==================================================
 
                 bool necesitaGoogle =
                     tieneUbicacion &&
-                    cantidadTropiNails < 10;
+                    resultadosFaltantes > 0;
 
                 object[] negociosGoogle =
                     Array.Empty<object>();
@@ -297,7 +462,10 @@ namespace TropiNailsPro.Controllers
                             ConstruirConsultaGoogle(texto);
 
                         _logger.LogInformation(
-                            "🔎 Buscando también en Google Places. Consulta: {Consulta}",
+                            "🔎 TropiNails encontró {CantidadTropiNails} profesionales. Faltan {Faltantes} para llegar a {Maximo}. Buscando complemento en Google Places. Consulta: {Consulta}",
+                            cantidadTropiNails,
+                            resultadosFaltantes,
+                            MAXIMO_RESULTADOS,
                             consultaGoogle
                         );
 
@@ -316,6 +484,15 @@ namespace TropiNailsPro.Controllers
                                     latitud.Value,
                                     longitud.Value
                                 );
+
+                            // ==================================================
+                            // GOOGLE SOLO PUEDE OCUPAR LOS ESPACIOS FALTANTES
+                            // ==================================================
+
+                            negociosGoogle =
+                                negociosGoogle
+                                    .Take(resultadosFaltantes)
+                                    .ToArray();
                         }
                     }
                     catch (Exception ex)
@@ -333,8 +510,12 @@ namespace TropiNailsPro.Controllers
                 }
 
                 // ==================================================
-                // 10. RESULTADO FINAL
+                // 11. RESULTADO FINAL
                 // ==================================================
+
+                int totalResultados =
+                    profesionales.Count +
+                    negociosGoogle.Length;
 
                 return Json(new
                 {
@@ -350,9 +531,7 @@ namespace TropiNailsPro.Controllers
                     totalNegociosGoogle =
                         negociosGoogle.Length,
 
-                    totalResultados =
-                        profesionales.Count +
-                        negociosGoogle.Length,
+                    totalResultados,
 
                     busquedaGoogleRealizada =
                         necesitaGoogle,
@@ -756,18 +935,23 @@ namespace TropiNailsPro.Controllers
 
         private static int CalcularRelevancia(
             string texto,
-            string? nombre,
+            string? nombreNegocio,
+            string? nombreProfesional,
             string? direccion,
             string? ciudad,
-            string? provincia)
+            string? provincia,
+            IEnumerable<dynamic> servicios)
         {
             int puntos = 0;
 
             string busqueda =
                 NormalizarTexto(texto);
 
-            string nombreNormalizado =
-                NormalizarTexto(nombre);
+            string nombreNegocioNormalizado =
+                NormalizarTexto(nombreNegocio);
+
+            string nombreProfesionalNormalizado =
+                NormalizarTexto(nombreProfesional);
 
             string direccionNormalizada =
                 NormalizarTexto(direccion);
@@ -781,82 +965,181 @@ namespace TropiNailsPro.Controllers
             if (string.IsNullOrWhiteSpace(busqueda))
                 return 0;
 
+            var terminos =
+                ObtenerTerminosRelacionados(texto)
+                    .Select(NormalizarTexto)
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
             // ======================================================
-            // NOMBRE EXACTO
+            // CADA TÉRMINO SE EVALÚA POR IMPORTANCIA
             // ======================================================
 
-            if (
-                nombreNormalizado.Equals(
-                    busqueda,
-                    StringComparison.OrdinalIgnoreCase)
-            )
+            foreach (string termino in terminos)
             {
-                puntos += 200;
+                // ==================================================
+                // 1. COINCIDENCIA EXACTA EN NEGOCIO
+                // ==================================================
+
+                if (
+                    nombreNegocioNormalizado.Equals(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 250;
+                }
+
+                // ==================================================
+                // 2. COINCIDENCIA EXACTA EN PROFESIONAL
+                // ==================================================
+
+                if (
+                    nombreProfesionalNormalizado.Equals(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 240;
+                }
+
+                // ==================================================
+                // 3. NOMBRE DEL SERVICIO
+                // ==================================================
+
+                foreach (var servicio in servicios)
+                {
+                    if (
+                        !string.IsNullOrWhiteSpace(servicio.nombre) &&
+                        servicio.nombre.Contains(
+                            termino,
+                            StringComparison.OrdinalIgnoreCase)
+                    )
+                    {
+                        puntos += 180;
+                    }
+
+                    // ==================================================
+                    // 4. DESCRIPCIÓN DEL SERVICIO
+                    // ==================================================
+
+                    if (
+                        !string.IsNullOrWhiteSpace(
+                            servicio.descripcion) &&
+                        servicio.descripcion.Contains(
+                            termino,
+                            StringComparison.OrdinalIgnoreCase)
+                    )
+                    {
+                        puntos += 120;
+                    }
+                }
+
+                // ==================================================
+                // 5. NOMBRE DEL NEGOCIO
+                // ==================================================
+
+                if (
+                    nombreNegocioNormalizado.StartsWith(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 100;
+                }
+
+                if (
+                    nombreNegocioNormalizado.Contains(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 70;
+                }
+
+                // ==================================================
+                // 6. NOMBRE DE PROFESIONAL
+                // ==================================================
+
+                if (
+                    nombreProfesionalNormalizado.StartsWith(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 95;
+                }
+
+                if (
+                    nombreProfesionalNormalizado.Contains(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 65;
+                }
+
+                // ==================================================
+                // 7. CIUDAD
+                // ==================================================
+
+                if (
+                    ciudadNormalizada.Contains(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 35;
+                }
+
+                // ==================================================
+                // 8. PROVINCIA
+                // ==================================================
+
+                if (
+                    provinciaNormalizada.Contains(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 25;
+                }
+
+                // ==================================================
+                // 9. DIRECCIÓN
+                // ==================================================
+
+                if (
+                    direccionNormalizada.Contains(
+                        termino,
+                        StringComparison.OrdinalIgnoreCase)
+                )
+                {
+                    puntos += 20;
+                }
             }
 
             // ======================================================
-            // NOMBRE EMPIEZA POR
+            // BONIFICACIÓN POR COINCIDENCIA DIRECTA CON LA BÚSQUEDA
             // ======================================================
 
             if (
-                nombreNormalizado.StartsWith(
+                nombreNegocioNormalizado.Contains(
                     busqueda,
                     StringComparison.OrdinalIgnoreCase)
             )
             {
-                puntos += 100;
+                puntos += 50;
             }
 
-            // ======================================================
-            // NOMBRE CONTIENE
-            // ======================================================
-
             if (
-                nombreNormalizado.Contains(
+                nombreProfesionalNormalizado.Contains(
                     busqueda,
                     StringComparison.OrdinalIgnoreCase)
             )
             {
-                puntos += 70;
-            }
-
-            // ======================================================
-            // CIUDAD
-            // ======================================================
-
-            if (
-                ciudadNormalizada.Contains(
-                    busqueda,
-                    StringComparison.OrdinalIgnoreCase)
-            )
-            {
-                puntos += 35;
-            }
-
-            // ======================================================
-            // PROVINCIA
-            // ======================================================
-
-            if (
-                provinciaNormalizada.Contains(
-                    busqueda,
-                    StringComparison.OrdinalIgnoreCase)
-            )
-            {
-                puntos += 25;
-            }
-
-            // ======================================================
-            // DIRECCIÓN
-            // ======================================================
-
-            if (
-                direccionNormalizada.Contains(
-                    busqueda,
-                    StringComparison.OrdinalIgnoreCase)
-            )
-            {
-                puntos += 20;
+                puntos += 45;
             }
 
             return puntos;
@@ -1276,9 +1559,6 @@ namespace TropiNailsPro.Controllers
                 Math.Cos(lat2Rad) *
                 Math.Sin(dLon / 2) *
                 Math.Sin(dLon / 2);
-
-            // Evitar pequeñas imprecisiones
-            // numéricas fuera del rango [0,1].
 
             a =
                 Math.Clamp(a, 0.0, 1.0);
