@@ -876,7 +876,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
     background:
         radial-gradient(
             circle at 75% 20%,
@@ -893,7 +892,6 @@
             #321326,
             #140b15
         );
-
     color: rgba(255,255,255,.20);
     font-size: 4rem;
 }
@@ -907,7 +905,6 @@
     content: "";
     position: absolute;
     inset: 0;
-
     background:
         linear-gradient(
             180deg,
@@ -915,7 +912,6 @@
             rgba(0,0,0,.08) 35%,
             rgba(5,3,8,.84) 100%
         );
-
     pointer-events: none;
     z-index: 2;
 }
@@ -930,21 +926,16 @@
     top: 14px;
     left: 14px;
     z-index: 6;
-
     display: inline-flex;
     align-items: center;
     gap: 7px;
-
     padding: 7px 11px;
     border-radius: 999px;
-
     background: rgba(12,8,14,.68);
     border: 1px solid rgba(255,255,255,.16);
-
     color: #fff;
     font-size: .65rem;
     font-weight: 750;
-
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
 }
@@ -963,22 +954,16 @@
     top: 14px;
     right: 14px;
     z-index: 6;
-
     width: 31px;
     height: 31px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
     background: rgba(12,8,14,.72);
     border: 1px solid rgba(255,255,255,.17);
-
     color: #ff78b8;
     font-size: .82rem;
-
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
 }
@@ -990,36 +975,22 @@
 
 .professional-cover-info {
     position: absolute;
-
     left: 18px;
     right: 18px;
-
-    /*
-       SUBIMOS LA INFORMACIÓN BASTANTE MÁS ARRIBA
-       PARA QUE QUEDE ALINEADA CON EL AVATAR.
-    */
-    bottom: 55px;
-
+    bottom: 68px;
     z-index: 5;
-
     padding-left: 105px;
-
     min-width: 0;
 }
 
 .professional-cover-category {
     display: block;
-
     margin-bottom: 5px;
-
     color: rgba(255,255,255,.72);
-
     font-size: .64rem;
     font-weight: 650;
-
     text-transform: uppercase;
     letter-spacing: .8px;
-
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1027,17 +998,12 @@
 
 .professional-cover-name {
     display: block;
-
     color: #fff;
-
     font-size: 1.18rem;
     line-height: 1.08;
     font-weight: 800;
-
     letter-spacing: -.4px;
-
     overflow-wrap: anywhere;
-
     text-shadow:
         0 4px 18px rgba(0,0,0,.55);
 }
@@ -1049,25 +1015,16 @@
 
 .professional-avatar {
     position: absolute;
-
     left: 18px;
 
-    /*
-       ANTES ESTABA EN -30px.
-       AHORA LO SUBIMOS MUCHO MÁS:
-       SOLO SOBRESALE 10px DE LA PORTADA.
-    */
-    bottom: -10px;
+    /* AVATAR SUBIDO 7px MÁS */
+    bottom: -3px;
 
     z-index: 8;
-
     width: 92px;
     height: 92px;
-
     padding: 4px;
-
     border-radius: 50%;
-
     background:
         linear-gradient(
             135deg,
@@ -1075,7 +1032,6 @@
             #ffd4e8,
             #ff72b6
         );
-
     box-shadow:
         0 12px 30px rgba(0,0,0,.35),
         0 0 0 4px rgba(8,6,12,.78);
@@ -1083,21 +1039,14 @@
 
 .professional-avatar img {
     display: block;
-
     width: 100%;
     height: 100%;
-
     min-width: 0;
     min-height: 0;
-
     border-radius: 50%;
-
     object-fit: cover;
 
-    /*
-       El rostro queda ligeramente hacia arriba
-       para evitar cortar la cabeza.
-    */
+    /* MEJOR ENCUADRE DEL ROSTRO */
     object-position: center 32%;
 
     background: #160d17;
@@ -1106,20 +1055,16 @@
 .professional-avatar-placeholder {
     width: 100%;
     height: 100%;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
     background:
         linear-gradient(
             135deg,
             #291321,
             #100a12
         );
-
     color: rgba(255,255,255,.38);
     font-size: 2rem;
 }
@@ -1131,28 +1076,21 @@
 
 .professional-verified {
     position: absolute;
-
     right: -1px;
     bottom: 3px;
-
     width: 25px;
     height: 25px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 50%;
-
     background:
         linear-gradient(
             135deg,
             #ff4da6,
             #9b5cff
         );
-
     border: 3px solid #100a12;
-
     color: #fff;
     font-size: .65rem;
 }
@@ -1164,12 +1102,7 @@
 
 .professional-content {
     position: relative;
-
-    /*
-       COMO EL AVATAR AHORA ESTÁ MÁS ARRIBA,
-       REDUCIMOS EL ESPACIO VACÍO DEBAJO.
-    */
-    padding: 30px 18px 18px;
+    padding: 24px 18px 18px;
 }
 
 
@@ -1180,15 +1113,10 @@
 .professional-location {
     display: flex;
     align-items: center;
-
     gap: 6px;
-
     min-width: 0;
-
     margin-bottom: 16px;
-
     color: rgba(255,255,255,.52);
-
     font-size: .73rem;
 }
 
@@ -1210,44 +1138,32 @@
 
 .professional-stats {
     display: grid;
-
     grid-template-columns: repeat(3, 1fr);
-
     gap: 7px;
-
     margin-bottom: 17px;
 }
 
 .professional-stat {
     min-width: 0;
-
     padding: 9px 6px;
-
     text-align: center;
-
     border-radius: 12px;
-
     background: rgba(255,255,255,.045);
     border: 1px solid rgba(255,255,255,.07);
 }
 
 .professional-stat strong {
     display: block;
-
     color: #fff;
-
     font-size: .82rem;
     font-weight: 800;
     line-height: 1.1;
-
     margin-bottom: 3px;
 }
 
 .professional-stat span {
     display: block;
-
     color: rgba(255,255,255,.42);
-
     font-size: .58rem;
 }
 
@@ -1258,29 +1174,21 @@
 
 .professional-actions {
     display: grid;
-
     grid-template-columns: 1fr 1fr;
-
     gap: 8px;
 }
 
 .professional-action {
     min-width: 0;
     min-height: 43px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     gap: 6px;
-
     border-radius: 12px;
-
     text-decoration: none;
-
     font-size: .70rem;
     font-weight: 750;
-
     transition:
         transform .22s ease,
         background .22s ease,
@@ -1289,23 +1197,19 @@
 
 .professional-action.primary {
     color: #fff;
-
     background:
         linear-gradient(
             135deg,
             #ff4da6,
             #d62978
         );
-
     box-shadow:
         0 9px 25px rgba(214,41,120,.22);
 }
 
 .professional-action.secondary {
     color: rgba(255,255,255,.88);
-
     background: rgba(255,255,255,.055);
-
     border: 1px solid rgba(255,255,255,.11);
 }
 
@@ -1357,26 +1261,21 @@
     .professional-avatar {
         width: 82px;
         height: 82px;
-
         left: 14px;
 
-        /*
-           TAMBIÉN LO SUBIMOS EN TABLET/MÓVIL.
-        */
-        bottom: -9px;
+        /* SUBIDO 7px MÁS */
+        bottom: -2px;
     }
 
     .professional-cover-info {
         left: 14px;
         right: 14px;
-
         padding-left: 93px;
-
-        bottom: 48px;
+        bottom: 61px;
     }
 
     .professional-content {
-        padding: 27px 14px 14px;
+        padding: 22px 14px 14px;
     }
 }
 
@@ -1398,23 +1297,17 @@
     .professional-avatar {
         width: 94px;
         height: 94px;
-
         left: 17px;
 
-        /*
-           AVATAR CASI COMPLETAMENTE DENTRO
-           DE LA PORTADA.
-        */
-        bottom: -9px;
+        /* SUBIDO 7px MÁS */
+        bottom: -2px;
     }
 
     .professional-cover-info {
         left: 17px;
         right: 17px;
-
         padding-left: 112px;
-
-        bottom: 53px;
+        bottom: 66px;
     }
 
     .professional-cover-name {
@@ -1422,7 +1315,7 @@
     }
 
     .professional-content {
-        padding: 28px 17px 17px;
+        padding: 23px 17px 17px;
     }
 }
 
