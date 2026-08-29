@@ -994,13 +994,15 @@
     left: 18px;
     right: 18px;
 
-    /* SUBIMOS LA INFORMACIÓN */
-    bottom: 27px;
+    /*
+       SUBIMOS LA INFORMACIÓN BASTANTE MÁS ARRIBA
+       PARA QUE QUEDE ALINEADA CON EL AVATAR.
+    */
+    bottom: 55px;
 
     z-index: 5;
 
-    /* DEJAMOS ESPACIO PARA EL AVATAR */
-    padding-left: 100px;
+    padding-left: 105px;
 
     min-width: 0;
 }
@@ -1048,13 +1050,14 @@
 .professional-avatar {
     position: absolute;
 
-    /*
-       IMPORTANTE:
-       El avatar ahora queda más arriba dentro de la portada
-       para evitar que la cabeza/foto se corte.
-    */
     left: 18px;
-    bottom: -30px;
+
+    /*
+       ANTES ESTABA EN -30px.
+       AHORA LO SUBIMOS MUCHO MÁS:
+       SOLO SOBRESALE 10px DE LA PORTADA.
+    */
+    bottom: -10px;
 
     z-index: 8;
 
@@ -1089,16 +1092,13 @@
 
     border-radius: 50%;
 
-    /*
-       La imagen llena completamente el círculo
-       sin deformarse.
-    */
     object-fit: cover;
 
     /*
-       Ajuste para que el rostro quede mejor centrado.
+       El rostro queda ligeramente hacia arriba
+       para evitar cortar la cabeza.
     */
-    object-position: center 35%;
+    object-position: center 32%;
 
     background: #160d17;
 }
@@ -1166,9 +1166,10 @@
     position: relative;
 
     /*
-       Ajustado porque el avatar ahora sobresale menos.
+       COMO EL AVATAR AHORA ESTÁ MÁS ARRIBA,
+       REDUCIMOS EL ESPACIO VACÍO DEBAJO.
     */
-    padding: 45px 18px 18px;
+    padding: 30px 18px 18px;
 }
 
 
@@ -1359,21 +1360,23 @@
 
         left: 14px;
 
-        /* Avatar más arriba */
-        bottom: -28px;
+        /*
+           TAMBIÉN LO SUBIMOS EN TABLET/MÓVIL.
+        */
+        bottom: -9px;
     }
 
     .professional-cover-info {
         left: 14px;
         right: 14px;
 
-        padding-left: 89px;
+        padding-left: 93px;
 
-        bottom: 25px;
+        bottom: 48px;
     }
 
     .professional-content {
-        padding: 42px 14px 14px;
+        padding: 27px 14px 14px;
     }
 }
 
@@ -1398,8 +1401,11 @@
 
         left: 17px;
 
-        /* Evita que el avatar quede demasiado abajo */
-        bottom: -31px;
+        /*
+           AVATAR CASI COMPLETAMENTE DENTRO
+           DE LA PORTADA.
+        */
+        bottom: -9px;
     }
 
     .professional-cover-info {
@@ -1408,7 +1414,7 @@
 
         padding-left: 112px;
 
-        bottom: 27px;
+        bottom: 53px;
     }
 
     .professional-cover-name {
@@ -1416,7 +1422,7 @@
     }
 
     .professional-content {
-        padding: 47px 17px 17px;
+        padding: 28px 17px 17px;
     }
 }
 
