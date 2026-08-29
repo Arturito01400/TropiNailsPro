@@ -786,34 +786,21 @@
         font-size: .85rem;
     }
 
-
-    /* =========================================================
-   GRID PROFESIONALES — TROPINAILS BEAUTY PROFILE CARDS
+/* =========================================================
+   GRID PROFESIONALES — TROPINAILS BEAUTY PROFILE
    ========================================================= */
 
 .professionals-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 22px;
-
     width: 100%;
 }
 
-
-/* =========================================================
-   TARJETA PRINCIPAL
-   ========================================================= */
-
 .professional-card {
     position: relative;
-
     min-width: 0;
-
     overflow: hidden;
-
     border-radius: 26px;
 
     background:
@@ -823,8 +810,7 @@
             rgba(255,255,255,.035)
         );
 
-    border:
-        1px solid rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.12);
 
     box-shadow:
         0 25px 65px rgba(0,0,0,.28),
@@ -834,16 +820,15 @@
     -webkit-backdrop-filter: blur(18px);
 
     transition:
-        transform .35s cubic-bezier(.2,.8,.2,1),
+        transform .35s ease,
         border-color .35s ease,
         box-shadow .35s ease;
 }
 
 .professional-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-7px);
 
-    border-color:
-        rgba(255,114,182,.42);
+    border-color: rgba(255,114,182,.42);
 
     box-shadow:
         0 35px 80px rgba(0,0,0,.38),
@@ -857,9 +842,8 @@
 
 .professional-cover {
     position: relative;
-
-    height: 245px;
-
+    width: 100%;
+    height: 235px;
     overflow: hidden;
 
     background:
@@ -876,9 +860,6 @@
         );
 }
 
-
-/* Imagen de portada */
-
 .professional-cover img {
     display: block;
 
@@ -886,51 +867,25 @@
     height: 100%;
 
     object-fit: cover;
+    object-position: center;
 
-    transition:
-        transform .7s cubic-bezier(.2,.8,.2,1);
+    transition: transform .6s ease;
 }
 
-.professional-card:hover
-.professional-cover img {
-    transform: scale(1.06);
-}
-
-
-/* =========================================================
-   CAPA OSCURA DE PORTADA
-   ========================================================= */
-
-.professional-cover::after {
-    content: "";
-
-    position: absolute;
-
-    inset: 0;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(0,0,0,.05) 0%,
-            rgba(0,0,0,.10) 35%,
-            rgba(5,3,8,.78) 100%
-        );
-
-    pointer-events: none;
+.professional-card:hover .professional-cover img {
+    transform: scale(1.05);
 }
 
 
 /* =========================================================
-   PORTADA SIN IMAGEN
+   FALLBACK PORTADA
    ========================================================= */
 
 .professional-cover-placeholder {
     position: absolute;
-
     inset: 0;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
@@ -951,15 +906,35 @@
             #140b15
         );
 
-    color:
-        rgba(255,255,255,.20);
-
+    color: rgba(255,255,255,.20);
     font-size: 4rem;
 }
 
 
 /* =========================================================
-   BADGE SUPERIOR
+   OSCURECER PORTADA
+   ========================================================= */
+
+.professional-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0,0,0,.05) 0%,
+            rgba(0,0,0,.10) 35%,
+            rgba(5,3,8,.80) 100%
+        );
+
+    pointer-events: none;
+    z-index: 2;
+}
+
+
+/* =========================================================
+   BADGE
    ========================================================= */
 
 .professional-top-badge {
@@ -971,52 +946,40 @@
     z-index: 5;
 
     display: inline-flex;
-
     align-items: center;
-
     gap: 7px;
 
     padding: 7px 11px;
 
     border-radius: 999px;
 
+    background: rgba(12,8,14,.68);
+
+    border: 1px solid rgba(255,255,255,.16);
+
     color: #fff;
 
-    background:
-        rgba(12,8,14,.64);
-
-    border:
-        1px solid rgba(255,255,255,.16);
+    font-size: .65rem;
+    font-weight: 750;
 
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-
-    box-shadow:
-        0 8px 25px rgba(0,0,0,.20);
-
-    font-size: .65rem;
-
-    font-weight: 750;
-
-    letter-spacing: .2px;
 }
 
 .professional-top-badge i {
     color: #ff79b8;
-
-    font-size: .72rem;
 }
 
 
 /* =========================================================
-   INDICADOR DE PERFIL
+   INDICADOR
    ========================================================= */
 
 .professional-status {
     position: absolute;
 
-    top: 15px;
-    right: 15px;
+    top: 14px;
+    right: 14px;
 
     z-index: 5;
 
@@ -1024,32 +987,26 @@
     height: 31px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
     border-radius: 50%;
 
-    background:
-        rgba(12,8,14,.70);
+    background: rgba(12,8,14,.72);
 
-    border:
-        1px solid rgba(255,255,255,.17);
-
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,.17);
 
     color: #ff78b8;
 
     font-size: .82rem;
 
-    box-shadow:
-        0 8px 25px rgba(0,0,0,.22);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 
 
 /* =========================================================
-   INFORMACIÓN SUPERPUESTA EN PORTADA
+   INFORMACIÓN SOBRE PORTADA
    ========================================================= */
 
 .professional-cover-info {
@@ -1061,55 +1018,48 @@
 
     z-index: 4;
 
-    padding-left: 88px;
-
-    pointer-events: none;
+    padding-left: 91px;
 }
 
 .professional-cover-category {
-    display: inline-block;
+    display: block;
 
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 
-    color:
-        rgba(255,255,255,.70);
+    color: rgba(255,255,255,.70);
 
-    font-size: .66rem;
-
+    font-size: .64rem;
     font-weight: 650;
 
     text-transform: uppercase;
-
     letter-spacing: .8px;
 }
 
 .professional-cover-name {
     color: #fff;
 
-    font-size: 1.22rem;
-
-    line-height: 1.05;
+    font-size: 1.18rem;
+    line-height: 1.08;
 
     font-weight: 800;
-
-    letter-spacing: -.5px;
+    letter-spacing: -.4px;
 
     overflow-wrap: anywhere;
 
     text-shadow:
-        0 4px 18px rgba(0,0,0,.45);
+        0 4px 18px rgba(0,0,0,.55);
 }
 
 
 /* =========================================================
-   FOTO DE PERFIL
+   AVATAR
    ========================================================= */
 
 .professional-avatar {
     position: absolute;
 
     left: 18px;
-    bottom: -38px;
+    bottom: -39px;
 
     z-index: 8;
 
@@ -1123,14 +1073,14 @@
     background:
         linear-gradient(
             135deg,
-            #fff,
+            #ffffff,
             #ffd4e8,
             #ff72b6
         );
 
     box-shadow:
         0 12px 30px rgba(0,0,0,.35),
-        0 0 0 4px rgba(8,6,12,.72);
+        0 0 0 4px rgba(8,6,12,.78);
 }
 
 .professional-avatar img {
@@ -1139,16 +1089,15 @@
     width: 100%;
     height: 100%;
 
+    min-width: 0;
+    min-height: 0;
+
     border-radius: 50%;
 
     object-fit: cover;
+    object-position: center center;
 
-    background:
-        linear-gradient(
-            135deg,
-            #291321,
-            #100a12
-        );
+    background: #160d17;
 }
 
 .professional-avatar-placeholder {
@@ -1156,7 +1105,6 @@
     height: 100%;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
@@ -1169,15 +1117,14 @@
             #100a12
         );
 
-    color:
-        rgba(255,255,255,.38);
+    color: rgba(255,255,255,.38);
 
     font-size: 2rem;
 }
 
 
 /* =========================================================
-   CHECK / VERIFICADO
+   VERIFICADO
    ========================================================= */
 
 .professional-verified {
@@ -1190,7 +1137,6 @@
     height: 25px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
@@ -1203,15 +1149,11 @@
             #9b5cff
         );
 
-    border:
-        3px solid #100a12;
+    border: 3px solid #100a12;
 
     color: #fff;
 
     font-size: .65rem;
-
-    box-shadow:
-        0 5px 15px rgba(0,0,0,.28);
 }
 
 
@@ -1222,8 +1164,7 @@
 .professional-content {
     position: relative;
 
-    padding:
-        50px 18px 18px;
+    padding: 52px 18px 18px;
 }
 
 
@@ -1233,7 +1174,6 @@
 
 .professional-location {
     display: flex;
-
     align-items: center;
 
     gap: 6px;
@@ -1242,25 +1182,19 @@
 
     margin-bottom: 16px;
 
-    color:
-        rgba(255,255,255,.52);
+    color: rgba(255,255,255,.52);
 
     font-size: .73rem;
 }
 
 .professional-location i {
     flex: 0 0 auto;
-
     color: #ff82bc;
-
-    font-size: .78rem;
 }
 
 .professional-location span {
     overflow: hidden;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
 }
 
@@ -1272,8 +1206,7 @@
 .professional-stats {
     display: grid;
 
-    grid-template-columns:
-        repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
 
     gap: 7px;
 
@@ -1283,18 +1216,15 @@
 .professional-stat {
     min-width: 0;
 
-    padding:
-        9px 6px;
+    padding: 9px 6px;
 
     text-align: center;
 
     border-radius: 12px;
 
-    background:
-        rgba(255,255,255,.045);
+    background: rgba(255,255,255,.045);
 
-    border:
-        1px solid rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.07);
 }
 
 .professional-stat strong {
@@ -1303,7 +1233,6 @@
     color: #fff;
 
     font-size: .82rem;
-
     font-weight: 800;
 
     line-height: 1.1;
@@ -1314,12 +1243,9 @@
 .professional-stat span {
     display: block;
 
-    color:
-        rgba(255,255,255,.42);
+    color: rgba(255,255,255,.42);
 
     font-size: .58rem;
-
-    line-height: 1.1;
 }
 
 
@@ -1330,19 +1256,16 @@
 .professional-actions {
     display: grid;
 
-    grid-template-columns:
-        1fr 1fr;
+    grid-template-columns: 1fr 1fr;
 
     gap: 8px;
 }
 
 .professional-action {
     min-width: 0;
-
     min-height: 43px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
@@ -1353,14 +1276,12 @@
     text-decoration: none;
 
     font-size: .70rem;
-
     font-weight: 750;
 
     transition:
         transform .22s ease,
         background .22s ease,
-        box-shadow .22s ease,
-        border-color .22s ease;
+        box-shadow .22s ease;
 }
 
 .professional-action.primary {
@@ -1377,80 +1298,44 @@
         0 9px 25px rgba(214,41,120,.22);
 }
 
-.professional-action.primary:hover {
-    color: #fff;
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 14px 30px rgba(214,41,120,.34);
-}
-
 .professional-action.secondary {
-    color:
-        rgba(255,255,255,.88);
+    color: rgba(255,255,255,.88);
 
-    background:
-        rgba(255,255,255,.055);
+    background: rgba(255,255,255,.055);
 
-    border:
-        1px solid rgba(255,255,255,.11);
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.11);
 }
 
-.professional-action.secondary:hover {
+.professional-action:hover {
     color: #fff;
-
     transform: translateY(-2px);
-
-    background:
-        rgba(255,255,255,.11);
-
-    border-color:
-        rgba(255,114,182,.25);
 }
 
 
 /* =========================================================
-   RESPONSIVE — 1200px
+   RESPONSIVE
    ========================================================= */
 
 @@media (max-width: 1200px) {
 
     .professionals-grid {
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0,1fr));
     }
 
 }
-
-
-/* =========================================================
-   RESPONSIVE — 992px
-   ========================================================= */
 
 @@media (max-width: 992px) {
 
     .professionals-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0,1fr));
     }
 
 }
 
-
-/* =========================================================
-   RESPONSIVE — 768px
-   ========================================================= */
-
 @@media (max-width: 768px) {
 
     .professionals-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
+        grid-template-columns: repeat(2, minmax(0,1fr));
         gap: 13px;
     }
 
@@ -1463,40 +1348,25 @@
         height: 82px;
 
         left: 14px;
-
         bottom: -35px;
     }
 
     .professional-cover-info {
         left: 14px;
         right: 14px;
-
-        padding-left: 78px;
-    }
-
-    .professional-cover-name {
-        font-size: 1rem;
+        padding-left: 80px;
     }
 
     .professional-content {
-        padding:
-            47px 14px 14px;
+        padding: 48px 14px 14px;
     }
 
 }
 
-
-/* =========================================================
-   RESPONSIVE — 480px
-   ========================================================= */
-
 @@media (max-width: 480px) {
 
     .professionals-grid {
-        grid-template-columns:
-            1fr;
-
-        gap: 15px;
+        grid-template-columns: 1fr;
     }
 
     .professional-cover {
@@ -1508,44 +1378,32 @@
         height: 94px;
 
         left: 17px;
-
         bottom: -40px;
     }
 
     .professional-cover-info {
         left: 17px;
         right: 17px;
-
-        padding-left: 91px;
+        padding-left: 94px;
     }
 
     .professional-cover-name {
-        font-size: 1.18rem;
+        font-size: 1.15rem;
     }
 
     .professional-content {
-        padding:
-            53px 17px 17px;
+        padding: 54px 17px 17px;
     }
 
 }
-
-
-/* =========================================================
-   TOUCH
-   ========================================================= */
 
 @@media (hover: none) {
 
     .professional-card:hover {
         transform: none;
-
-        box-shadow:
-            0 25px 65px rgba(0,0,0,.28);
     }
 
-    .professional-card:hover
-    .professional-cover img {
+    .professional-card:hover .professional-cover img {
         transform: none;
     }
 
@@ -3584,23 +3442,28 @@
 function crearCardProfesional(profesional) {
 
     const id =
-        profesional.id || "";
+        profesional.id ??
+        profesional.Id ??
+        "";
 
     const nombre =
-        profesional.nombre ||
-        profesional.nombreCompleto ||
-        profesional.userName ||
+        profesional.nombre ??
+        profesional.nombreCompleto ??
+        profesional.Nombre ??
+        profesional.NombreCompleto ??
+        profesional.userName ??
+        profesional.UserName ??
+        profesional.usuario ??
         "Profesional de belleza";
 
 
-    /* =====================================================
-       UBICACIÓN
-       ===================================================== */
-
     const direccion =
-        profesional.direccion ||
-        profesional.ciudad ||
-        profesional.provincia ||
+        profesional.direccion ??
+        profesional.Direccion ??
+        profesional.ciudad ??
+        profesional.Ciudad ??
+        profesional.provincia ??
+        profesional.Provincia ??
         "Ubicación disponible";
 
 
@@ -3609,10 +3472,16 @@ function crearCardProfesional(profesional) {
        ===================================================== */
 
     const fotoPerfil =
-        profesional.fotoPerfil ||
-        profesional.foto ||
-        profesional.imagen ||
-        profesional.imagenUrl ||
+        profesional.fotoPerfil ??
+        profesional.FotoPerfil ??
+        profesional.foto ??
+        profesional.Foto ??
+        profesional.imagen ??
+        profesional.Imagen ??
+        profesional.imagenUrl ??
+        profesional.ImagenUrl ??
+        profesional.fotoPerfilUrl ??
+        profesional.FotoPerfilUrl ??
         "";
 
 
@@ -3621,11 +3490,16 @@ function crearCardProfesional(profesional) {
        ===================================================== */
 
     const fotoPortada =
-        profesional.fotoPortada ||
-        profesional.portada ||
-        profesional.imagenPortada ||
-        profesional.banner ||
-        profesional.bannerUrl ||
+        profesional.fotoPortada ??
+        profesional.FotoPortada ??
+        profesional.portada ??
+        profesional.Portada ??
+        profesional.imagenPortada ??
+        profesional.ImagenPortada ??
+        profesional.banner ??
+        profesional.Banner ??
+        profesional.bannerUrl ??
+        profesional.BannerUrl ??
         "";
 
 
@@ -3634,9 +3508,12 @@ function crearCardProfesional(profesional) {
        ===================================================== */
 
     const categoria =
-        profesional.categoria ||
-        profesional.especialidad ||
-        profesional.tipoProfesional ||
+        profesional.categoria ??
+        profesional.Categoria ??
+        profesional.especialidad ??
+        profesional.Especialidad ??
+        profesional.tipoProfesional ??
+        profesional.TipoProfesional ??
         "Profesional de belleza";
 
 
@@ -3646,28 +3523,38 @@ function crearCardProfesional(profesional) {
 
     const servicios =
         profesional.totalServicios ??
+        profesional.TotalServicios ??
         profesional.cantidadServicios ??
-        profesional.servicios ??
-        0;
+        profesional.CantidadServicios ??
+        (Array.isArray(profesional.servicios)
+            ? profesional.servicios.length
+            : 0);
 
 
     const trabajos =
         profesional.totalTrabajos ??
+        profesional.TotalTrabajos ??
         profesional.cantidadTrabajos ??
+        profesional.CantidadTrabajos ??
         profesional.trabajos ??
+        profesional.Trabajos ??
         profesional.modelos ??
+        profesional.Modelos ??
         0;
 
 
     const publicaciones =
         profesional.totalPublicaciones ??
+        profesional.TotalPublicaciones ??
         profesional.cantidadPublicaciones ??
+        profesional.CantidadPublicaciones ??
         profesional.publicaciones ??
+        profesional.Publicaciones ??
         0;
 
 
     /* =====================================================
-       URL DEL PERFIL
+       URL
        ===================================================== */
 
     const perfilUrl =
@@ -3679,144 +3566,102 @@ function crearCardProfesional(profesional) {
        PORTADA
        ===================================================== */
 
-    const portadaHtml =
-        fotoPortada
-            ?
-            `
+    const portadaHtml = fotoPortada
+        ? `
             <img
                 src="${escapeHtml(fotoPortada)}"
                 alt=""
                 loading="lazy"
                 onerror="
                     this.style.display='none';
-                    this.nextElementSibling.style.display='flex';
+                    const fallback=this.parentElement.querySelector('.professional-cover-placeholder');
+                    if(fallback) fallback.style.display='flex';
                 "
             />
 
             <div
                 class="professional-cover-placeholder"
                 style="display:none;">
-
                 <i class="bi bi-stars"></i>
-
             </div>
-            `
-            :
-            `
+        `
+        : `
             <div class="professional-cover-placeholder">
-
                 <i class="bi bi-stars"></i>
-
             </div>
-            `;
+        `;
 
 
     /* =====================================================
-       FOTO DE PERFIL
+       AVATAR
        ===================================================== */
 
-    const avatarHtml =
-        fotoPerfil
-            ?
-            `
+    const avatarHtml = fotoPerfil
+        ? `
             <img
                 src="${escapeHtml(fotoPerfil)}"
                 alt="${escapeHtml(nombre)}"
                 loading="lazy"
                 onerror="
                     this.style.display='none';
-                    this.nextElementSibling.style.display='flex';
+                    const fallback=this.parentElement.querySelector('.professional-avatar-placeholder');
+                    if(fallback) fallback.style.display='flex';
                 "
             />
 
             <div
                 class="professional-avatar-placeholder"
                 style="display:none;">
-
                 <i class="bi bi-person-heart"></i>
-
             </div>
-            `
-            :
-            `
+        `
+        : `
             <div class="professional-avatar-placeholder">
-
                 <i class="bi bi-person-heart"></i>
-
             </div>
-            `;
+        `;
 
 
     /* =====================================================
-       HTML FINAL
+       TARJETA
        ===================================================== */
 
     return `
-
         <article class="professional-card">
-
-
-            <!-- =================================================
-                 PORTADA
-                 ================================================= -->
 
             <div class="professional-cover">
 
                 ${portadaHtml}
 
-
-                <!-- BADGE -->
-
                 <div class="professional-top-badge">
-
                     <i class="bi bi-stars"></i>
-
-                    TropiNails Pro
-
+                    Profesional de belleza
                 </div>
-
-
-                <!-- ESTADO -->
 
                 <div
                     class="professional-status"
-                    title="Profesional en TropiNails">
-
+                    title="Perfil en TropiNails">
                     <i class="bi bi-patch-check-fill"></i>
-
                 </div>
-
-
-                <!-- INFORMACIÓN SOBRE PORTADA -->
 
                 <div class="professional-cover-info">
 
                     <div class="professional-cover-category">
-
                         ${escapeHtml(categoria)}
-
                     </div>
 
                     <div class="professional-cover-name">
-
                         ${escapeHtml(nombre)}
-
                     </div>
 
                 </div>
-
-
-                <!-- FOTO DE PERFIL -->
 
                 <div class="professional-avatar">
 
                     ${avatarHtml}
 
-
                     <div class="professional-verified">
-
                         <i class="bi bi-check-lg"></i>
-
                     </div>
 
                 </div>
@@ -3824,14 +3669,7 @@ function crearCardProfesional(profesional) {
             </div>
 
 
-            <!-- =================================================
-                 CONTENIDO
-                 ================================================= -->
-
             <div class="professional-content">
-
-
-                <!-- UBICACIÓN -->
 
                 <div class="professional-location">
 
@@ -3844,86 +3682,63 @@ function crearCardProfesional(profesional) {
                 </div>
 
 
-                <!-- ESTADÍSTICAS -->
-
                 <div class="professional-stats">
 
-
                     <div class="professional-stat">
-
                         <strong>
                             ${escapeHtml(servicios)}
                         </strong>
-
                         <span>
                             Servicios
                         </span>
-
                     </div>
 
-
                     <div class="professional-stat">
-
                         <strong>
                             ${escapeHtml(trabajos)}
                         </strong>
-
                         <span>
                             Trabajos
                         </span>
-
                     </div>
 
-
                     <div class="professional-stat">
-
                         <strong>
                             ${escapeHtml(publicaciones)}
                         </strong>
-
                         <span>
                             Publicaciones
                         </span>
-
                     </div>
-
 
                 </div>
 
 
-                <!-- BOTONES -->
-
                 <div class="professional-actions">
-
 
                     <a
                         href="${perfilUrl}"
                         class="professional-action primary">
 
                         <i class="bi bi-person-heart"></i>
-
                         Ver perfil
 
                     </a>
-
 
                     <a
                         href="${perfilUrl}"
                         class="professional-action secondary">
 
                         <i class="bi bi-calendar-heart"></i>
-
                         Agendar
 
                     </a>
-
 
                 </div>
 
             </div>
 
         </article>
-
     `;
 }
 
