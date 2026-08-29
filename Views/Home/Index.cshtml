@@ -802,23 +802,18 @@
     min-width: 0;
     overflow: hidden;
     border-radius: 26px;
-
     background:
         linear-gradient(
             180deg,
             rgba(255,255,255,.075),
             rgba(255,255,255,.035)
         );
-
     border: 1px solid rgba(255,255,255,.12);
-
     box-shadow:
         0 25px 65px rgba(0,0,0,.28),
         inset 0 1px rgba(255,255,255,.08);
-
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-
     transition:
         transform .35s ease,
         border-color .35s ease,
@@ -827,9 +822,7 @@
 
 .professional-card:hover {
     transform: translateY(-7px);
-
     border-color: rgba(255,114,182,.42);
-
     box-shadow:
         0 35px 80px rgba(0,0,0,.38),
         0 0 0 1px rgba(255,114,182,.05);
@@ -845,7 +838,6 @@
     width: 100%;
     height: 235px;
     overflow: hidden;
-
     background:
         radial-gradient(
             circle at 80% 15%,
@@ -862,18 +854,15 @@
 
 .professional-cover img {
     display: block;
-
     width: 100%;
     height: 100%;
-
     object-fit: cover;
-    object-position: center;
-
+    object-position: center center;
     transition: transform .6s ease;
 }
 
 .professional-card:hover .professional-cover img {
-    transform: scale(1.05);
+    transform: scale(1.04);
 }
 
 
@@ -884,7 +873,6 @@
 .professional-cover-placeholder {
     position: absolute;
     inset: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -923,9 +911,9 @@
     background:
         linear-gradient(
             180deg,
-            rgba(0,0,0,.05) 0%,
-            rgba(0,0,0,.10) 35%,
-            rgba(5,3,8,.80) 100%
+            rgba(0,0,0,.04) 0%,
+            rgba(0,0,0,.08) 35%,
+            rgba(5,3,8,.84) 100%
         );
 
     pointer-events: none;
@@ -939,26 +927,21 @@
 
 .professional-top-badge {
     position: absolute;
-
     top: 14px;
     left: 14px;
-
-    z-index: 5;
+    z-index: 6;
 
     display: inline-flex;
     align-items: center;
     gap: 7px;
 
     padding: 7px 11px;
-
     border-radius: 999px;
 
     background: rgba(12,8,14,.68);
-
     border: 1px solid rgba(255,255,255,.16);
 
     color: #fff;
-
     font-size: .65rem;
     font-weight: 750;
 
@@ -977,11 +960,9 @@
 
 .professional-status {
     position: absolute;
-
     top: 14px;
     right: 14px;
-
-    z-index: 5;
+    z-index: 6;
 
     width: 31px;
     height: 31px;
@@ -993,11 +974,9 @@
     border-radius: 50%;
 
     background: rgba(12,8,14,.72);
-
     border: 1px solid rgba(255,255,255,.17);
 
     color: #ff78b8;
-
     font-size: .82rem;
 
     backdrop-filter: blur(15px);
@@ -1014,11 +993,16 @@
 
     left: 18px;
     right: 18px;
-    bottom: 17px;
 
-    z-index: 4;
+    /* SUBIMOS LA INFORMACIÓN */
+    bottom: 27px;
 
-    padding-left: 91px;
+    z-index: 5;
+
+    /* DEJAMOS ESPACIO PARA EL AVATAR */
+    padding-left: 100px;
+
+    min-width: 0;
 }
 
 .professional-cover-category {
@@ -1026,22 +1010,28 @@
 
     margin-bottom: 5px;
 
-    color: rgba(255,255,255,.70);
+    color: rgba(255,255,255,.72);
 
     font-size: .64rem;
     font-weight: 650;
 
     text-transform: uppercase;
     letter-spacing: .8px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .professional-cover-name {
+    display: block;
+
     color: #fff;
 
     font-size: 1.18rem;
     line-height: 1.08;
-
     font-weight: 800;
+
     letter-spacing: -.4px;
 
     overflow-wrap: anywhere;
@@ -1058,8 +1048,13 @@
 .professional-avatar {
     position: absolute;
 
+    /*
+       IMPORTANTE:
+       El avatar ahora queda más arriba dentro de la portada
+       para evitar que la cabeza/foto se corte.
+    */
     left: 18px;
-    bottom: -39px;
+    bottom: -30px;
 
     z-index: 8;
 
@@ -1094,8 +1089,16 @@
 
     border-radius: 50%;
 
+    /*
+       La imagen llena completamente el círculo
+       sin deformarse.
+    */
     object-fit: cover;
-    object-position: center center;
+
+    /*
+       Ajuste para que el rostro quede mejor centrado.
+    */
+    object-position: center 35%;
 
     background: #160d17;
 }
@@ -1118,7 +1121,6 @@
         );
 
     color: rgba(255,255,255,.38);
-
     font-size: 2rem;
 }
 
@@ -1152,7 +1154,6 @@
     border: 3px solid #100a12;
 
     color: #fff;
-
     font-size: .65rem;
 }
 
@@ -1164,7 +1165,10 @@
 .professional-content {
     position: relative;
 
-    padding: 52px 18px 18px;
+    /*
+       Ajustado porque el avatar ahora sobresale menos.
+    */
+    padding: 45px 18px 18px;
 }
 
 
@@ -1223,7 +1227,6 @@
     border-radius: 12px;
 
     background: rgba(255,255,255,.045);
-
     border: 1px solid rgba(255,255,255,.07);
 }
 
@@ -1234,7 +1237,6 @@
 
     font-size: .82rem;
     font-weight: 800;
-
     line-height: 1.1;
 
     margin-bottom: 3px;
@@ -1313,7 +1315,7 @@
 
 
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — TABLET
    ========================================================= */
 
 @@media (max-width: 1200px) {
@@ -1321,16 +1323,24 @@
     .professionals-grid {
         grid-template-columns: repeat(3, minmax(0,1fr));
     }
-
 }
+
+
+/* =========================================================
+   RESPONSIVE — TABLET PEQUEÑO
+   ========================================================= */
 
 @@media (max-width: 992px) {
 
     .professionals-grid {
         grid-template-columns: repeat(2, minmax(0,1fr));
     }
-
 }
+
+
+/* =========================================================
+   RESPONSIVE — MÓVIL
+   ========================================================= */
 
 @@media (max-width: 768px) {
 
@@ -1348,20 +1358,29 @@
         height: 82px;
 
         left: 14px;
-        bottom: -35px;
+
+        /* Avatar más arriba */
+        bottom: -28px;
     }
 
     .professional-cover-info {
         left: 14px;
         right: 14px;
-        padding-left: 80px;
+
+        padding-left: 89px;
+
+        bottom: 25px;
     }
 
     .professional-content {
-        padding: 48px 14px 14px;
+        padding: 42px 14px 14px;
     }
-
 }
+
+
+/* =========================================================
+   RESPONSIVE — TELÉFONOS
+   ========================================================= */
 
 @@media (max-width: 480px) {
 
@@ -1378,13 +1397,18 @@
         height: 94px;
 
         left: 17px;
-        bottom: -40px;
+
+        /* Evita que el avatar quede demasiado abajo */
+        bottom: -31px;
     }
 
     .professional-cover-info {
         left: 17px;
         right: 17px;
-        padding-left: 94px;
+
+        padding-left: 112px;
+
+        bottom: 27px;
     }
 
     .professional-cover-name {
@@ -1392,10 +1416,14 @@
     }
 
     .professional-content {
-        padding: 54px 17px 17px;
+        padding: 47px 17px 17px;
     }
-
 }
+
+
+/* =========================================================
+   DISPOSITIVOS TÁCTILES
+   ========================================================= */
 
 @@media (hover: none) {
 
@@ -1406,7 +1434,6 @@
     .professional-card:hover .professional-cover img {
         transform: none;
     }
-
 }
 
 
