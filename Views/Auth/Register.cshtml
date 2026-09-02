@@ -164,7 +164,7 @@
     @if (ViewBag.ManicuristaNombre != null && !string.IsNullOrWhiteSpace(ViewBag.ManicuristaNombre.ToString()))
     {
         <div class="invited-box">
-            💅 Te invitó: @ViewBag.ManicuristaNombre 💅 <br />
+            ✨ Te invitó: @ViewBag.ManicuristaNombre ✨ <br />
             Regístrate para agendar tu cita 💖
         </div>
     }
@@ -189,8 +189,8 @@
         else
         {
             <select id="tipoRegistro" name="tipoRegistro" onchange="cambiarTipo()">
-                <option value="Manicurista">👩‍💼 Soy Manicurista Profesional</option>
-                <option value="Clienta">💅 Soy Clienta</option>
+                <option value="Manicurista">👩‍💼 Soy Profesional de Belleza</option>
+                <option value="Clienta"> 👤 Soy Cliente</option>
             </select>
 
             <input type="hidden" name="manicuristaId" value="" />

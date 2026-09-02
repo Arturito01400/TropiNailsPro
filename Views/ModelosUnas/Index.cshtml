@@ -1,7 +1,7 @@
 @model IEnumerable<TropiNailsPro.Models.ModeloUnas>
 
 @{
-ViewData["Title"]="Modelos de Uñas";
+ViewData["Title"]="Portafolio";
 bool esManicurista=
 ViewBag.EsManicurista??false;
 }
@@ -311,7 +311,7 @@ aspect-ratio:1/1;
 
 
 <h2 class="text-center mb-4">
-💅 @ViewData["Title"]
+🌸 @ViewData["Title"]
 </h2>
 
 
@@ -321,7 +321,7 @@ aspect-ratio:1/1;
 
 <a asp-action="Create"
 class="btn btn-success px-4 shadow">
-➕ Agregar Nuevo Modelo
+➕ Agregar al Portafolio
 </a>
 
 </div>
@@ -382,7 +382,7 @@ asp-route-id="@item.Id">
 </a>
 
 <a href="#"
-onclick="eliminarModelo(@item.Id)">
+onclick="Eliminar trabajo(@item.Id)">
 🗑 Eliminar
 </a>
 
@@ -445,7 +445,7 @@ else
 {
 
 <div class="sin-modelos">
-No hay modelos disponibles aún.
+No hay trabajos en el portafolio todavía.
 </div>
 
 }
