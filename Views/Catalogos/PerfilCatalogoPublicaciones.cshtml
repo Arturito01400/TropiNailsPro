@@ -6,6 +6,11 @@
 
     string foto = Model?.FotoPerfilUrl ?? "/img/user-default.png";
 
+    if (string.IsNullOrWhiteSpace(foto))
+    {
+        foto = "/img/user-default.png";
+    }
+
     string nombre = !string.IsNullOrWhiteSpace(Model?.Nombre)
         ? Model.Nombre
         : "Usuario";
@@ -16,7 +21,136 @@
         ViewBag.CatalogoPersonal
         as List<TropiNailsPro.Models.Publicacion>
         ?? new List<TropiNailsPro.Models.Publicacion>();
+
+
+    // =========================================================
+    // REDES SOCIALES
+    // Convierte automáticamente usuario, @usuario o URL
+    // en un enlace real.
+    // =========================================================
+
+    string instagramUrl = null;
+
+    if (!string.IsNullOrWhiteSpace(Model?.Instagram))
+    {
+        string instagram = Model.Instagram.Trim();
+
+        if (instagram.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            instagram.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            instagramUrl = instagram;
+        }
+        else
+        {
+            instagram = instagram.Trim();
+
+            if (instagram.StartsWith("@"))
+            {
+                instagram = instagram.Substring(1);
+            }
+
+            instagram = instagram.Trim('/');
+
+            if (instagram.Contains("instagram.com/", StringComparison.OrdinalIgnoreCase))
+            {
+                instagramUrl = "https://" + instagram;
+            }
+            else
+            {
+                instagramUrl = "https://www.instagram.com/" + instagram;
+            }
+        }
+    }
+
+
+    string tiktokUrl = null;
+
+    if (!string.IsNullOrWhiteSpace(Model?.TikTok))
+    {
+        string tiktok = Model.TikTok.Trim();
+
+        if (tiktok.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            tiktok.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            tiktokUrl = tiktok;
+        }
+        else
+        {
+            if (tiktok.StartsWith("@"))
+            {
+                tiktok = tiktok.Substring(1);
+            }
+
+            tiktok = tiktok.Trim('/');
+
+            if (tiktok.Contains("tiktok.com/", StringComparison.OrdinalIgnoreCase))
+            {
+                tiktokUrl = "https://" + tiktok;
+            }
+            else
+            {
+                tiktokUrl = "https://www.tiktok.com/@" + tiktok;
+            }
+        }
+    }
+
+
+    string facebookUrl = null;
+
+    if (!string.IsNullOrWhiteSpace(Model?.Facebook))
+    {
+        string facebook = Model.Facebook.Trim();
+
+        if (facebook.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            facebook.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            facebookUrl = facebook;
+        }
+        else
+        {
+            facebook = facebook.Trim('/');
+
+            if (facebook.Contains("facebook.com/", StringComparison.OrdinalIgnoreCase))
+            {
+                facebookUrl = "https://" + facebook;
+            }
+            else
+            {
+                facebookUrl = "https://www.facebook.com/" + facebook;
+            }
+        }
+    }
+
+
+    string whatsappUrl = null;
+
+    if (!string.IsNullOrWhiteSpace(Model?.WhatsApp))
+    {
+        string whatsapp = Model.WhatsApp.Trim();
+
+        if (whatsapp.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            whatsapp.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            whatsappUrl = whatsapp;
+        }
+        else
+        {
+            string numeroWhatsApp = new string(
+                whatsapp.Where(char.IsDigit).ToArray()
+            );
+
+            if (!string.IsNullOrWhiteSpace(numeroWhatsApp))
+            {
+                string mensajeWhatsApp =
+                    "Hola, vi tu perfil en TropiNails Pro y me gustaría reservar una cita. 💅";
+
+                whatsappUrl =
+                    $"https://wa.me/{numeroWhatsApp}?text={Uri.EscapeDataString(mensajeWhatsApp)}";
+            }
+        }
+    }
 }
+
 
 <!-- ================= PERFIL ================= -->
 
@@ -24,18 +158,22 @@
 
     <div class="foto-wrapper">
 
-       <img src="@foto"
-     class="foto-perfil"
-     onclick="abrirFotoPerfil('@foto')"
-     onerror="this.src='/img/user-default.png'" />
+        <img src="@foto"
+             class="foto-perfil"
+             onclick="abrirFotoPerfil('@foto')"
+             onerror="this.src='/img/user-default.png'" />
 
     </div>
 
+
     <h3>@nombre</h3>
 
-    <p class="estado">🟢 Activo</p>
+    <p class="estado">
+        🟢 Activo
+    </p>
 
-    <!-- DATOS -->
+
+    <!-- ================= DATOS ================= -->
 
     <div class="datos-perfil">
 
@@ -45,13 +183,21 @@
             @(Model?.UsuarioLogin ?? "No definido")
         </p>
 
+
+        <!-- INSTAGRAM -->
+
         <p>
             <b>Instagram:</b>
 
-            @if (!string.IsNullOrWhiteSpace(Model?.Instagram))
+            @if (!string.IsNullOrWhiteSpace(instagramUrl))
             {
-                <a href="@Model.Instagram" target="_blank">
-                    @Model.Instagram
+                <a href="@instagramUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="red-social-link instagram-link">
+
+                    📸 Instagram
+
                 </a>
             }
             else
@@ -59,14 +205,22 @@
                 <span>No registrado</span>
             }
         </p>
+
+
+        <!-- TIKTOK -->
 
         <p>
             <b>TikTok:</b>
 
-            @if (!string.IsNullOrWhiteSpace(Model?.TikTok))
+            @if (!string.IsNullOrWhiteSpace(tiktokUrl))
             {
-                <a href="@Model.TikTok" target="_blank">
-                    @Model.TikTok
+                <a href="@tiktokUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="red-social-link tiktok-link">
+
+                    🎵 TikTok
+
                 </a>
             }
             else
@@ -74,14 +228,22 @@
                 <span>No registrado</span>
             }
         </p>
+
+
+        <!-- FACEBOOK -->
 
         <p>
             <b>Facebook:</b>
 
-            @if (!string.IsNullOrWhiteSpace(Model?.Facebook))
+            @if (!string.IsNullOrWhiteSpace(facebookUrl))
             {
-                <a href="@Model.Facebook" target="_blank">
-                    @Model.Facebook
+                <a href="@facebookUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="red-social-link facebook-link">
+
+                    📘 Facebook
+
                 </a>
             }
             else
@@ -89,14 +251,22 @@
                 <span>No registrado</span>
             }
         </p>
+
+
+        <!-- WHATSAPP -->
 
         <p>
             <b>WhatsApp:</b>
 
-            @if (!string.IsNullOrWhiteSpace(Model?.WhatsApp))
+            @if (!string.IsNullOrWhiteSpace(whatsappUrl))
             {
-                <a href="@Model.WhatsApp" target="_blank">
-                    Enviar mensaje
+                <a href="@whatsappUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="red-social-link whatsapp-link">
+
+                    💬 Enviar mensaje
+
                 </a>
             }
             else
@@ -104,6 +274,9 @@
                 <span>No registrado</span>
             }
         </p>
+
+
+        <!-- TELÉFONO -->
 
         <p>
             <b>Teléfono:</b>
@@ -113,25 +286,33 @@
 
     </div>
 
-    <!-- STATS -->
+
+    <!-- ================= STATS ================= -->
 
     <div class="stats">
 
         <a href="/Seguidores/Lista/@usuarioId">
 
             <b id="contadorSeguidores">0</b>
+
             <br />
+
             Seguidores
 
         </a>
 
-        <a href="/Seguidores/VistaSiguiendo" class="stat-box">
+
+        <a href="/Seguidores/VistaSiguiendo"
+           class="stat-box">
 
             <b id="contadorSiguiendo">0</b>
+
             <br />
+
             Siguiendo
 
         </a>
+
 
         <div>
 
@@ -140,6 +321,7 @@
             </b>
 
             <br />
+
             Publicaciones
 
         </div>
@@ -148,13 +330,17 @@
 
 </div>
 
-<!-- TITULO -->
+
+<!-- ================= TITULO ================= -->
 
 <h2 class="titulo">
+
     🌸 Publicaciones
+
 </h2>
 
-<!-- GRID -->
+
+<!-- ================= GRID ================= -->
 
 <div class="grid-catalogo">
 
@@ -165,11 +351,12 @@
         ? "/img/user-default.png"
         : post.MediaUrl;
 
-    
+
     string tipoMedia =
         string.IsNullOrWhiteSpace(post?.TipoMedia)
         ? "imagen"
         : post.TipoMedia.ToLower();
+
 
     <div class="post-card">
 
@@ -177,9 +364,12 @@
 
             @if (tipoMedia.Contains("video"))
             {
-                <video controls muted class="media">
+                <video controls
+                       muted
+                       class="media">
 
-                    <source src="@mediaUrl" type="video/mp4" />
+                    <source src="@mediaUrl"
+                            type="video/mp4" />
 
                 </video>
             }
@@ -193,6 +383,7 @@
 
         </div>
 
+
         <div class="post-body">
 
             <a href="/Catalogos/Perfil/@post.UsuarioId"
@@ -202,6 +393,7 @@
 
             </a>
 
+
             <div class="fecha">
 
                 @(post?.Fecha.ToString("dd/MM/yyyy HH:mm")
@@ -209,7 +401,8 @@
 
             </div>
 
-            <!-- REACCIONES -->
+
+            <!-- ================= REACCIONES ================= -->
 
             <div class="reacciones">
 
@@ -220,12 +413,14 @@
 
                 </button>
 
+
                 <button class="btn-react comment"
                         onclick="verComentarios(@post.Id)">
 
                     💬 <span>Comentar</span>
 
                 </button>
+
 
                 <button class="btn-react share"
                         onclick="compartir('@mediaUrl')">
@@ -235,6 +430,7 @@
                 </button>
 
             </div>
+
 
             <div class="stats-post"
                  id="stats-@post.Id">
@@ -254,7 +450,8 @@
 
 </div>
 
-<!-- VISOR -->
+
+<!-- ================= VISOR ================= -->
 
 <div id="visorMedia"
      class="visor-media"
@@ -264,7 +461,8 @@
 
 </div>
 
-<!-- FOTO PERFIL -->
+
+<!-- ================= FOTO PERFIL ================= -->
 
 <div id="visorFotoPerfil"
      class="visor-historias"
@@ -274,12 +472,18 @@
 
 </div>
 
+
 <style>
+
+/* =========================================================
+   PERFIL
+   ========================================================= */
 
 body{
     background:#f5f7fb;
     font-family:Segoe UI;
 }
+
 
 .perfil-header{
     text-align:center;
@@ -291,10 +495,12 @@ body{
     box-shadow:0 4px 18px rgba(0,0,0,.08);
 }
 
+
 .foto-wrapper{
     display:flex;
     justify-content:center;
 }
+
 
 .foto-perfil{
     width:135px;
@@ -306,34 +512,87 @@ body{
     transition:.3s;
 }
 
+
 .foto-perfil:hover{
     transform:scale(1.05);
 }
 
-.usuario-link{
-    display:inline-block;
-    font-weight:700;
-    color:#ff4da6;
-    text-decoration:none;
-    margin-bottom:6px;
-    transition:.2s;
+
+.estado{
+    color:#12a150;
+    font-weight:600;
 }
 
-.usuario-link:hover{
-    transform:scale(1.03);
-    text-decoration:underline;
-}
+
+/* =========================================================
+   DATOS
+   ========================================================= */
 
 .datos-perfil{
     text-align:left;
     margin-top:15px;
 }
 
+
+.datos-perfil p{
+    margin-bottom:14px;
+}
+
+
 .datos-perfil a{
     color:#ff4da6;
     font-weight:600;
     text-decoration:none;
 }
+
+
+/* =========================================================
+   REDES SOCIALES
+   ========================================================= */
+
+.red-social-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:7px 13px;
+    border-radius:12px;
+    transition:.2s;
+}
+
+
+.red-social-link:hover{
+    transform:translateY(-2px);
+    text-decoration:none;
+}
+
+
+.instagram-link{
+    background:#fff0f7;
+    color:#d62978 !important;
+}
+
+
+.tiktok-link{
+    background:#f2f2f2;
+    color:#111 !important;
+}
+
+
+.facebook-link{
+    background:#edf4ff;
+    color:#1877f2 !important;
+}
+
+
+.whatsapp-link{
+    background:#e9fff0;
+    color:#159447 !important;
+}
+
+
+/* =========================================================
+   STATS
+   ========================================================= */
 
 .stats{
     display:flex;
@@ -343,10 +602,23 @@ body{
     margin-top:10px;
 }
 
+
+.stats a,
+.stats > div{
+    text-decoration:none;
+    color:#333;
+}
+
+
 .stats b{
     color:#ff4da6;
     font-size:20px;
 }
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
 
 .grid-catalogo{
     display:grid;
@@ -357,12 +629,14 @@ body{
     padding:15px;
 }
 
+
 .post-card{
     background:#fff;
     border-radius:15px;
     overflow:hidden;
     box-shadow:0 4px 15px rgba(0,0,0,.08);
 }
+
 
 .media{
     width:100%;
@@ -371,6 +645,7 @@ body{
     cursor:pointer;
 }
 
+
 .reacciones{
     display:flex;
     justify-content:space-around;
@@ -378,6 +653,7 @@ body{
     gap:8px;
     flex-wrap:wrap;
 }
+
 
 .btn-react{
     border:none;
@@ -388,21 +664,30 @@ body{
     transition:.2s;
 }
 
+
 .btn-react:hover{
     transform:scale(1.05);
 }
+
 
 .like{
     background:#ffe6ef;
 }
 
+
 .comment{
     background:#e6f0ff;
 }
 
+
 .share{
     background:#e6ffe9;
 }
+
+
+/* =========================================================
+   VISOR
+   ========================================================= */
 
 .visor-media,
 .visor-historias{
@@ -415,6 +700,7 @@ body{
     z-index:9999;
 }
 
+
 .visor-media img,
 #fotoPerfilGrande{
     max-width:90%;
@@ -422,27 +708,56 @@ body{
     border-radius:12px;
 }
 
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
 @@media(max-width:992px){
 
     .grid-catalogo{
         grid-template-columns:repeat(2,1fr);
     }
+
 }
+
 
 @@media(max-width:600px){
 
     .grid-catalogo{
         grid-template-columns:1fr;
     }
+
+
+    .perfil-header{
+        margin:15px 10px;
+        padding:18px 14px;
+    }
+
+
+    .foto-perfil{
+        width:120px;
+        height:120px;
+    }
+
+
+    .red-social-link{
+        padding:6px 10px;
+    }
+
 }
 
 </style>
+
 
 <script>
 
 const usuarioId = parseInt("@usuarioId") || 0;
 
-/* LIKE */
+
+/* =========================================================
+   LIKE
+   ========================================================= */
 
 async function darLike(id, btn){
 
@@ -455,62 +770,104 @@ async function darLike(id, btn){
             }
         );
 
+
         if(!res.ok) return;
+
 
         const statsRes =
             await fetch(
                 "/Publicaciones/Stats/" + id
             );
 
+
         const post =
             await statsRes.json();
+
 
         const stats =
             document.getElementById(
                 "stats-" + id
             );
 
+
         if(post && stats){
 
             stats.innerText =
                 `❤️ ${post.likes} • 💬 ${post.comentarios}`;
+
         }
+
 
         if(btn){
 
             btn.disabled = true;
+
 
             setTimeout(() => {
 
                 btn.disabled = false;
 
             }, 800);
+
         }
 
     }catch(e){
 
         console.log(e);
+
     }
+
 }
 
-/* COMENTARIOS */
+
+/* =========================================================
+   COMENTARIOS
+   ========================================================= */
 
 function verComentarios(id){
 
     window.location.href =
         "/Comentarios/Ver/" + id;
+
 }
 
-/* COMPARTIR */
+
+/* =========================================================
+   COMPARTIR
+   ========================================================= */
 
 function compartir(url){
 
-    navigator.clipboard.writeText(url);
+    let enlace = url;
 
-    alert("Link copiado");
+
+    if(!url.startsWith("http")){
+
+        enlace =
+            window.location.origin +
+            (url.startsWith("/") ? url : "/" + url);
+
+    }
+
+
+    if(navigator.clipboard){
+
+        navigator.clipboard.writeText(enlace);
+
+        alert("Link copiado");
+
+    }else{
+
+        alert(enlace);
+
+    }
+
 }
 
-/* SEGUIDORES */
+
+/* =========================================================
+   SEGUIDORES
+   ========================================================= */
 
 async function cargarSeguidores(){
 
@@ -521,15 +878,19 @@ async function cargarSeguidores(){
                 `/Seguidores/Resumen?usuarioId=${usuarioId}`
             );
 
+
         if(!res.ok) return;
+
 
         const data =
             await res.json();
+
 
         document.getElementById(
             "contadorSeguidores"
         ).innerText =
             data.seguidores || 0;
+
 
         document.getElementById(
             "contadorSiguiendo"
@@ -539,10 +900,15 @@ async function cargarSeguidores(){
     }catch(e){
 
         console.log(e);
+
     }
+
 }
 
-/* VISOR */
+
+/* =========================================================
+   VISOR
+   ========================================================= */
 
 function abrirVisor(url){
 
@@ -551,17 +917,22 @@ function abrirVisor(url){
             "visorMedia"
         );
 
+
     const img =
         document.getElementById(
             "visorImg"
         );
 
+
     if(!visor || !img) return;
+
 
     img.src = url;
 
     visor.style.display = "flex";
+
 }
+
 
 function cerrarVisor(){
 
@@ -570,13 +941,19 @@ function cerrarVisor(){
             "visorMedia"
         );
 
+
     if(visor){
 
         visor.style.display = "none";
+
     }
+
 }
 
-/* FOTO PERFIL */
+
+/* =========================================================
+   FOTO PERFIL
+   ========================================================= */
 
 function abrirFotoPerfil(url){
 
@@ -585,17 +962,22 @@ function abrirFotoPerfil(url){
             "visorFotoPerfil"
         );
 
+
     const img =
         document.getElementById(
             "fotoPerfilGrande"
         );
 
+
     if(!visor || !img) return;
+
 
     img.src = url;
 
     visor.style.display = "flex";
+
 }
+
 
 function cerrarFotoPerfil(){
 
@@ -604,17 +986,26 @@ function cerrarFotoPerfil(){
             "visorFotoPerfil"
         );
 
+
     if(visor){
 
         visor.style.display = "none";
+
     }
+
 }
+
+
+/* =========================================================
+   INICIO
+   ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     function(){
 
         cargarSeguidores();
+
     }
 );
 
