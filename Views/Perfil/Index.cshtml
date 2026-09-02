@@ -5,22 +5,22 @@
 
     string foto;
 
-if (string.IsNullOrWhiteSpace(Model?.FotoPerfil))
-{
-    foto = "/img/user-default.png";
-}
-else if (Model.FotoPerfil.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-{
-    // Imagen almacenada en Azure Blob Storage
-    foto = Model.FotoPerfil;
-}
-else
-{
-    // Imagen local
-    foto = Model.FotoPerfil.StartsWith("/")
-        ? Model.FotoPerfil
-        : "/" + Model.FotoPerfil;
-}
+    if (string.IsNullOrWhiteSpace(Model?.FotoPerfil))
+    {
+        foto = "/img/user-default.png";
+    }
+    else if (Model.FotoPerfil.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+    {
+        // Imagen almacenada en Azure Blob Storage
+        foto = Model.FotoPerfil;
+    }
+    else
+    {
+        // Imagen local
+        foto = Model.FotoPerfil.StartsWith("/")
+            ? Model.FotoPerfil
+            : "/" + Model.FotoPerfil;
+    }
 
     int manicuristaId = Model.Id;
 
@@ -33,224 +33,657 @@ else
         !string.IsNullOrEmpty(Model.UsuarioLogin)
         ? Model.UsuarioLogin
         : "No definido";
+
+
+    // =========================================================
+    // REDES SOCIALES
+    // =========================================================
+
+    string instagramUrl = "";
+
+    if (!string.IsNullOrWhiteSpace(Model.Instagram))
+    {
+        string valor = Model.Instagram.Trim();
+
+        if (valor.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            valor.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            instagramUrl = valor;
+        }
+        else
+        {
+            valor = valor.Trim('/');
+
+            if (valor.StartsWith("@"))
+            {
+                valor = valor.Substring(1);
+            }
+
+            if (valor.StartsWith("instagram.com/", StringComparison.OrdinalIgnoreCase))
+            {
+                valor = valor.Substring("instagram.com/".Length);
+            }
+
+            instagramUrl = "https://www.instagram.com/" + valor;
+        }
+    }
+
+
+    string tiktokUrl = "";
+
+    if (!string.IsNullOrWhiteSpace(Model.TikTok))
+    {
+        string valor = Model.TikTok.Trim();
+
+        if (valor.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            valor.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            tiktokUrl = valor;
+        }
+        else
+        {
+            valor = valor.Trim('/');
+
+            if (valor.StartsWith("@"))
+            {
+                valor = valor.Substring(1);
+            }
+
+            if (valor.StartsWith("tiktok.com/", StringComparison.OrdinalIgnoreCase))
+            {
+                valor = valor.Substring("tiktok.com/".Length);
+            }
+
+            tiktokUrl = "https://www.tiktok.com/@" + valor;
+        }
+    }
+
+
+    string facebookUrl = "";
+
+    if (!string.IsNullOrWhiteSpace(Model.Facebook))
+    {
+        string valor = Model.Facebook.Trim();
+
+        if (valor.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            valor.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            facebookUrl = valor;
+        }
+        else
+        {
+            valor = valor.Trim('/');
+
+            if (valor.StartsWith("facebook.com/", StringComparison.OrdinalIgnoreCase))
+            {
+                valor = valor.Substring("facebook.com/".Length);
+            }
+
+            facebookUrl = "https://www.facebook.com/" + valor;
+        }
+    }
+
+
+    // =========================================================
+    // UBICACIÓN
+    // =========================================================
+
+    var manicurista = ViewBag.Manicurista;
+
+    double? latitud = null;
+    double? longitud = null;
+
+    string direccionNegocio = "";
+    string ciudadNegocio = "";
+    string provinciaNegocio = "";
+
+    if (manicurista != null)
+    {
+        if (manicurista.Latitud != null)
+        {
+            latitud = Convert.ToDouble(manicurista.Latitud);
+        }
+
+        if (manicurista.Longitud != null)
+        {
+            longitud = Convert.ToDouble(manicurista.Longitud);
+        }
+
+        direccionNegocio = manicurista.DireccionNegocio ?? "";
+        ciudadNegocio = manicurista.Ciudad ?? "";
+        provinciaNegocio = manicurista.Provincia ?? "";
+    }
+
+    bool tieneUbicacion =
+        latitud.HasValue &&
+        longitud.HasValue &&
+        latitud.Value != 0 &&
+        longitud.Value != 0;
+
+
+    string textoUbicacion = "";
+
+    if (!string.IsNullOrWhiteSpace(direccionNegocio))
+    {
+        textoUbicacion = direccionNegocio;
+    }
+
+    if (!string.IsNullOrWhiteSpace(ciudadNegocio))
+    {
+        textoUbicacion +=
+            (string.IsNullOrWhiteSpace(textoUbicacion) ? "" : ", ")
+            + ciudadNegocio;
+    }
+
+    if (!string.IsNullOrWhiteSpace(provinciaNegocio) &&
+        !provinciaNegocio.Equals(
+            ciudadNegocio,
+            StringComparison.OrdinalIgnoreCase))
+    {
+        textoUbicacion +=
+            (string.IsNullOrWhiteSpace(textoUbicacion) ? "" : ", ")
+            + provinciaNegocio;
+    }
+
+    string mapaUrl = "";
+
+    if (tieneUbicacion)
+    {
+        mapaUrl =
+            $"https://www.google.com/maps/search/?api=1&query={latitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)},{longitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+    }
 }
+
 
 <div class="container mt-4 perfil-wrap">
 
-<div class="text-center mb-3">
-<a class="btn btn-pink" href="/Historias/Create">
-➕ Agregar Historia
-</a>
-</div>
+    <div class="text-center mb-3">
 
+        <a class="btn btn-pink"
+           href="/Historias/Create">
 
-<div class="card perfil-card shadow-lg mx-auto">
-<div class="card-body text-center">
+            ➕ Agregar Historia
 
-<div class="position-relative d-inline-block">
-<img src="@foto"
-class="avatar-grande mb-3"
-onclick="abrirFotoPerfil('@foto')"
-style="cursor:pointer"
-onerror="this.src='/img/user-default.png'" />
-
-<span id="estadoDot"
-class="estado-dot @(enLinea ? "online" : "offline")">
-</span>
-</div>
-
-<h4 class="fw-bold mb-1">
-@nombreCompleto
-</h4>
-
-<p id="estadoTexto"
-class="estado-text @(enLinea ? "online-text" : "offline-text")">
-@(enLinea ? "🟢 Activo" : "⚪ Offline")
-</p>
-
-<hr/>
-
-<!-- NUEVO BLOQUE SOCIAL -->
-<div class="social-stats">
-
-<a href="/Seguidores/Lista/@Model.Id"
-class="stat-box">
-<span id="contadorSeguidores">0</span>
-<small>Seguidores</small>
-</a>
-
-<a href="/Seguidores/VistaSiguiendo" class="stat-box">
-    <span id="contadorSiguiendo">0</span>
-    <small>Siguiendo</small>
-</a>
-
-<div class="stat-box">
-<span id="contadorCatalogos">0</span>
-<small>Catálogos</small>
-</div>
-
-</div>
-<!-- FIN NUEVO BLOQUE SOCIAL -->
-
-
-<div class="datos-perfil text-start">
-
-<p>
-<b>Usuario:</b>
-@usuarioLogin
-</p>
-
-<p>
-<b>Instagram:</b>
-
-@if(!string.IsNullOrEmpty(Model.Instagram))
-{
-<a href="@Model.Instagram" target="_blank">
-@Model.Instagram
-</a>
-}
-else
-{
-<span>No registrado</span>
-}
-</p>
-
-
-<p>
-<b>TikTok:</b>
-
-@if(!string.IsNullOrEmpty(Model.TikTok))
-{
-<a href="@Model.TikTok" target="_blank">
-@Model.TikTok
-</a>
-}
-else
-{
-<span>No registrado</span>
-}
-</p>
-
-
-<p>
-<b>Facebook:</b>
-
-@if(!string.IsNullOrEmpty(Model.Facebook))
-{
-<a href="@Model.Facebook" target="_blank">
-@Model.Facebook
-</a>
-}
-else
-{
-<span>No registrado</span>
-}
-</p>
-
-
-<p>
-    <b>WhatsApp:</b>
-
-    @if (!string.IsNullOrWhiteSpace(ViewBag.WhatsApp))
-    {
-        string numeroWhatsApp = ViewBag.WhatsApp.ToString();
-
-        string mensajeWhatsApp =
-            "Hola, vi tu perfil en TropiNails Pro y me gustaría reservar una cita. 💅";
-
-        string enlaceWhatsApp =
-            $"https://wa.me/{numeroWhatsApp}?text={Uri.EscapeDataString(mensajeWhatsApp)}";
-
-        <a href="@enlaceWhatsApp"
-           target="_blank"
-           rel="noopener noreferrer">
-            💬 Enviar mensaje por WhatsApp
         </a>
-    }
-    else
-    {
-        <span>No registrado</span>
-    }
-</p>
+
+    </div>
 
 
-<p>
-<b>Teléfono:</b>
-@Model.Telefono
-</p>
+    <!-- =========================================================
+         TARJETA PRINCIPAL DEL PERFIL
+         ========================================================= -->
+
+    <div class="card perfil-card shadow-lg mx-auto">
+
+        <div class="card-body text-center">
+
+            <div class="position-relative d-inline-block">
+
+                <img src="@foto"
+                     class="avatar-grande mb-3"
+                     onclick="abrirFotoPerfil('@foto')"
+                     style="cursor:pointer"
+                     onerror="this.src='/img/user-default.png'" />
+
+                <span id="estadoDot"
+                      class="estado-dot @(enLinea ? "online" : "offline")">
+                </span>
+
+            </div>
+
+
+            <h4 class="fw-bold mb-1">
+                @nombreCompleto
+            </h4>
+
+
+            <p id="estadoTexto"
+               class="estado-text @(enLinea ? "online-text" : "offline-text")">
+
+                @(enLinea ? "🟢 Activo" : "⚪ Offline")
+
+            </p>
+
+
+            <hr />
+
+
+            <!-- =================================================
+                 SEGUIDORES / SIGUIENDO / CATÁLOGOS
+                 ================================================= -->
+
+            <div class="social-stats">
+
+                <a href="/Seguidores/Lista/@Model.Id"
+                   class="stat-box">
+
+                    <span id="contadorSeguidores">
+                        0
+                    </span>
+
+                    <small>
+                        Seguidores
+                    </small>
+
+                </a>
+
+
+                <a href="/Seguidores/VistaSiguiendo"
+                   class="stat-box">
+
+                    <span id="contadorSiguiendo">
+                        0
+                    </span>
+
+                    <small>
+                        Siguiendo
+                    </small>
+
+                </a>
+
+
+                <div class="stat-box">
+
+                    <span id="contadorCatalogos">
+                        0
+                    </span>
+
+                    <small>
+                        Catálogos
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 DATOS DEL PERFIL
+                 ================================================= -->
+
+            <div class="datos-perfil text-start">
+
+                <p>
+                    <b>Usuario:</b>
+                    @usuarioLogin
+                </p>
+
+
+                <!-- INSTAGRAM -->
+
+                <p class="red-social-line">
+
+                    <b>Instagram:</b>
+
+                    @if (!string.IsNullOrWhiteSpace(instagramUrl))
+                    {
+                        <a href="@instagramUrl"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="social-link instagram-link">
+
+                            <span class="social-icon">
+                                📸
+                            </span>
+
+                            <span>
+                                Abrir Instagram
+                            </span>
+
+                            <span class="external-icon">
+                                ↗
+                            </span>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="social-no-registrada">
+                            No registrado
+                        </span>
+                    }
+
+                </p>
+
+
+                <!-- TIKTOK -->
+
+                <p class="red-social-line">
+
+                    <b>TikTok:</b>
+
+                    @if (!string.IsNullOrWhiteSpace(tiktokUrl))
+                    {
+                        <a href="@tiktokUrl"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="social-link tiktok-link">
+
+                            <span class="social-icon">
+                                🎵
+                            </span>
+
+                            <span>
+                                Abrir TikTok
+                            </span>
+
+                            <span class="external-icon">
+                                ↗
+                            </span>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="social-no-registrada">
+                            No registrado
+                        </span>
+                    }
+
+                </p>
+
+
+                <!-- FACEBOOK -->
+
+                <p class="red-social-line">
+
+                    <b>Facebook:</b>
+
+                    @if (!string.IsNullOrWhiteSpace(facebookUrl))
+                    {
+                        <a href="@facebookUrl"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="social-link facebook-link">
+
+                            <span class="social-icon">
+                                📘
+                            </span>
+
+                            <span>
+                                Abrir Facebook
+                            </span>
+
+                            <span class="external-icon">
+                                ↗
+                            </span>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="social-no-registrada">
+                            No registrado
+                        </span>
+                    }
+
+                </p>
+
+
+                <!-- WHATSAPP -->
+
+                <p class="red-social-line">
+
+                    <b>WhatsApp:</b>
+
+                    @if (!string.IsNullOrWhiteSpace(ViewBag.WhatsApp))
+                    {
+                        string numeroWhatsApp =
+                            ViewBag.WhatsApp.ToString();
+
+                        string mensajeWhatsApp =
+                            "Hola, vi tu perfil en TropiNails Pro y me gustaría reservar una cita. 💅";
+
+                        string enlaceWhatsApp =
+                            $"https://wa.me/{numeroWhatsApp}?text={Uri.EscapeDataString(mensajeWhatsApp)}";
+
+                        <a href="@enlaceWhatsApp"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="social-link whatsapp-link">
+
+                            <span class="social-icon">
+                                💬
+                            </span>
+
+                            <span>
+                                Enviar mensaje por WhatsApp
+                            </span>
+
+                            <span class="external-icon">
+                                ↗
+                            </span>
+
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="social-no-registrada">
+                            No registrado
+                        </span>
+                    }
+
+                </p>
+
+
+                <!-- TELÉFONO -->
+
+                <p>
+                    <b>Teléfono:</b>
+                    @Model.Telefono
+                </p>
+
+            </div>
+
+
+            <!-- EDITAR PERFIL -->
+
+            <button class="btn btn-pink mt-3 w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editModal">
+
+                ✏️ Editar Perfil
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         UBICACIÓN DEL NEGOCIO
+         ========================================================= -->
+
+    <div class="ubicacion-card shadow-sm">
+
+        <div class="ubicacion-header">
+
+            <div class="ubicacion-icon">
+                📍
+            </div>
+
+            <div>
+
+                <h3>
+                    Ubicación
+                </h3>
+
+                <p>
+                    Encuentra este negocio
+                </p>
+
+            </div>
+
+        </div>
+
+
+        @if (tieneUbicacion)
+        {
+            <div class="mapa-wrapper">
+
+                <iframe id="mapaUbicacion"
+                        src="https://www.google.com/maps?q=@latitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),@longitud.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)&z=16&output=embed"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+
+            </div>
+
+
+            <div class="ubicacion-info">
+
+                <div class="direccion-contenido">
+
+                    <div class="direccion-icon">
+                        📍
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Dirección del negocio
+                        </strong>
+
+                        @if (!string.IsNullOrWhiteSpace(textoUbicacion))
+                        {
+                            <p>
+                                @textoUbicacion
+                            </p>
+                        }
+                        else
+                        {
+                            <p>
+                                Ubicación disponible en el mapa
+                            </p>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <a href="@mapaUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn-como-llegar">
+
+                    🧭 Cómo llegar
+
+                    <span>
+                        ↗
+                    </span>
+
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <div class="ubicacion-no-disponible">
+
+                <div class="ubicacion-empty-icon">
+                    📍
+                </div>
+
+                <h4>
+                    Ubicación no disponible
+                </h4>
+
+                <p>
+                    Esta profesional todavía no ha registrado
+                    una ubicación para su negocio.
+                </p>
+
+            </div>
+        }
+
+    </div>
+
+
+    <!-- =========================================================
+         CATÁLOGOS
+         ========================================================= -->
+
+    <div class="mt-5">
+
+        <h3 class="text-center mb-4">
+            🌸 Catálogos
+        </h3>
+
+
+        <div id="feedCatalogos"
+             class="feed-container masonry-grid">
+
+            Cargando catálogos...
+
+        </div>
+
+    </div>
 
 </div>
 
 
-<button class="btn btn-pink mt-3 w-100"
-data-bs-toggle="modal"
-data-bs-target="#editModal">
-✏️ Editar Perfil
-</button>
 
-</div>
-</div>
-
-
-
-<div class="mt-5">
-
-<h3 class="text-center mb-4">
-🌸 Catálogos
-</h3>
-
-<div id="feedCatalogos"
-class="feed-container masonry-grid">
-Cargando catálogos...
-</div>
-
-</div>
-
-</div>
-
-
-
-<!-- VISOR -->
+<!-- =============================================================
+     VISOR
+     ============================================================= -->
 
 <div id="visorMedia"
-class="visor-media">
+     class="visor-media">
 
-<span class="cerrar"
-onclick="cerrarVisor()">
-✕
-</span>
+    <span class="cerrar"
+          onclick="cerrarVisor()">
 
-<span class="flecha izquierda"
-onclick="anteriorMedia()">
-❮
-</span>
+        ✕
 
-<img id="mediaImagen"
-style="display:none;">
+    </span>
 
-<video id="mediaVideo"
-controls
-muted
-style="display:none;">
-</video>
 
-<span class="flecha derecha"
-onclick="siguienteMedia()">
-❯
-</span>
+    <span class="flecha izquierda"
+          onclick="anteriorMedia()">
+
+        ❮
+
+    </span>
+
+
+    <img id="mediaImagen"
+         style="display:none;">
+
+
+    <video id="mediaVideo"
+           controls
+           muted
+           style="display:none;">
+
+    </video>
+
+
+    <span class="flecha derecha"
+          onclick="siguienteMedia()">
+
+        ❯
+
+    </span>
 
 </div>
+
 
 
 <div id="visorFotoPerfil"
-class="visor-historias">
+     class="visor-historias">
 
-<button class="cerrar-historia"
-onclick="cerrarFotoPerfil()">
-✕
-</button>
+    <button class="cerrar-historia"
+            onclick="cerrarFotoPerfil()">
 
-<img id="fotoPerfilGrande">
+        ✕
+
+    </button>
+
+
+    <img id="fotoPerfilGrande">
 
 </div>
 
@@ -259,385 +692,735 @@ onclick="cerrarFotoPerfil()">
 <style>
 
 body{
-background:#f6f8fc;
-font-family:Segoe UI;
+    background:#f6f8fc;
+    font-family:Segoe UI;
 }
 
 
-/* PERFIL */
+/* =========================================================
+   PERFIL
+   ========================================================= */
 
 .perfil-wrap{
-max-width:1200px;
+    max-width:1200px;
 }
+
 
 .perfil-card{
-max-width:680px;
-border:none;
-border-radius:25px;
-overflow:hidden;
+    max-width:680px;
+    border:none;
+    border-radius:25px;
+    overflow:hidden;
 }
+
 
 .avatar-grande{
-width:150px;
-height:150px;
-object-fit:cover;
-border-radius:50%;
-border:5px solid #e91e63;
-box-shadow:0 8px 30px rgba(0,0,0,.12);
+    width:150px;
+    height:150px;
+    object-fit:cover;
+    border-radius:50%;
+    border:5px solid #e91e63;
+    box-shadow:0 8px 30px rgba(0,0,0,.12);
 }
+
 
 .estado-dot{
-width:18px;
-height:18px;
-border-radius:50%;
-position:absolute;
-bottom:20px;
-right:10px;
-border:3px solid white;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    position:absolute;
+    bottom:20px;
+    right:10px;
+    border:3px solid white;
 }
+
 
 .online{
-background:#12d162;
+    background:#12d162;
 }
+
 
 .offline{
-background:#bbb;
+    background:#bbb;
 }
+
 
 .online-text{
-color:#12a150;
-font-weight:600;
+    color:#12a150;
+    font-weight:600;
 }
+
 
 .offline-text{
-color:#777;
+    color:#777;
 }
+
 
 .datos-perfil p{
-margin-bottom:14px;
-word-break:break-word;
+    margin-bottom:14px;
+    word-break:break-word;
 }
 
 
-
-/* NUEVO BLOQUE SOCIAL */
+/* =========================================================
+   SEGUIDORES
+   ========================================================= */
 
 .social-stats{
-display:flex;
-justify-content:center;
-gap:30px;
-margin:25px 0 30px;
-flex-wrap:wrap;
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    margin:25px 0 30px;
+    flex-wrap:wrap;
 }
+
 
 .stat-box{
-background:#fff;
-text-decoration:none;
-color:#222;
-padding:18px 28px;
-border-radius:18px;
-min-width:140px;
-box-shadow:0 4px 15px rgba(0,0,0,.08);
-transition:.25s;
-text-align:center;
+    background:#fff;
+    text-decoration:none;
+    color:#222;
+    padding:18px 28px;
+    border-radius:18px;
+    min-width:140px;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+    transition:.25s;
+    text-align:center;
 }
+
 
 .stat-box:hover{
-transform:translateY(-4px);
-box-shadow:0 8px 22px rgba(233,30,99,.18);
+    transform:translateY(-4px);
+    box-shadow:0 8px 22px rgba(233,30,99,.18);
 }
+
 
 .stat-box span{
-display:block;
-font-size:28px;
-font-weight:700;
-color:#e91e63;
+    display:block;
+    font-size:28px;
+    font-weight:700;
+    color:#e91e63;
 }
+
 
 .stat-box small{
-font-size:14px;
-color:#666;
+    font-size:14px;
+    color:#666;
 }
 
 
+/* =========================================================
+   REDES SOCIALES
+   ========================================================= */
 
-/* FEED CATALOGO */
+.red-social-line{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+
+.social-link{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 13px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:600;
+    transition:.2s;
+}
+
+
+.social-link:hover{
+    transform:translateY(-2px);
+    text-decoration:none;
+}
+
+
+.social-icon{
+    font-size:18px;
+}
+
+
+.external-icon{
+    font-size:15px;
+    opacity:.7;
+}
+
+
+.instagram-link{
+    color:#c13584;
+    background:#fff0f7;
+}
+
+
+.instagram-link:hover{
+    color:#a51d6b;
+    background:#ffe4f1;
+}
+
+
+.tiktok-link{
+    color:#111;
+    background:#f1f1f1;
+}
+
+
+.tiktok-link:hover{
+    color:#000;
+    background:#e4e4e4;
+}
+
+
+.facebook-link{
+    color:#1877f2;
+    background:#edf4ff;
+}
+
+
+.facebook-link:hover{
+    color:#0d5fca;
+    background:#dfeaff;
+}
+
+
+.whatsapp-link{
+    color:#128c4a;
+    background:#eafaf1;
+}
+
+
+.whatsapp-link:hover{
+    color:#08753b;
+    background:#d9f5e5;
+}
+
+
+.social-no-registrada{
+    color:#888;
+}
+
+
+/* =========================================================
+   UBICACIÓN
+   ========================================================= */
+
+.ubicacion-card{
+    max-width:680px;
+    margin:30px auto 0;
+    background:white;
+    border-radius:25px;
+    overflow:hidden;
+    border:1px solid #edf0f5;
+}
+
+
+.ubicacion-header{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:22px 24px 18px;
+}
+
+
+.ubicacion-icon{
+    width:48px;
+    height:48px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#fff0f6;
+    border-radius:15px;
+    font-size:24px;
+}
+
+
+.ubicacion-header h3{
+    margin:0;
+    font-size:21px;
+    font-weight:700;
+}
+
+
+.ubicacion-header p{
+    margin:3px 0 0;
+    color:#777;
+    font-size:14px;
+}
+
+
+/* MAPA */
+
+.mapa-wrapper{
+    width:100%;
+    height:330px;
+    background:#eef1f5;
+    overflow:hidden;
+}
+
+
+.mapa-wrapper iframe{
+    width:100%;
+    height:100%;
+    border:0;
+    display:block;
+}
+
+
+/* INFORMACIÓN */
+
+.ubicacion-info{
+    padding:20px 24px 24px;
+}
+
+
+.direccion-contenido{
+    display:flex;
+    align-items:flex-start;
+    gap:13px;
+}
+
+
+.direccion-icon{
+    flex-shrink:0;
+    font-size:22px;
+}
+
+
+.direccion-contenido strong{
+    display:block;
+    font-size:15px;
+    margin-bottom:4px;
+}
+
+
+.direccion-contenido p{
+    margin:0;
+    color:#666;
+    line-height:1.5;
+    word-break:break-word;
+}
+
+
+.btn-como-llegar{
+    margin-top:18px;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    padding:13px 18px;
+    background:#e91e63;
+    color:white;
+    text-decoration:none;
+    border-radius:13px;
+    font-weight:600;
+    transition:.2s;
+}
+
+
+.btn-como-llegar:hover{
+    background:#d81b60;
+    color:white;
+    transform:translateY(-2px);
+}
+
+
+.btn-como-llegar span{
+    font-size:17px;
+}
+
+
+/* UBICACIÓN NO DISPONIBLE */
+
+.ubicacion-no-disponible{
+    text-align:center;
+    padding:45px 25px;
+}
+
+
+.ubicacion-empty-icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+
+.ubicacion-no-disponible h4{
+    font-weight:700;
+    margin-bottom:7px;
+}
+
+
+.ubicacion-no-disponible p{
+    margin:0;
+    color:#777;
+    font-size:14px;
+}
+
+
+/* =========================================================
+   FEED CATALOGO
+   ========================================================= */
 
 .feed-container{
-max-width:1100px;
-margin:auto;
-margin-top:35px;
+    max-width:1100px;
+    margin:auto;
+    margin-top:35px;
 }
+
 
 .masonry-grid{
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(280px,1fr));
-gap:24px;
-align-items:start;
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(280px,1fr));
+    gap:24px;
+    align-items:start;
 }
+
 
 .post-card{
-background:white;
-border-radius:18px;
-overflow:hidden;
-box-shadow:0 4px 15px rgba(0,0,0,.08);
-transition:.2s;
+    background:white;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+    transition:.2s;
 }
+
 
 .post-card:hover{
-transform:translateY(-3px);
+    transform:translateY(-3px);
 }
+
 
 .post-header{
-display:flex;
-align-items:center;
-padding:15px;
-position:relative;
+    display:flex;
+    align-items:center;
+    padding:15px;
+    position:relative;
 }
+
 
 .menu-post{
-position:absolute;
-right:14px;
-top:10px;
-font-size:22px;
-cursor:pointer;
-color:#777;
+    position:absolute;
+    right:14px;
+    top:10px;
+    font-size:22px;
+    cursor:pointer;
+    color:#777;
 }
+
 
 .menu-post:hover{
-color:#ff4da6;
+    color:#ff4da6;
 }
+
 
 .avatar-img{
-width:45px;
-height:45px;
-border-radius:50%;
-object-fit:cover;
-margin-right:10px;
-border:2px solid white;
-box-shadow:0 0 0 2px #ff4da6;
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    object-fit:cover;
+    margin-right:10px;
+    border:2px solid white;
+    box-shadow:0 0 0 2px #ff4da6;
 }
+
 
 .user-info{
-flex:1;
-min-width:0;
+    flex:1;
+    min-width:0;
 }
+
 
 .user-name{
-font-weight:700;
-font-size:15px;
-word-break:break-word;
+    font-weight:700;
+    font-size:15px;
+    word-break:break-word;
 }
 
+
 .post-date{
-font-size:12px;
-color:gray;
+    font-size:12px;
+    color:gray;
 }
 
 
 .post-img{
-width:100%;
-max-height:520px;
-object-fit:cover;
-cursor:pointer;
-display:block;
+    width:100%;
+    max-height:520px;
+    object-fit:cover;
+    cursor:pointer;
+    display:block;
 }
 
+
 .post-video{
-width:100%;
-max-height:520px;
-background:black;
-display:block;
+    width:100%;
+    max-height:520px;
+    background:black;
+    display:block;
 }
 
 
 .post-actions{
-display:flex;
-justify-content:space-between;
-flex-wrap:wrap;
-gap:8px;
-padding:14px 14px;
-border-top:1px solid #eee;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:14px 14px;
+    border-top:1px solid #eee;
 }
+
 
 .action{
-cursor:pointer;
-font-size:14px;
-background:none;
-border:none;
-color:#444;
+    cursor:pointer;
+    font-size:14px;
+    background:none;
+    border:none;
+    color:#444;
 }
+
 
 .action:hover{
-color:#ff4da6;
+    color:#ff4da6;
 }
+
 
 .stats{
-padding:0 15px 15px;
-font-size:13px;
-color:#555;
+    padding:0 15px 15px;
+    font-size:13px;
+    color:#555;
 }
 
 
-
-/* VISOR */
+/* =========================================================
+   VISOR
+   ========================================================= */
 
 .visor-media{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-display:none;
-align-items:center;
-justify-content:center;
-background:rgba(0,0,0,.95);
-z-index:9999;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.95);
+    z-index:9999;
 }
+
 
 .visor-media img,
 .visor-media video{
-max-width:92%;
-max-height:90%;
-border-radius:12px;
+    max-width:92%;
+    max-height:90%;
+    border-radius:12px;
 }
+
 
 .cerrar{
-position:absolute;
-top:18px;
-right:25px;
-font-size:40px;
-color:white;
-cursor:pointer;
-z-index:10001;
+    position:absolute;
+    top:18px;
+    right:25px;
+    font-size:40px;
+    color:white;
+    cursor:pointer;
+    z-index:10001;
 }
+
 
 .flecha{
-position:absolute;
-top:50%;
-transform:translateY(-50%);
-font-size:60px;
-color:white;
-cursor:pointer;
-user-select:none;
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:60px;
+    color:white;
+    cursor:pointer;
+    user-select:none;
 }
+
 
 .izquierda{
-left:25px;
+    left:25px;
 }
+
 
 .derecha{
-right:25px;
+    right:25px;
 }
 
 
-/* FOTO PERFIL */
+/* =========================================================
+   FOTO PERFIL
+   ========================================================= */
 
 .visor-historias{
-display:none;
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.96);
-justify-content:center;
-align-items:center;
-z-index:99999;
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.96);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
 }
+
 
 #fotoPerfilGrande{
-max-width:90%;
-max-height:88%;
-border-radius:15px;
+    max-width:90%;
+    max-height:88%;
+    border-radius:15px;
 }
+
 
 .cerrar-historia{
-position:absolute;
-top:25px;
-right:35px;
-background:none;
-border:none;
-font-size:40px;
-color:white;
+    position:absolute;
+    top:25px;
+    right:35px;
+    background:none;
+    border:none;
+    font-size:40px;
+    color:white;
 }
 
 
-
-/* RESPONSIVE */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @@media(max-width:991px){
 
-.perfil-card{
-max-width:95%;
-}
+    .perfil-card{
+        max-width:95%;
+    }
 
-.masonry-grid{
-grid-template-columns:
-repeat(auto-fit,minmax(260px,1fr));
-}
+    .ubicacion-card{
+        max-width:95%;
+    }
+
+    .masonry-grid{
+        grid-template-columns:
+        repeat(auto-fit,minmax(260px,1fr));
+    }
 
 }
 
 
 @@media(max-width:768px){
 
-.avatar-grande{
-width:125px;
-height:125px;
-}
+    .avatar-grande{
+        width:125px;
+        height:125px;
+    }
 
-.post-actions{
-justify-content:center;
-}
+    .post-actions{
+        justify-content:center;
+    }
 
-.action{
-width:100%;
-}
+    .action{
+        width:100%;
+    }
 
-.flecha{
-font-size:44px;
-}
+    .flecha{
+        font-size:44px;
+    }
 
-.post-img,
-.post-video{
-max-height:430px;
-}
+    .post-img,
+    .post-video{
+        max-height:430px;
+    }
+
+    .mapa-wrapper{
+        height:290px;
+    }
+
+    .social-stats{
+        gap:12px;
+    }
+
+    .stat-box{
+        min-width:110px;
+        padding:15px 18px;
+    }
 
 }
 
 
 @@media(max-width:480px){
 
-.container{
-padding-left:10px;
-padding-right:10px;
-}
+    .container{
+        padding-left:10px;
+        padding-right:10px;
+    }
 
-.avatar-grande{
-width:110px;
-height:110px;
-}
+    .avatar-grande{
+        width:110px;
+        height:110px;
+    }
 
-.post-header{
-padding:12px;
-}
+    .post-header{
+        padding:12px;
+    }
 
-.avatar-img{
-width:38px;
-height:38px;
-}
+    .avatar-img{
+        width:38px;
+        height:38px;
+    }
 
-.user-name{
-font-size:14px;
-}
+    .user-name{
+        font-size:14px;
+    }
 
-.post-img,
-.post-video{
-max-height:350px;
-}
+    .post-img,
+    .post-video{
+        max-height:350px;
+    }
 
-.stats{
-font-size:12px;
-}
+    .stats{
+        font-size:12px;
+    }
+
+    .social-stats{
+        gap:8px;
+    }
+
+    .stat-box{
+        min-width:95px;
+        padding:13px 10px;
+    }
+
+    .stat-box span{
+        font-size:23px;
+    }
+
+    .stat-box small{
+        font-size:12px;
+    }
+
+    .ubicacion-card{
+        border-radius:20px;
+    }
+
+    .ubicacion-header{
+        padding:18px;
+    }
+
+    .ubicacion-info{
+        padding:18px;
+    }
+
+    .mapa-wrapper{
+        height:250px;
+    }
+
+    .red-social-line{
+        align-items:flex-start;
+    }
+
+    .social-link{
+        margin-top:3px;
+    }
 
 }
 
@@ -655,229 +1438,286 @@ let mediaList=[];
 let mediaActual=0;
 
 
+/* =========================================================
+   CARGAR FEED DE CATÁLOGOS
+   ========================================================= */
 
 async function cargarFeedCatalogos(){
 
-const cont=document.getElementById("feedCatalogos");
+    const cont=document.getElementById("feedCatalogos");
 
-if(!manicuristaId){
-cont.innerHTML=
-"No se pudo identificar el usuario";
-return;
+    if(!manicuristaId){
+
+        cont.innerHTML=
+        "No se pudo identificar el usuario";
+
+        return;
+    }
+
+    cont.innerHTML="Cargando catálogos...";
+
+    try{
+
+        const res=await fetch(
+            `/Publicaciones/ObtenerPorUsuario?usuarioId=${manicuristaId}`
+        );
+
+        const catalogos=await res.json();
+
+
+        document.getElementById(
+            "contadorCatalogos"
+        ).innerText=catalogos.length;
+
+
+        if(!catalogos || catalogos.length===0){
+
+            cont.innerHTML=
+            "<p style='text-align:center'>No hay catálogos</p>";
+
+            return;
+        }
+
+
+        cont.innerHTML="";
+        mediaList=[];
+
+
+        catalogos.forEach((c,index)=>{
+
+            let media="";
+            let tipo=(c.tipoMedia || "imagen").toLowerCase();
+
+            mediaList.push(c);
+
+
+            if(tipo==="video"){
+
+                media=`
+                <video
+                    class="post-video"
+                    controls
+                    preload="metadata">
+
+                    <source
+                        src="${c.mediaUrl}"
+                        type="video/mp4">
+
+                </video>
+                `;
+
+            }else{
+
+                media=`
+                <img
+                    src="${c.mediaUrl}"
+                    class="post-img"
+                    loading="lazy"
+                    onclick="abrirVisor(${index})">
+                `;
+
+            }
+
+
+            cont.innerHTML +=`
+
+            <div class="post-card">
+
+                <div class="post-header">
+
+                    <img
+                        src="${fotoPerfil}"
+                        class="avatar-img"/>
+
+
+                    <div class="user-info">
+
+                        <div class="user-name">
+                            ${nombreUsuario}
+                        </div>
+
+
+                        <div class="post-date">
+                            ${new Date(c.fecha).toLocaleString()}
+                        </div>
+
+                    </div>
+
+
+                    <div class="menu-post"
+                         onclick="eliminarPost(${c.id})">
+
+                        ⋮
+
+                    </div>
+
+                </div>
+
+
+                ${media}
+
+
+                <div class="post-actions">
+
+                    <button
+                        class="action"
+                        onclick="darLike(${c.id})">
+
+                        ❤️ Me encanta
+
+                    </button>
+
+
+                    <button
+                        class="action"
+                        onclick="verComentarios(${c.id})">
+
+                        💬 Comentar
+
+                    </button>
+
+
+                    <button
+                        class="action"
+                        onclick="compartir('${c.mediaUrl}')">
+
+                        🔗 Compartir
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="stats"
+                    id="stats-${c.id}">
+
+                    ❤️ ${c.likes || 0}
+                    Likes •
+                    💬 ${c.comentarios || 0}
+                    Comentarios
+
+                </div>
+
+            </div>
+
+            `;
+
+        });
+
+
+    }catch(e){
+
+        console.error(e);
+
+        cont.innerHTML=
+        "Error cargando catálogos";
+
+    }
+
 }
 
-cont.innerHTML="Cargando catálogos...";
-
-try{
-
-const res=await fetch(
-`/Publicaciones/ObtenerPorUsuario?usuarioId=${manicuristaId}`
-);
-
-const catalogos=await res.json();
-
-document.getElementById(
-"contadorCatalogos"
-).innerText=catalogos.length;
 
 
-if(!catalogos || catalogos.length===0){
-cont.innerHTML=
-"<p style='text-align:center'>No hay catálogos</p>";
-return;
-}
+/* =========================================================
+   SEGUIDORES
+   ========================================================= */
 
-cont.innerHTML="";
-mediaList=[];
-
-catalogos.forEach((c,index)=>{
-
-let media="";
-let tipo=(c.tipoMedia || "imagen").toLowerCase();
-
-mediaList.push(c);
-
-
-if(tipo==="video"){
-
-media=`
-<video
-class="post-video"
-controls
-preload="metadata">
-<source src="${c.mediaUrl}"
-type="video/mp4">
-</video>
-`;
-
-}else{
-
-media=`
-<img
-src="${c.mediaUrl}"
-class="post-img"
-loading="lazy"
-onclick="abrirVisor(${index})">
-`;
-
-}
-
-
-cont.innerHTML +=`
-
-<div class="post-card">
-
-<div class="post-header">
-
-<img src="${fotoPerfil}"
-class="avatar-img"/>
-
-<div class="user-info">
-<div class="user-name">
-${nombreUsuario}
-</div>
-
-<div class="post-date">
-${new Date(c.fecha).toLocaleString()}
-</div>
-</div>
-
-<div class="menu-post"
-onclick="eliminarPost(${c.id})">
-⋮
-</div>
-
-</div>
-
-${media}
-
-<div class="post-actions">
-
-<button class="action"
-onclick="darLike(${c.id})">
-❤️ Me encanta
-</button>
-
-<button class="action"
-onclick="verComentarios(${c.id})">
-💬 Comentar
-</button>
-
-<button class="action"
-onclick="compartir('${c.mediaUrl}')">
-🔗 Compartir
-</button>
-
-</div>
-
-<div class="stats"
-id="stats-${c.id}">
-❤️ ${c.likes || 0} Likes • 💬 ${c.comentarios || 0} Comentarios
-</div>
-
-</div>
-
-`;
-
-});
-
-
-}catch(e){
-
-console.error(e);
-cont.innerHTML=
-"Error cargando catálogos";
-
-}
-
-}
-
-
-
-/* NUEVO */
 async function cargarSeguidores(){
 
-try{
+    try{
 
-const res=await fetch(
-`/Seguidores/Resumen?usuarioId=${manicuristaId}`
-);
+        const res=await fetch(
+            `/Seguidores/Resumen?usuarioId=${manicuristaId}`
+        );
 
-if(!res.ok) return;
 
-const data=await res.json();
+        if(!res.ok) return;
 
-document.getElementById(
-"contadorSeguidores"
-).innerText=
-data.seguidores || 0;
 
-document.getElementById(
-"contadorSiguiendo"
-).innerText=
-data.siguiendo || 0;
+        const data=await res.json();
 
-}catch(e){
 
-console.log(
-"No se cargaron seguidores"
-);
+        document.getElementById(
+            "contadorSeguidores"
+        ).innerText=
+        data.seguidores || 0;
+
+
+        document.getElementById(
+            "contadorSiguiendo"
+        ).innerText=
+        data.siguiendo || 0;
+
+
+    }catch(e){
+
+        console.log(
+            "No se cargaron seguidores"
+        );
+
+    }
 
 }
 
-}
 
 
-
-/* visor */
+/* =========================================================
+   VISOR
+   ========================================================= */
 
 function abrirVisor(index){
 
-mediaActual=index;
+    mediaActual=index;
 
-const pub=mediaList[index];
+    const pub=mediaList[index];
 
-const img=
-document.getElementById("mediaImagen");
+    const img=
+    document.getElementById("mediaImagen");
 
-const vid=
-document.getElementById("mediaVideo");
-
-img.style.display="none";
-vid.style.display="none";
+    const vid=
+    document.getElementById("mediaVideo");
 
 
-if(pub.tipoMedia==="video"){
+    img.style.display="none";
+    vid.style.display="none";
 
-vid.src=pub.mediaUrl;
-vid.style.display="block";
 
-}else{
+    if(pub.tipoMedia==="video"){
 
-img.src=pub.mediaUrl;
-img.style.display="block";
+        vid.src=pub.mediaUrl;
+        vid.style.display="block";
+
+    }else{
+
+        img.src=pub.mediaUrl;
+        img.style.display="block";
+
+    }
+
+
+    document.getElementById(
+        "visorMedia"
+    ).style.display="flex";
 
 }
 
-document.getElementById(
-"visorMedia"
-).style.display="flex";
-
-}
 
 
 function cerrarVisor(){
 
-document.getElementById(
-"visorMedia"
-).style.display="none";
+    document.getElementById(
+        "visorMedia"
+    ).style.display="none";
 
-let vid=document.getElementById(
-"mediaVideo"
-);
 
-vid.pause();
-vid.src="";
+    let vid=document.getElementById(
+        "mediaVideo"
+    );
+
+
+    vid.pause();
+    vid.src="";
 
 }
 
@@ -885,159 +1725,208 @@ vid.src="";
 
 function siguienteMedia(){
 
-mediaActual++;
+    mediaActual++;
 
-if(mediaActual>=mediaList.length){
-mediaActual=0;
+
+    if(mediaActual>=mediaList.length){
+        mediaActual=0;
+    }
+
+
+    abrirVisor(mediaActual);
+
 }
 
-abrirVisor(mediaActual);
 
-}
 
 function anteriorMedia(){
 
-mediaActual--;
+    mediaActual--;
 
-if(mediaActual<0){
-mediaActual=mediaList.length-1;
+
+    if(mediaActual<0){
+        mediaActual=mediaList.length-1;
+    }
+
+
+    abrirVisor(mediaActual);
+
 }
 
-abrirVisor(mediaActual);
-
-}
 
 
-
-/* likes */
+/* =========================================================
+   LIKES
+   ========================================================= */
 
 async function darLike(id){
 
-await fetch(
-"/Publicaciones/Like/"+id,
-{method:"POST"}
-);
+    await fetch(
+        "/Publicaciones/Like/"+id,
+        {
+            method:"POST"
+        }
+    );
 
-actualizarStats(id);
+
+    actualizarStats(id);
 
 }
+
+
 
 async function actualizarStats(id){
 
-const res=
-await fetch("/Publicaciones/ObtenerFeed");
+    const res=
+    await fetch(
+        "/Publicaciones/ObtenerFeed"
+    );
 
-const posts=
-await res.json();
 
-const post=
-posts.find(p=>p.id===id);
+    const posts=
+    await res.json();
 
-if(post){
 
-document.getElementById(
-"stats-"+id
-).innerText=
-`❤️ ${post.likes} Likes • 💬 ${post.comentarios} Comentarios`;
+    const post=
+    posts.find(p=>p.id===id);
+
+
+    if(post){
+
+        document.getElementById(
+            "stats-"+id
+        ).innerText=
+        `❤️ ${post.likes} Likes • 💬 ${post.comentarios} Comentarios`;
+
+    }
 
 }
 
-}
 
 
-
-/* acciones */
+/* =========================================================
+   ACCIONES
+   ========================================================= */
 
 function verComentarios(id){
-window.location.href=
-"/Comentarios/Ver/"+id;
+
+    window.location.href=
+    "/Comentarios/Ver/"+id;
+
 }
+
+
 
 function compartir(url){
 
-navigator.clipboard.writeText(
-window.location.origin + url
-);
+    navigator.clipboard.writeText(
+        window.location.origin + url
+    );
 
-alert("Link copiado para compartir");
+
+    alert(
+        "Link copiado para compartir"
+    );
 
 }
 
 
+
+/* =========================================================
+   ELIMINAR PUBLICACIÓN
+   ========================================================= */
 
 async function eliminarPost(id){
 
-if(!confirm(
-"¿Quieres eliminar esta publicación?"
-)){
-return;
+    if(!confirm(
+        "¿Quieres eliminar esta publicación?"
+    )){
+        return;
+    }
+
+
+    try{
+
+        const res=await fetch(
+            `/Publicaciones/Eliminar?id=${id}`,
+            {
+                method:"POST"
+            }
+        );
+
+
+        if(res.ok){
+
+            location.reload();
+
+        }else{
+
+            alert(
+                "No se pudo eliminar la publicación"
+            );
+
+        }
+
+
+    }catch(e){
+
+        console.error(e);
+
+        alert(
+            "Error eliminando publicación"
+        );
+
+    }
+
 }
 
-try{
-
-const res=await fetch(
-`/Publicaciones/Eliminar?id=${id}`,
-{
-method:"POST"
-}
-);
-
-if(res.ok){
-location.reload();
-}else{
-alert(
-"No se pudo eliminar la publicación"
-);
-}
-
-}catch(e){
-
-console.error(e);
-alert("Error eliminando publicación");
-
-}
-
-}
 
 
-
-/* foto perfil */
+/* =========================================================
+   FOTO PERFIL
+   ========================================================= */
 
 function abrirFotoPerfil(url){
 
-const fp=
-document.getElementById(
-"fotoPerfilGrande"
-);
+    const fp=
+    document.getElementById(
+        "fotoPerfilGrande"
+    );
 
-fp.src=url;
 
-document.getElementById(
-"visorFotoPerfil"
-).style.display="flex";
+    fp.src=url;
+
+
+    document.getElementById(
+        "visorFotoPerfil"
+    ).style.display="flex";
 
 }
+
 
 
 function cerrarFotoPerfil(){
 
-document.getElementById(
-"visorFotoPerfil"
-).style.display="none";
+    document.getElementById(
+        "visorFotoPerfil"
+    ).style.display="none";
 
 }
 
 
 
-/* INICIO */
+/* =========================================================
+   INICIO
+   ========================================================= */
+
 document.addEventListener(
-"DOMContentLoaded",
-function(){
+    "DOMContentLoaded",
+    function(){
 
-cargarFeedCatalogos();
-cargarSeguidores();
+        cargarFeedCatalogos();
+        cargarSeguidores();
 
-}
+    }
 );
 
 </script>
