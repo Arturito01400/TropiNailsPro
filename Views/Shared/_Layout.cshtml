@@ -893,176 +893,920 @@ class="toast-bank">
 
 <script>
 
-/* ===========================
- BUSCADOR GLOBAL
-=========================== */
+/* =========================================================
+   TROPINAILS PRO
+   SISTEMA DE NOTIFICACIONES EN TIEMPO REAL
+   ========================================================= */
+
+let notificationConnection = null;
+
+
+/* =========================================================
+   CONECTAR CON SIGNALR
+   ========================================================= */
+
+async function iniciarNotificaciones() {
+
+    try {
+
+        if (typeof signalR === "undefined") {
+
+            console.error(
+                "[TropiNails] SignalR no está disponible."
+            );
+
+            return;
+        }
+
+        notificationConnection =
+            new signalR.HubConnectionBuilder()
+
+                .withUrl("/notificationHub")
+
+                .withAutomaticReconnect()
+
+                .configureLogging(
+                    signalR.LogLevel.Information
+                )
+
+                .build();
+
+
+        /* =================================================
+           NUEVA NOTIFICACIÓN
+           ================================================= */
+
+        notificationConnection.on(
+            "RecibirNotificacion",
+            function (mensaje, url) {
+
+                console.log(
+                    "[TropiNails] Nueva notificación:",
+                    mensaje
+                );
+
+
+                mostrarNotificacionToast(
+                    mensaje
+                );
+
+
+                reproducirSonidoNotificacion();
+
+
+                cargarUltimasNotificaciones();
+
+
+                actualizarContadorLocal();
+
+            }
+        );
+
+
+        /* =================================================
+           ACTUALIZAR CONTADOR
+           ================================================= */
+
+        notificationConnection.on(
+            "ActualizarContador",
+            function (cantidad) {
+
+                console.log(
+                    "[TropiNails] Contador:",
+                    cantidad
+                );
+
+
+                actualizarBadgeNotificaciones(
+                    cantidad
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           RECONEXIÓN
+           ================================================= */
+
+        notificationConnection.onreconnecting(
+            function () {
+
+                console.log(
+                    "[TropiNails] SignalR intentando reconectar..."
+                );
+
+            }
+        );
+
+
+        notificationConnection.onreconnected(
+            function () {
+
+                console.log(
+                    "[TropiNails] SignalR reconectado."
+                );
+
+
+                cargarContadorNotificaciones();
+
+            }
+        );
+
+
+        notificationConnection.onclose(
+            function () {
+
+                console.log(
+                    "[TropiNails] SignalR desconectado."
+                );
+
+            }
+        );
+
+
+        /* =================================================
+           INICIAR CONEXIÓN
+           ================================================= */
+
+        await notificationConnection.start();
+
+
+        console.log(
+            "✅ [TropiNails] SignalR de notificaciones conectado."
+        );
+
+
+        /* =================================================
+           CARGAR CONTADOR AL ENTRAR
+           ================================================= */
+
+        cargarContadorNotificaciones();
+
+    }
+    catch (error) {
+
+        console.error(
+            "❌ [TropiNails] Error conectando notificaciones:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CONTADOR DESDE SERVIDOR
+   ========================================================= */
+
+async function cargarContadorNotificaciones() {
+
+    try {
+
+        const respuesta =
+            await fetch(
+                "/Notificaciones/Contador",
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!respuesta.ok) {
+
+            console.warn(
+                "[TropiNails] No se pudo obtener contador."
+            );
+
+            return;
+        }
+
+
+        const cantidad =
+            await respuesta.json();
+
+
+        actualizarBadgeNotificaciones(
+            cantidad
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "[TropiNails] Error contador:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ACTUALIZAR BADGE
+   ========================================================= */
+
+function actualizarBadgeNotificaciones(
+    cantidad
+) {
+
+    const badge =
+        document.getElementById(
+            "badgeNotify"
+        );
+
+
+    if (!badge)
+        return;
+
+
+    const numero =
+        parseInt(cantidad) || 0;
+
+
+    badge.textContent =
+        numero;
+
+
+    if (numero > 0) {
+
+        badge.style.display =
+            "block";
+
+    }
+    else {
+
+        badge.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* =========================================================
+   RECARGAR CONTADOR LOCALMENTE
+   ========================================================= */
+
+async function actualizarContadorLocal() {
+
+    await cargarContadorNotificaciones();
+
+}
+
+
+/* =========================================================
+   ABRIR / CERRAR PANEL
+   ========================================================= */
+
+function togglePanelNotificaciones() {
+
+    const panel =
+        document.getElementById(
+            "panelNotificaciones"
+        );
+
+
+    if (!panel)
+        return;
+
+
+    const visible =
+        panel.style.display === "block";
+
+
+    if (visible) {
+
+        panel.style.display =
+            "none";
+
+        return;
+    }
+
+
+    panel.style.display =
+        "block";
+
+
+    cargarUltimasNotificaciones();
+
+}
+
+
+/* =========================================================
+   CARGAR ÚLTIMAS NOTIFICACIONES
+   ========================================================= */
+
+async function cargarUltimasNotificaciones() {
+
+    const lista =
+        document.getElementById(
+            "listaNotificaciones"
+        );
+
+
+    if (!lista)
+        return;
+
+
+    try {
+
+        lista.innerHTML =
+            `
+            <div style="
+                padding:18px;
+                text-align:center;
+                color:#888;">
+                Cargando notificaciones...
+            </div>
+            `;
+
+
+        const respuesta =
+            await fetch(
+                "/Notificaciones/Ultimas",
+                {
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!respuesta.ok)
+            throw new Error(
+                "Error HTTP " +
+                respuesta.status
+            );
+
+
+        const notificaciones =
+            await respuesta.json();
+
+
+        if (
+            !notificaciones ||
+            notificaciones.length === 0
+        ) {
+
+            lista.innerHTML =
+                `
+                <div style="
+                    padding:20px;
+                    text-align:center;
+                    color:#999;">
+
+                    🔔<br>
+
+                    <strong>
+                        No tienes notificaciones
+                    </strong>
+
+                </div>
+                `;
+
+            return;
+        }
+
+
+        let html = "";
+
+
+        notificaciones.forEach(
+            function (notificacion) {
+
+                html +=
+                    `
+                    <div style="
+                        padding:13px 15px;
+                        border-bottom:1px solid #f1f1f1;
+                        cursor:pointer;">
+
+                        <div style="
+                            font-size:14px;
+                            color:#333;
+                            font-weight:600;">
+
+                            ${escapeHtml(
+                                notificacion.mensaje
+                            )}
+
+                        </div>
+
+                        <div style="
+                            margin-top:4px;
+                            font-size:11px;
+                            color:#999;">
+
+                            ${escapeHtml(
+                                notificacion.fecha
+                            )}
+
+                        </div>
+
+                    </div>
+                    `;
+
+            }
+        );
+
+
+        lista.innerHTML =
+            html;
+
+    }
+    catch (error) {
+
+        console.error(
+            "[TropiNails] Error cargando notificaciones:",
+            error
+        );
+
+
+        lista.innerHTML =
+            `
+            <div style="
+                padding:18px;
+                text-align:center;
+                color:#dc3545;">
+
+                ❌ No se pudieron cargar
+                las notificaciones.
+
+            </div>
+            `;
+
+    }
+
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function mostrarNotificacionToast(
+    mensaje
+) {
+
+    const container =
+        document.getElementById(
+            "toastContainer"
+        );
+
+
+    if (!container)
+        return;
+
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+
+    toast.style.cssText = `
+        position:fixed;
+        top:85px;
+        right:25px;
+        z-index:999999;
+
+        min-width:300px;
+        max-width:380px;
+
+        background:white;
+        color:#333;
+
+        padding:16px 20px;
+
+        border-radius:16px;
+
+        box-shadow:
+            0 12px 35px rgba(0,0,0,.18);
+
+        border-left:
+            4px solid #ff4da6;
+
+        font-weight:600;
+
+        animation:
+            notifSlideIn .35s ease;
+    `;
+
+
+    toast.innerHTML =
+        `
+        <div style="
+            display:flex;
+            gap:12px;
+            align-items:flex-start;">
+
+            <div style="
+                font-size:23px;">
+                🔔
+            </div>
+
+            <div>
+
+                <div style="
+                    font-size:13px;
+                    color:#ff4da6;
+                    font-weight:800;">
+
+                    TROPINAILS PRO
+
+                </div>
+
+                <div style="
+                    margin-top:3px;">
+
+                    ${escapeHtml(mensaje)}
+
+                </div>
+
+            </div>
+
+        </div>
+        `;
+
+
+    container.appendChild(
+        toast
+    );
+
+
+    setTimeout(
+        function () {
+
+            toast.remove();
+
+        },
+        5000
+    );
+
+}
+
+
+/* =========================================================
+   SONIDO
+   ========================================================= */
+
+function reproducirSonidoNotificacion() {
+
+    const audio =
+        document.getElementById(
+            "notifSound"
+        );
+
+
+    if (!audio)
+        return;
+
+
+    audio.currentTime =
+        0;
+
+
+    audio.play()
+        .catch(
+            function () {
+
+                console.log(
+                    "[TropiNails] El navegador bloqueó el sonido automático."
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   PROTECCIÓN HTML
+   ========================================================= */
+
+function escapeHtml(
+    texto
+) {
+
+    if (
+        texto === null ||
+        texto === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(texto)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+}
+
+
+/* =========================================================
+   INICIAR CUANDO CARGUE LA PÁGINA
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        iniciarNotificaciones();
+
+    }
+);
+
+
+/* =========================================================
+   CERRAR PANEL AL HACER CLICK AFUERA
+   ========================================================= */
+
+document.addEventListener(
+    "click",
+    function (event) {
+
+        const campana =
+            document.querySelector(
+                ".bell-wrapper"
+            );
+
+
+        const panel =
+            document.getElementById(
+                "panelNotificaciones"
+            );
+
+
+        if (
+            !panel ||
+            !campana
+        )
+            return;
+
+
+        if (
+            !panel.contains(event.target) &&
+            !campana.contains(event.target)
+        ) {
+
+            panel.style.display =
+                "none";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   BUSCADOR GLOBAL
+   ========================================================= */
 
 let searchTimer;
 
+
 const globalSearch =
-document.getElementById("globalSearch");
+    document.getElementById(
+        "globalSearch"
+    );
 
-if(globalSearch){
 
-globalSearch.addEventListener(
-"keyup",
-function(){
+if (globalSearch) {
 
-clearTimeout(searchTimer);
+    globalSearch.addEventListener(
+        "keyup",
+        function () {
 
-let q = this.value.trim();
+            clearTimeout(
+                searchTimer
+            );
 
-if(q.length < 2){
 
-const dropdown =
-document.getElementById("searchDropdown");
+            let q =
+                this.value.trim();
 
-if(dropdown){
-dropdown.style.display = "none";
-}
 
-return;
-}
+            if (q.length < 2) {
 
-searchTimer = setTimeout(
-() => buscarGlobal(q),
-300
-);
+                const dropdown =
+                    document.getElementById(
+                        "searchDropdown"
+                    );
 
-});
 
-}
+                if (dropdown) {
 
-async function buscarGlobal(q){
+                    dropdown.style.display =
+                        "none";
 
-try{
+                }
 
-const r = await fetch(
-"/Usuarios/BuscarGlobal?q=" +
-encodeURIComponent(q)
-);
+                return;
+            }
 
-/* 🔥 PROTECCIÓN */
-if(!r.ok){
 
-console.log(
-"Error cargando búsqueda global"
-);
+            searchTimer =
+                setTimeout(
+                    () => buscarGlobal(q),
+                    300
+                );
 
-return;
-}
-
-const data = await r.json();
-
-if(!data){
-
-console.log("Sin datos");
-
-return;
-}
-
-let box =
-document.getElementById(
-"searchDropdown"
-);
-
-if(!box) return;
-
-let html = "";
-
-/* 🔥 USUARIOS */
-if(data.usuarios){
-
-data.usuarios.forEach(u=>{
-
-let foto =
-u.foto ||
-"/img/user-default.png";
-
-/* 🔥 RUTA CORREGIDA */
-html +=
-"<div class='result-item' onclick='window.location=\"/Catalogos/Perfil/" + u.id + "\"'>" +
-
-"<img src='" + foto + "' " +
-"onerror=\"this.src='/img/user-default.png'\">" +
-
-"<div>" +
-"<b>" + (u.nombre || "Usuario") + "</b><br>" +
-"<small>@@" + (u.usuario || "usuario") + "</small>" +
-"</div>" +
-
-"</div>";
-
-});
+        }
+    );
 
 }
 
-/* HASHTAGS */
-if(data.hashtags){
 
-data.hashtags.forEach(h=>{
+async function buscarGlobal(q) {
 
-html +=
-`
-<div class='result-tag'
-onclick='window.location="/Explorar/Hashtag/${h.nombre}"'>
+    try {
 
-#${h.nombre}
+        const r =
+            await fetch(
+                "/Usuarios/BuscarGlobal?q=" +
+                encodeURIComponent(q)
+            );
 
-</div>
-`;
 
-});
+        if (!r.ok) {
+
+            console.log(
+                "Error cargando búsqueda global"
+            );
+
+            return;
+        }
+
+
+        const data =
+            await r.json();
+
+
+        if (!data) {
+
+            console.log(
+                "Sin datos"
+            );
+
+            return;
+        }
+
+
+        let box =
+            document.getElementById(
+                "searchDropdown"
+            );
+
+
+        if (!box)
+            return;
+
+
+        let html = "";
+
+
+        /* =================================================
+           USUARIOS
+           ================================================= */
+
+       if (data.usuarios) {
+
+    data.usuarios.forEach(
+        u => {
+
+            let foto =
+                u.foto ||
+                "/img/user-default.png";
+
+
+            html +=
+                "<div class='result-item' " +
+                "onclick='window.location=\"/Catalogos/Perfil/" +
+                u.id +
+                "\"'>" +
+
+                "<img src='" +
+                foto +
+                "' " +
+                "onerror=\"this.src='/img/user-default.png'\">" +
+
+                "<div>" +
+
+                "<b>" +
+                (u.nombre || "Usuario") +
+                "</b><br>" +
+
+                "<small>&#64;" +
+                (u.usuario || "usuario") +
+                "</small>" +
+
+                "</div>" +
+
+                "</div>";
+
+        }
+    );
 
 }
 
-if(html === ""){
 
-html =
-"<div style='padding:15px;color:gray'>" +
-"Sin resultados" +
-"</div>";
+        /* =================================================
+           HASHTAGS
+           ================================================= */
+
+        if (data.hashtags) {
+
+            data.hashtags.forEach(
+                h => {
+
+                    html +=
+                        `
+                        <div class="result-tag"
+                             onclick='window.location="/Explorar/Hashtag/${encodeURIComponent(h.nombre)}"'>
+
+                            #${escapeHtml(h.nombre)}
+
+                        </div>
+                        `;
+
+                }
+            );
+
+        }
+
+
+        if (html === "") {
+
+            html =
+                "<div style='padding:15px;color:gray'>" +
+                "Sin resultados" +
+                "</div>";
+
+        }
+
+
+        box.innerHTML =
+            html;
+
+
+        box.style.display =
+            "block";
+
+    }
+    catch (e) {
+
+        console.error(
+            "Error buscador global:",
+            e
+        );
+
+    }
+
 }
 
-box.innerHTML = html;
-
-box.style.display = "block";
-
-}catch(e){
-
-console.error(
-"Error buscador global:",
-e
-);
-
-}
-
-}
 
 document.addEventListener(
-"click",
-function(e){
+    "click",
+    function (e) {
 
-if(!e.target.closest(".search-global-wrap")){
+        if (
+            !e.target.closest(
+                ".search-global-wrap"
+            )
+        ) {
 
-let box =
-document.getElementById(
-"searchDropdown"
-);
+            let box =
+                document.getElementById(
+                    "searchDropdown"
+                );
 
-if(box){
 
-box.style.display = "none";
-}
+            if (box) {
 
-}
+                box.style.display =
+                    "none";
 
-}
+            }
+
+        }
+
+    }
 );
 
 </script>
 
+
 <script>
+
+/* =========================================================
+   DETECTAR ZONA HORARIA DEL USUARIO
+   ========================================================= */
 
 (async function () {
 
@@ -1073,16 +1817,23 @@ box.style.display = "none";
                 .resolvedOptions()
                 .timeZone;
 
-        await fetch('/Auth/GuardarZonaHoraria', {
-            method: 'POST',
-            headers: {
-                'Content-Type':
-                    'application/x-www-form-urlencoded'
-            },
-            body:
-                'zona=' +
-                encodeURIComponent(zona)
-        });
+
+        await fetch(
+            "/Auth/GuardarZonaHoraria",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+
+                body:
+                    "zona=" +
+                    encodeURIComponent(zona)
+            }
+        );
+
 
         console.log(
             "Zona horaria detectada:",
@@ -1103,13 +1854,14 @@ box.style.display = "none";
 
 </script>
 
+
 <script src="~/js/modelos-premium.js"
         asp-append-version="true"></script>
 
 
 @await RenderSectionAsync(
-"Scripts",
-required:false
+    "Scripts",
+    required: false
 )
 
 </body>

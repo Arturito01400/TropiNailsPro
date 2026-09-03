@@ -51,6 +51,10 @@ namespace TropiNailsPro.Data
         public DbSet<Like> Likes { get; set; }
         public DbSet<Seguidor> Seguidores { get; set; }
 
+        // 🔔 NOTIFICACIONES PUSH
+        public DbSet<PushSubscription> PushSubscriptions { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -64,60 +68,118 @@ namespace TropiNailsPro.Data
             modelBuilder.Entity<ModeloUnas>().ToTable("ModelosUnas");
             modelBuilder.Entity<Pago>().ToTable("Pagos");
             modelBuilder.Entity<Producto>().ToTable("Productos");
-            modelBuilder.Entity<Gasto>().ToTable("Gastos");
+            modelBuilder.Entity<Gasto>()
+                .ToTable("Gastos");
+
             modelBuilder.Entity<GastoPersonal>()
-                 .ToTable("GastosPersonales");
+                .ToTable("GastosPersonales");
 
             // 🔥 RESTAURADO
-            modelBuilder.Entity<UsuarioPerfil>().ToTable("UsuariosPerfil");
+            modelBuilder.Entity<UsuarioPerfil>()
+                .ToTable("UsuariosPerfil");
 
-            modelBuilder.Entity<UserPost>().ToTable("UserPosts");
-            modelBuilder.Entity<PasswordResetToken>().ToTable("PasswordResetTokens");
-            modelBuilder.Entity<Mensaje>().ToTable("Mensajes");
+            modelBuilder.Entity<UserPost>()
+                .ToTable("UserPosts");
+
+            modelBuilder.Entity<PasswordResetToken>()
+                .ToTable("PasswordResetTokens");
+
+            modelBuilder.Entity<Mensaje>()
+                .ToTable("Mensajes");
+
             modelBuilder.Entity<MensajeEliminadoUsuario>()
-    .ToTable("MensajesEliminadosUsuarios");
-            modelBuilder.Entity<Cliente>().ToTable("Clientes");
-            modelBuilder.Entity<Disponibilidad>().ToTable("Disponibilidades");
-            modelBuilder.Entity<SuscripcionPago>().ToTable("SuscripcionPagos");
-            modelBuilder.Entity<Suscripcion>().ToTable("Suscripciones");
-            modelBuilder.Entity<Manicurista>().ToTable("Manicuristas");
+                .ToTable("MensajesEliminadosUsuarios");
 
-// ======================================================
-// SERVICIOS → MANICURISTA
-// ======================================================
+            modelBuilder.Entity<Cliente>()
+                .ToTable("Clientes");
 
-modelBuilder.Entity<Servicio>()
-    .HasOne(s => s.Manicurista)
-    .WithMany(m => m.Servicios)
-    .HasForeignKey(s => s.ManicuristaId)
-    .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Disponibilidad>()
+                .ToTable("Disponibilidades");
 
-modelBuilder.Entity<Servicio>()
-    .HasIndex(s => s.ManicuristaId);
+            modelBuilder.Entity<SuscripcionPago>()
+                .ToTable("SuscripcionPagos");
 
+            modelBuilder.Entity<Suscripcion>()
+                .ToTable("Suscripciones");
+
+            modelBuilder.Entity<Manicurista>()
+                .ToTable("Manicuristas");
 
 
             // ======================================================
-// 📍 UBICACIÓN DE MANICURISTAS
-// ======================================================
+            // 🔔 NOTIFICACIONES PUSH
+            // ======================================================
 
-modelBuilder.Entity<Manicurista>()
-    .HasIndex(m => new
-    {
-        m.Latitud,
-        m.Longitud
-    });
+            modelBuilder.Entity<PushSubscription>()
+                .ToTable("PushSubscriptions");
 
-            modelBuilder.Entity<Historia>().ToTable("Historias");
-            modelBuilder.Entity<Catalogo>().ToTable("Catalogos");
-            modelBuilder.Entity<CuentaBancaria>().ToTable("CuentasBancarias");
-            modelBuilder.Entity<PagoTransferencia>().ToTable("PagosTransferencia");
-            modelBuilder.Entity<Notificacion>().ToTable("Notificaciones");
+            modelBuilder.Entity<PushSubscription>()
+                .HasOne(p => p.Usuario)
+                .WithMany()
+                .HasForeignKey(p => p.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Publicacion>().ToTable("Publicaciones");
-            modelBuilder.Entity<Comentario>().ToTable("Comentarios");
-            modelBuilder.Entity<Like>().ToTable("Likes");
-            modelBuilder.Entity<Seguidor>().ToTable("Seguidores");
+            modelBuilder.Entity<PushSubscription>()
+                .HasIndex(p => p.UsuarioId);
+
+            modelBuilder.Entity<PushSubscription>()
+                .HasIndex(p => p.Endpoint)
+                .IsUnique();
+
+
+            // ======================================================
+            // SERVICIOS → MANICURISTA
+            // ======================================================
+
+            modelBuilder.Entity<Servicio>()
+                .HasOne(s => s.Manicurista)
+                .WithMany(m => m.Servicios)
+                .HasForeignKey(s => s.ManicuristaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Servicio>()
+                .HasIndex(s => s.ManicuristaId);
+
+
+            // ======================================================
+            // 📍 UBICACIÓN DE MANICURISTAS
+            // ======================================================
+
+            modelBuilder.Entity<Manicurista>()
+                .HasIndex(m => new
+                {
+                    m.Latitud,
+                    m.Longitud
+                });
+
+
+            modelBuilder.Entity<Historia>()
+                .ToTable("Historias");
+
+            modelBuilder.Entity<Catalogo>()
+                .ToTable("Catalogos");
+
+            modelBuilder.Entity<CuentaBancaria>()
+                .ToTable("CuentasBancarias");
+
+            modelBuilder.Entity<PagoTransferencia>()
+                .ToTable("PagosTransferencia");
+
+            modelBuilder.Entity<Notificacion>()
+                .ToTable("Notificaciones");
+
+            modelBuilder.Entity<Publicacion>()
+                .ToTable("Publicaciones");
+
+            modelBuilder.Entity<Comentario>()
+                .ToTable("Comentarios");
+
+            modelBuilder.Entity<Like>()
+                .ToTable("Likes");
+
+            modelBuilder.Entity<Seguidor>()
+                .ToTable("Seguidores");
+
 
             // ======================================================
             // CONFIGURACIÓN CITAS
@@ -153,6 +215,7 @@ modelBuilder.Entity<Manicurista>()
                 });
             });
 
+
             // ======================================================
             // CLIENTE → MANICURISTA
             // ======================================================
@@ -166,26 +229,26 @@ modelBuilder.Entity<Manicurista>()
             modelBuilder.Entity<Cliente>()
                 .HasIndex(c => c.ManicuristaId);
 
-// ======================================================
-// DISPONIBILIDAD → MANICURISTA
-// ======================================================
 
-modelBuilder.Entity<Disponibilidad>()
-    .HasOne(d => d.Manicurista)
-    .WithMany(m => m.Disponibilidades)
-    .HasForeignKey(d => d.ManicuristaId)
-    .OnDelete(DeleteBehavior.Cascade);
+            // ======================================================
+            // DISPONIBILIDAD → MANICURISTA
+            // ======================================================
 
-modelBuilder.Entity<Disponibilidad>()
-    .HasIndex(d => d.ManicuristaId);
+            modelBuilder.Entity<Disponibilidad>()
+                .HasOne(d => d.Manicurista)
+                .WithMany(m => m.Disponibilidades)
+                .HasForeignKey(d => d.ManicuristaId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-modelBuilder.Entity<Disponibilidad>()
-    .HasIndex(d => new
-    {
-        d.ManicuristaId,
-        d.Fecha
-    });
+            modelBuilder.Entity<Disponibilidad>()
+                .HasIndex(d => d.ManicuristaId);
 
+            modelBuilder.Entity<Disponibilidad>()
+                .HasIndex(d => new
+                {
+                    d.ManicuristaId,
+                    d.Fecha
+                });
 
 
             // ======================================================
@@ -199,66 +262,58 @@ modelBuilder.Entity<Disponibilidad>()
                 .OnDelete(DeleteBehavior.Cascade);
 
 
-
-                // ======================================================
-// GASTOS → MANICURISTA
-// ======================================================
-
-modelBuilder.Entity<Gasto>()
-    .HasOne(g => g.Manicurista)
-    .WithMany(m => m.Gastos)
-    .HasForeignKey(g => g.ManicuristaId)
-    .OnDelete(DeleteBehavior.Cascade);
-
-modelBuilder.Entity<Gasto>()
-    .HasIndex(g => g.ManicuristaId);
-
-modelBuilder.Entity<Gasto>()
-    .HasIndex(g => new
-    {
-        g.ManicuristaId,
-        g.FechaGasto
-    });
-
-
-    // ======================================================
-// GASTOS PERSONALES → MANICURISTA
-// ======================================================
-
-modelBuilder.Entity<GastoPersonal>()
-    .HasOne(g => g.Manicurista)
-    .WithMany()
-    .HasForeignKey(g => g.ManicuristaId)
-    .OnDelete(DeleteBehavior.Cascade);
-
-
-modelBuilder.Entity<GastoPersonal>()
-    .HasIndex(g => g.ManicuristaId);
-
-
-modelBuilder.Entity<GastoPersonal>()
-    .HasIndex(g => new
-    {
-        g.ManicuristaId,
-        g.FechaGasto
-    });
-
             // ======================================================
-            // USUARIOS
-            // ======================================================
+            // GASTOS → MANICURISTA
             // ======================================================
 
-// USUARIO CLIENTA → MANICURISTA
-// ======================================================
+            modelBuilder.Entity<Gasto>()
+                .HasOne(g => g.Manicurista)
+                .WithMany(m => m.Gastos)
+                .HasForeignKey(g => g.ManicuristaId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-modelBuilder.Entity<Usuario>()
-    .HasOne(u => u.Manicurista)
-    .WithMany(m => m.Clientas)
-    .HasForeignKey(u => u.ManicuristaId)
-    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Gasto>()
+                .HasIndex(g => g.ManicuristaId);
+
+            modelBuilder.Entity<Gasto>()
+                .HasIndex(g => new
+                {
+                    g.ManicuristaId,
+                    g.FechaGasto
+                });
 
 
-    
+            // ======================================================
+            // GASTOS PERSONALES → MANICURISTA
+            // ======================================================
+
+            modelBuilder.Entity<GastoPersonal>()
+                .HasOne(g => g.Manicurista)
+                .WithMany()
+                .HasForeignKey(g => g.ManicuristaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<GastoPersonal>()
+                .HasIndex(g => g.ManicuristaId);
+
+            modelBuilder.Entity<GastoPersonal>()
+                .HasIndex(g => new
+                {
+                    g.ManicuristaId,
+                    g.FechaGasto
+                });
+
+
+            // ======================================================
+            // USUARIO CLIENTA → MANICURISTA
+            // ======================================================
+
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Manicurista)
+                .WithMany(m => m.Clientas)
+                .HasForeignKey(u => u.ManicuristaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             modelBuilder.Entity<Usuario>()
                 .HasIndex(u => u.Email)
@@ -268,8 +323,9 @@ modelBuilder.Entity<Usuario>()
                 .HasIndex(u => u.Telefono)
                 .IsUnique();
 
+
             // ======================================================
-            // 🔥 PERFIL USUARIO (FIX DEFINITIVO)
+            // 🔥 PERFIL USUARIO
             // ======================================================
 
             modelBuilder.Entity<UsuarioPerfil>()
@@ -281,6 +337,7 @@ modelBuilder.Entity<Usuario>()
                 .WithMany()
                 .HasForeignKey(p => p.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             // ======================================================
             // 🔥 RED SOCIAL
@@ -304,6 +361,7 @@ modelBuilder.Entity<Usuario>()
                 .HasForeignKey(l => l.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
             // ======================================================
             // RELACIONES INTERNAS
             // ======================================================
@@ -326,6 +384,7 @@ modelBuilder.Entity<Usuario>()
                 .HasForeignKey(l => l.PublicacionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
             // ======================================================
             // 🔹 CONSTRAINTS
             // ======================================================
@@ -345,6 +404,7 @@ modelBuilder.Entity<Usuario>()
                     s.SeguidoId
                 })
                 .IsUnique();
+
 
             // ======================================================
             // 🔥 SEGUIDORES

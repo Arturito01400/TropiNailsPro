@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TropiNailsPro.Data;
 using TropiNailsPro.Models;
 using TropiNailsPro.Hubs;
+using TropiNailsPro.Services;
 using Microsoft.AspNetCore.SignalR;
 
 namespace TropiNailsPro.Controllers
@@ -11,11 +12,16 @@ namespace TropiNailsPro.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly PushNotificationService _pushNotificationService;
 
-        public NotificacionesController(AppDbContext context, IHubContext<NotificationHub> hubContext)
+        public NotificacionesController(
+            AppDbContext context,
+            IHubContext<NotificationHub> hubContext,
+            PushNotificationService pushNotificationService)
         {
             _context = context;
             _hubContext = hubContext;
+            _pushNotificationService = pushNotificationService;
         }
 
         // ==========================================
@@ -23,14 +29,15 @@ namespace TropiNailsPro.Controllers
         // ==========================================
         public async Task<IActionResult> Index()
         {
-            var manicuristaId = HttpContext.Session.GetInt32("ManicuristaId");
+            var manicuristaId =
+                HttpContext.Session.GetInt32("ManicuristaId");
 
-            // 🔥 FIX: NO TE SACA DEL SISTEMA
+            // NO SACAR AL USUARIO DEL SISTEMA
             if (manicuristaId == null)
                 return View(new List<Notificacion>());
 
             var notificaciones = await _context.Notificaciones
-                .Where(n => n.ManicuristaId == manicuristaId)
+                .Where(n => n.ManicuristaId == manicuristaId.Value)
                 .OrderByDescending(n => n.Fecha)
                 .ToListAsync();
 
@@ -43,37 +50,43 @@ namespace TropiNailsPro.Controllers
         [HttpGet]
         public async Task<IActionResult> Contador()
         {
-            var manicuristaId = HttpContext.Session.GetInt32("ManicuristaId");
+            var manicuristaId =
+                HttpContext.Session.GetInt32("ManicuristaId");
 
             if (manicuristaId == null)
                 return Json(0);
 
             var cantidad = await _context.Notificaciones
-                .Where(n => n.ManicuristaId == manicuristaId && !n.Leida)
+                .Where(n =>
+                    n.ManicuristaId == manicuristaId.Value &&
+                    !n.Leida)
                 .CountAsync();
 
             return Json(cantidad);
         }
 
         // ==========================================
-        // 🔥 ÚLTIMAS NOTIFICACIONES (PANEL)
+        // ÚLTIMAS NOTIFICACIONES
         // ==========================================
         [HttpGet]
         public async Task<IActionResult> Ultimas()
         {
-            var manicuristaId = HttpContext.Session.GetInt32("ManicuristaId");
+            var manicuristaId =
+                HttpContext.Session.GetInt32("ManicuristaId");
 
             if (manicuristaId == null)
                 return Json(new List<object>());
 
             var notificaciones = await _context.Notificaciones
-                .Where(n => n.ManicuristaId == manicuristaId)
+                .Where(n => n.ManicuristaId == manicuristaId.Value)
                 .OrderByDescending(n => n.Fecha)
                 .Take(10)
                 .Select(n => new
                 {
                     mensaje = n.Mensaje,
-                    fecha = n.Fecha.ToString("HH:mm")
+                    fecha = n.Fecha.ToString("HH:mm"),
+                    leida = n.Leida,
+                    url = n.Url
                 })
                 .ToListAsync();
 
@@ -83,26 +96,49 @@ namespace TropiNailsPro.Controllers
         // ==========================================
         // MARCAR COMO LEÍDA
         // ==========================================
+        [HttpGet]
         public async Task<IActionResult> MarcarLeida(int id)
         {
-            var notificacion = await _context.Notificaciones.FindAsync(id);
+            var manicuristaId =
+                HttpContext.Session.GetInt32("ManicuristaId");
 
-            if (notificacion != null)
-            {
-                notificacion.Leida = true;
-                await _context.SaveChangesAsync();
+            if (manicuristaId == null)
+                return RedirectToAction("Index");
 
-                // 🔥 ACTUALIZAR CONTADOR EN TIEMPO REAL
-                var cantidad = await _context.Notificaciones
-                    .Where(n => n.ManicuristaId == notificacion.ManicuristaId && !n.Leida)
-                    .CountAsync();
+            var notificacion = await _context.Notificaciones
+                .FirstOrDefaultAsync(n =>
+                    n.Id == id &&
+                    n.ManicuristaId == manicuristaId.Value);
 
-                await _hubContext.Clients.Group($"manicurista-{notificacion.ManicuristaId}")
-                    .SendAsync("ActualizarContador", cantidad);
+            if (notificacion == null)
+                return RedirectToAction("Index");
 
-                if (!string.IsNullOrEmpty(notificacion.Url))
-                    return Redirect(notificacion.Url);
-            }
+            notificacion.Leida = true;
+
+            await _context.SaveChangesAsync();
+
+            // ==========================================
+            // ACTUALIZAR CONTADOR EN TIEMPO REAL
+            // ==========================================
+
+            var cantidad = await _context.Notificaciones
+                .Where(n =>
+                    n.ManicuristaId == manicuristaId.Value &&
+                    !n.Leida)
+                .CountAsync();
+
+            await _hubContext.Clients
+                .Group($"manicurista-{manicuristaId.Value}")
+                .SendAsync(
+                    "ActualizarContador",
+                    cantidad);
+
+            // ==========================================
+            // REDIRECCIÓN DE LA NOTIFICACIÓN
+            // ==========================================
+
+            if (!string.IsNullOrWhiteSpace(notificacion.Url))
+                return Redirect(notificacion.Url);
 
             return RedirectToAction("Index");
         }
@@ -110,37 +146,89 @@ namespace TropiNailsPro.Controllers
         // ==========================================
         // MARCAR TODAS COMO LEÍDAS
         // ==========================================
+        [HttpGet]
         public async Task<IActionResult> MarcarTodasLeidas()
         {
-            var manicuristaId = HttpContext.Session.GetInt32("ManicuristaId");
+            var manicuristaId =
+                HttpContext.Session.GetInt32("ManicuristaId");
 
             if (manicuristaId == null)
                 return RedirectToAction("Index");
 
             var notificaciones = await _context.Notificaciones
-                .Where(n => n.ManicuristaId == manicuristaId && !n.Leida)
+                .Where(n =>
+                    n.ManicuristaId == manicuristaId.Value &&
+                    !n.Leida)
                 .ToListAsync();
 
-            foreach (var n in notificaciones)
+            foreach (var notificacion in notificaciones)
             {
-                n.Leida = true;
+                notificacion.Leida = true;
             }
 
             await _context.SaveChangesAsync();
 
-            // 🔥 ACTUALIZAR CONTADOR EN TIEMPO REAL
-            await _hubContext.Clients.Group($"manicurista-{manicuristaId}")
-                .SendAsync("ActualizarContador", 0);
+            // ==========================================
+            // CONTADOR EN TIEMPO REAL
+            // ==========================================
+
+            await _hubContext.Clients
+                .Group($"manicurista-{manicuristaId.Value}")
+                .SendAsync(
+                    "ActualizarContador",
+                    0);
 
             return RedirectToAction("Index");
         }
 
         // ==========================================
-        // CREAR Y ENVIAR NOTIFICACIÓN EN TIEMPO REAL
+        // CREAR Y ENVIAR NOTIFICACIÓN
         // ==========================================
-        public async Task<IActionResult> CrearNotificacion(int manicuristaId, string mensaje, string url = null)
+        [HttpGet]
+        public async Task<IActionResult> CrearNotificacion(
+            int manicuristaId,
+            string mensaje,
+            string? url = null)
         {
-            // Guardar en BD
+            if (manicuristaId <= 0)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "El ID de la manicurista no es válido."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(mensaje))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "El mensaje de la notificación es obligatorio."
+                });
+            }
+
+            // ==========================================
+            // BUSCAR MANICURISTA Y USUARIO
+            // ==========================================
+
+            var manicurista = await _context.Manicuristas
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == manicuristaId);
+
+            if (manicurista == null)
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    mensaje = "No se encontró la manicurista."
+                });
+            }
+
+            // ==========================================
+            // GUARDAR NOTIFICACIÓN EN BASE DE DATOS
+            // ==========================================
+
             var notificacion = new Notificacion
             {
                 ManicuristaId = manicuristaId,
@@ -151,21 +239,80 @@ namespace TropiNailsPro.Controllers
             };
 
             _context.Notificaciones.Add(notificacion);
+
             await _context.SaveChangesAsync();
 
-            // 🔥 ENVIAR NOTIFICACIÓN
-            await _hubContext.Clients.Group($"manicurista-{manicuristaId}")
-                .SendAsync("RecibirNotificacion", mensaje, url);
+            // ==========================================
+            // SIGNALR — NOTIFICACIÓN EN TIEMPO REAL
+            // ==========================================
 
-            // 🔥 NUEVO: ACTUALIZAR CONTADOR
+            var grupo =
+                $"manicurista-{manicuristaId}";
+
+            await _hubContext.Clients
+                .Group(grupo)
+                .SendAsync(
+                    "RecibirNotificacion",
+                    mensaje,
+                    url);
+
+            // ==========================================
+            // ACTUALIZAR CONTADOR
+            // ==========================================
+
             var cantidad = await _context.Notificaciones
-                .Where(n => n.ManicuristaId == manicuristaId && !n.Leida)
+                .Where(n =>
+                    n.ManicuristaId == manicuristaId &&
+                    !n.Leida)
                 .CountAsync();
 
-            await _hubContext.Clients.Group($"manicurista-{manicuristaId}")
-                .SendAsync("ActualizarContador", cantidad);
+            await _hubContext.Clients
+                .Group(grupo)
+                .SendAsync(
+                    "ActualizarContador",
+                    cantidad);
 
-            return Ok(new { success = true });
+            // ==========================================
+            // WEB PUSH
+            // ==========================================
+            //
+            // PushNotificationService trabaja con UsuarioId,
+            // por eso usamos el UsuarioId de la manicurista.
+            //
+            // ==========================================
+
+            if (manicurista.UsuarioId > 0)
+            {
+                try
+                {
+                    await _pushNotificationService.EnviarAsync(
+                        manicurista.UsuarioId,
+                        "TropiNailsPro",
+                        mensaje,
+                        url ?? "/");
+                }
+                catch (Exception ex)
+                {
+                    // El Push no debe impedir que la
+                    // notificación quede guardada en BD
+                    // ni que SignalR funcione.
+
+                    Console.WriteLine(
+                        $"⚠️ Error enviando Web Push: {ex.Message}");
+                }
+            }
+
+            // ==========================================
+            // RESPUESTA
+            // ==========================================
+
+            return Ok(new
+            {
+                success = true,
+                mensaje = "Notificación creada y enviada correctamente.",
+                manicuristaId = manicuristaId,
+                usuarioId = manicurista.UsuarioId
+            });
         }
     }
 }

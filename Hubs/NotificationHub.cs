@@ -1,6 +1,7 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
 
 namespace TropiNailsPro.Hubs
 {
@@ -17,29 +18,40 @@ namespace TropiNailsPro.Hubs
 
                 if (httpContext != null)
                 {
-                    var manicuristaId = httpContext.Session.GetInt32("UsuarioId");
+                    // 🔥 USAMOS EL ID REAL DE LA MANICURISTA
+                    var manicuristaId =
+                        httpContext.Session.GetInt32("ManicuristaId");
 
-                    if (manicuristaId.HasValue)
+                    if (manicuristaId.HasValue &&
+                        manicuristaId.Value > 0)
                     {
-                        var grupo = $"manicurista-{manicuristaId.Value}";
+                        var grupo =
+                            $"manicurista-{manicuristaId.Value}";
 
-                        await Groups.AddToGroupAsync(Context.ConnectionId, grupo);
+                        await Groups.AddToGroupAsync(
+                            Context.ConnectionId,
+                            grupo);
 
-                        Console.WriteLine($"✅ Usuario conectado al grupo: {grupo}");
+                        Console.WriteLine(
+                            $"✅ SignalR conectado al grupo: {grupo}");
                     }
                     else
                     {
-                        Console.WriteLine("⚠️ UsuarioId es NULL → el usuario NO entró al grupo");
+                        Console.WriteLine(
+                            "⚠️ ManicuristaId es NULL o 0 → no se agregó al grupo SignalR.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("⚠️ HttpContext es NULL en SignalR");
+                    Console.WriteLine(
+                        "⚠️ HttpContext es NULL en SignalR.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("❌ Error en OnConnectedAsync: " + ex.Message);
+                Console.WriteLine(
+                    "❌ Error en OnConnectedAsync: " +
+                    ex.Message);
             }
 
             await base.OnConnectedAsync();
@@ -48,7 +60,8 @@ namespace TropiNailsPro.Hubs
         // ==========================================
         // CUANDO SE DESCONECTA
         // ==========================================
-        public override async Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnDisconnectedAsync(
+            Exception? exception)
         {
             try
             {
@@ -56,46 +69,71 @@ namespace TropiNailsPro.Hubs
 
                 if (httpContext != null)
                 {
-                    var manicuristaId = httpContext.Session.GetInt32("UsuarioId");
+                    var manicuristaId =
+                        httpContext.Session.GetInt32("ManicuristaId");
 
-                    if (manicuristaId.HasValue)
+                    if (manicuristaId.HasValue &&
+                        manicuristaId.Value > 0)
                     {
-                        var grupo = $"manicurista-{manicuristaId.Value}";
+                        var grupo =
+                            $"manicurista-{manicuristaId.Value}";
 
-                        await Groups.RemoveFromGroupAsync(Context.ConnectionId, grupo);
+                        await Groups.RemoveFromGroupAsync(
+                            Context.ConnectionId,
+                            grupo);
 
-                        Console.WriteLine($"❌ Usuario salió del grupo: {grupo}");
+                        Console.WriteLine(
+                            $"❌ SignalR desconectado del grupo: {grupo}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("❌ Error en OnDisconnectedAsync: " + ex.Message);
+                Console.WriteLine(
+                    "❌ Error en OnDisconnectedAsync: " +
+                    ex.Message);
             }
 
             await base.OnDisconnectedAsync(exception);
         }
 
         // ==========================================
-        // 🔥 ENVIAR A UN MANICURISTA (GRUPO)
+        // 🔥 ENVIAR A UNA MANICURISTA
         // ==========================================
-        public async Task EnviarANoticacionManicurista(int manicuristaId, string mensaje, string? url = null)
+        public async Task EnviarANoticacionManicurista(
+            int manicuristaId,
+            string mensaje,
+            string? url = null)
         {
-            var grupo = $"manicurista-{manicuristaId}";
+            if (manicuristaId <= 0)
+                return;
+
+            var grupo =
+                $"manicurista-{manicuristaId}";
 
             await Clients.Group(grupo)
-                .SendAsync("RecibirNotificacion", mensaje, url);
+                .SendAsync(
+                    "RecibirNotificacion",
+                    mensaje,
+                    url);
 
             await Clients.Group(grupo)
-                .SendAsync("ActualizarContador", 1);
+                .SendAsync(
+                    "ActualizarContador",
+                    1);
         }
 
         // ==========================================
-        // ENVIAR A TODOS (OPCIONAL)
+        // 🔥 ENVIAR A TODOS
         // ==========================================
-        public async Task SendNotificationToAll(string mensaje, string? url = null)
+        public async Task SendNotificationToAll(
+            string mensaje,
+            string? url = null)
         {
-            await Clients.All.SendAsync("RecibirNotificacion", mensaje, url);
+            await Clients.All.SendAsync(
+                "RecibirNotificacion",
+                mensaje,
+                url);
         }
     }
 }

@@ -20,6 +20,7 @@
     <PackageReference Include="sib_api_v3_sdk" Version="4.0.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageReference Include="Stripe.net" Version="50.4.0" />
+    <PackageReference Include="WebPush" Version="1.0.13" />
     <PackageReference Include="Xabe.FFmpeg" Version="5.0.0" />
     <PackageReference Include="Xabe.FFmpeg.Downloader" Version="5.0.0" />
   </ItemGroup>

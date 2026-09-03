@@ -79,6 +79,7 @@ builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddScoped<PayPalService>();
 builder.Services.AddScoped<TimeService>();
 builder.Services.AddScoped<AzureBlobService>();
+builder.Services.AddScoped<PushNotificationService>();
 // ✅ Estado de actividad de usuarios
 builder.Services.AddScoped<ActividadUsuarioService>();
 
