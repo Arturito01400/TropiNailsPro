@@ -5,6 +5,7 @@ using TropiNailsPro.Models;
 using TropiNailsPro.Hubs;
 using TropiNailsPro.Services;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace TropiNailsPro.Controllers
 {
@@ -13,15 +14,18 @@ namespace TropiNailsPro.Controllers
         private readonly AppDbContext _context;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly PushNotificationService _pushNotificationService;
+        private readonly IConfiguration _configuration;
 
         public NotificacionesController(
             AppDbContext context,
             IHubContext<NotificationHub> hubContext,
-            PushNotificationService pushNotificationService)
+            PushNotificationService pushNotificationService,
+            IConfiguration configuration)
         {
             _context = context;
             _hubContext = hubContext;
             _pushNotificationService = pushNotificationService;
+            _configuration = configuration;
         }
 
         // ==========================================
@@ -314,5 +318,308 @@ namespace TropiNailsPro.Controllers
                 usuarioId = manicurista.UsuarioId
             });
         }
+
+        // ==========================================
+        // OBTENER VAPID PUBLIC KEY
+        // ==========================================
+        //
+        // IMPORTANTE:
+        // Solamente entregamos la PUBLIC KEY al navegador.
+        //
+        // La PrivateKey NUNCA sale del servidor.
+        //
+        // La clave se obtiene desde:
+        //
+        // Azure App Service
+        // Configuration
+        // Environment variables
+        //
+        // VAPID:PublicKey
+        //
+        // ==========================================
+
+        [HttpGet]
+        public IActionResult ObtenerVapidPublicKey()
+        {
+            var publicKey =
+                _configuration["VAPID:PublicKey"];
+
+            if (string.IsNullOrWhiteSpace(publicKey))
+            {
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        success = false,
+                        mensaje = "La VAPID PublicKey no está configurada en el servidor."
+                    });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                publicKey = publicKey
+            });
+        }
+
+        // ==========================================
+        // REGISTRAR SUSCRIPCIÓN WEB PUSH
+        // ==========================================
+
+        [HttpPost]
+        public async Task<IActionResult> RegistrarPush(
+            [FromBody] PushSubscriptionRequest request)
+        {
+            // ==========================================
+            // VERIFICAR USUARIO AUTENTICADO
+            // ==========================================
+
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    mensaje = "El usuario no está autenticado."
+                });
+            }
+
+            // ==========================================
+            // OBTENER USUARIO ACTUAL
+            // ==========================================
+
+            var usuarioIdClaim =
+                User.FindFirst(
+                    ClaimTypes.NameIdentifier
+                )?.Value;
+
+            if (!int.TryParse(
+                    usuarioIdClaim,
+                    out int usuarioId))
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    mensaje = "No se pudo identificar al usuario."
+                });
+            }
+
+            // ==========================================
+            // VALIDAR DATOS
+            // ==========================================
+
+            if (request == null)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "No se recibió la suscripción Push."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Endpoint))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "El endpoint Push es obligatorio."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.P256dh))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "La clave p256dh es obligatoria."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Auth))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "La clave auth es obligatoria."
+                });
+            }
+
+            // ==========================================
+            // REGISTRAR EN PUSHNOTIFICATIONSERVICE
+            // ==========================================
+
+            try
+            {
+                var registrada =
+                    await _pushNotificationService
+                        .RegistrarSuscripcionAsync(
+                            usuarioId,
+                            request.Endpoint,
+                            request.P256dh,
+                            request.Auth,
+                            request.Plataforma,
+                            request.Navegador,
+                            request.UserAgent
+                        );
+
+                if (!registrada)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        mensaje = "No se pudo registrar la suscripción Push."
+                    });
+                }
+
+                // ======================================
+                // RESPUESTA EXITOSA
+                // ======================================
+
+                return Ok(new
+                {
+                    success = true,
+                    mensaje = "Suscripción Push registrada correctamente.",
+                    usuarioId = usuarioId
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"⚠️ Error registrando suscripción Push: {ex.Message}"
+                );
+
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        success = false,
+                        mensaje = "Ocurrió un error registrando la suscripción Push."
+                    }
+                );
+            }
+        }
+
+        // ==========================================
+        // DESACTIVAR SUSCRIPCIÓN WEB PUSH
+        // ==========================================
+
+        [HttpPost]
+        public async Task<IActionResult> DesactivarPush(
+            [FromBody] DesactivarPushRequest request)
+        {
+            // ==========================================
+            // VERIFICAR AUTENTICACIÓN
+            // ==========================================
+
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    mensaje = "El usuario no está autenticado."
+                });
+            }
+
+            // ==========================================
+            // OBTENER USUARIO ACTUAL
+            // ==========================================
+
+            var usuarioIdClaim =
+                User.FindFirst(
+                    ClaimTypes.NameIdentifier
+                )?.Value;
+
+            if (!int.TryParse(
+                    usuarioIdClaim,
+                    out int usuarioId))
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    mensaje = "No se pudo identificar al usuario."
+                });
+            }
+
+            // ==========================================
+            // VALIDAR ENDPOINT
+            // ==========================================
+
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.Endpoint))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    mensaje = "El endpoint Push es obligatorio."
+                });
+            }
+
+            try
+            {
+                var desactivada =
+                    await _pushNotificationService
+                        .DesactivarSuscripcionAsync(
+                            usuarioId,
+                            request.Endpoint
+                        );
+
+                if (!desactivada)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        mensaje = "No se encontró la suscripción Push."
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    mensaje = "Suscripción Push desactivada correctamente."
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"⚠️ Error desactivando suscripción Push: {ex.Message}"
+                );
+
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        success = false,
+                        mensaje = "Ocurrió un error desactivando la suscripción Push."
+                    }
+                );
+            }
+        }
+    }
+
+    // ============================================================
+    // MODELO PARA RECIBIR LA SUSCRIPCIÓN WEB PUSH
+    // ============================================================
+
+    public class PushSubscriptionRequest
+    {
+        public string? Endpoint { get; set; }
+
+        public string? P256dh { get; set; }
+
+        public string? Auth { get; set; }
+
+        public string? Plataforma { get; set; }
+
+        public string? Navegador { get; set; }
+
+        public string? UserAgent { get; set; }
+    }
+
+    // ============================================================
+    // MODELO PARA DESACTIVAR UNA SUSCRIPCIÓN WEB PUSH
+    // ============================================================
+
+    public class DesactivarPushRequest
+    {
+        public string? Endpoint { get; set; }
     }
 }

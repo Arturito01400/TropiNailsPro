@@ -1,8 +1,10 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿
+@using Microsoft.AspNetCore.Http
 @using System.IO
 @using Microsoft.AspNetCore.Hosting
 @inject IHttpContextAccessor HttpContextAccessor
 @inject IWebHostEnvironment env
+@inject IConfiguration Configuration
 
 @{
     var title = ViewData["Title"] ?? "TropiNails Pro";
@@ -45,6 +47,18 @@
         );
 
     var version = DateTime.Now.Second;
+
+    // =========================================================
+    // VAPID — SOLO PUBLIC KEY
+    // =========================================================
+    // La PublicKey se obtiene desde Azure Configuration.
+    //
+    // IMPORTANTE:
+    // La PrivateKey NUNCA se expone al navegador.
+    // =========================================================
+
+    var vapidPublicKey =
+        Configuration["VAPID:PublicKey"];
 }
 
 <!DOCTYPE html>
@@ -86,6 +100,19 @@
       rel="stylesheet"/>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- =========================================================
+     TROPINAILS PRO
+     VAPID PUBLIC KEY PARA WEB PUSH
+     
+     SOLO SE EXPONE LA CLAVE PÚBLICA.
+     LA PRIVATE KEY PERMANECE EN AZURE/SERVIDOR.
+     ========================================================= -->
+
+<script>
+    window.TROPINAILS_VAPID_PUBLIC_KEY =
+        "@vapidPublicKey";
+</script>
 
 <style>
 
@@ -612,6 +639,7 @@ height:38px;
 .vencimiento-btn span {
     font-weight: 900;
 }
+
 .vencimiento-btn::after {
     content: "LIVE";
     font-size: 9px;
@@ -625,7 +653,6 @@ height:38px;
 
     margin-left: 8px;
 }
-
 
 </style>
 
@@ -1675,45 +1702,45 @@ async function buscarGlobal(q) {
            USUARIOS
            ================================================= */
 
-       if (data.usuarios) {
+        if (data.usuarios) {
 
-    data.usuarios.forEach(
-        u => {
+            data.usuarios.forEach(
+                u => {
 
-            let foto =
-                u.foto ||
-                "/img/user-default.png";
+                    let foto =
+                        u.foto ||
+                        "/img/user-default.png";
 
 
-            html +=
-                "<div class='result-item' " +
-                "onclick='window.location=\"/Catalogos/Perfil/" +
-                u.id +
-                "\"'>" +
+                    html +=
+                        "<div class='result-item' " +
+                        "onclick='window.location=\"/Catalogos/Perfil/" +
+                        u.id +
+                        "\"'>" +
 
-                "<img src='" +
-                foto +
-                "' " +
-                "onerror=\"this.src='/img/user-default.png'\">" +
+                        "<img src='" +
+                        foto +
+                        "' " +
+                        "onerror=\"this.src='/img/user-default.png'\">" +
 
-                "<div>" +
+                        "<div>" +
 
-                "<b>" +
-                (u.nombre || "Usuario") +
-                "</b><br>" +
+                        "<b>" +
+                        (u.nombre || "Usuario") +
+                        "</b><br>" +
 
-                "<small>&#64;" +
-                (u.usuario || "usuario") +
-                "</small>" +
+                        "<small>&#64;" +
+                        (u.usuario || "usuario") +
+                        "</small>" +
 
-                "</div>" +
+                        "</div>" +
 
-                "</div>";
+                        "</div>";
+
+                }
+            );
 
         }
-    );
-
-}
 
 
         /* =================================================
@@ -1854,6 +1881,16 @@ document.addEventListener(
 
 </script>
 
+<!-- =========================================================
+     TROPINAILS PRO
+     WEB PUSH — SERVICE WORKER
+     
+     Este archivo registra /sw.js en el navegador.
+     ========================================================= -->
+
+<script src="~/js/push-notifications.js"
+        asp-append-version="true"></script>
+
 
 <script src="~/js/modelos-premium.js"
         asp-append-version="true"></script>
@@ -1866,3 +1903,4 @@ document.addEventListener(
 
 </body>
 </html>
+

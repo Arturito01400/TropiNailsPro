@@ -162,7 +162,15 @@ if (clienteId.HasValue)
             await _notificacionService
                 .EnviarNotificacionTiempoReal(
                     disponibilidad.Manicurista.Usuario.Nombre,
-                    $"Nueva solicitud de cita de {cita.NombreClienta} 💅");
+                    $"Nueva solicitud de cita de {cita.NombreClienta} ❤️");
+
+
+                    await _notificacionService.EnviarPush(
+    disponibilidad.Manicurista.Usuario.Id,
+    "🙈 Nueva cita agendada",
+    $"{cita.NombreClienta} agendó una cita para el {cita.Fecha:dd/MM/yyyy} a las {cita.Hora:hh\\:mm}.",
+    "/Citas"
+);
 
            // ==================================================
 // CREAR LINK WHATSAPP

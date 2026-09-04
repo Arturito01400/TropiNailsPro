@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TropiNailsPro.Data;
@@ -10,14 +11,17 @@ namespace TropiNailsPro.Controllers
     {
         private readonly AppDbContext _context;
         private readonly TimeService _timeService;
+        private readonly NotificacionService _notificacionService;
 
 
         public DisponibilidadesController(
             AppDbContext context,
-            TimeService timeService)
+            TimeService timeService,
+            NotificacionService notificacionService)
         {
             _context = context;
             _timeService = timeService;
+            _notificacionService = notificacionService;
         }
 
 
@@ -47,15 +51,15 @@ namespace TropiNailsPro.Controllers
 
 
         // CREAR
-public IActionResult Create()
-{
-    return View(new Disponibilidad
-    {
-        Fecha = _timeService.ObtenerHoraLocal().Date,
-        Hora = new TimeSpan(9, 0, 0),
-        Disponible = true
-    });
-}
+        public IActionResult Create()
+        {
+            return View(new Disponibilidad
+            {
+                Fecha = _timeService.ObtenerHoraLocal().Date,
+                Hora = new TimeSpan(9, 0, 0),
+                Disponible = true
+            });
+        }
 
 
 
@@ -99,6 +103,34 @@ public IActionResult Create()
             await _context.SaveChangesAsync();
 
 
+            // ======================================================
+            // 🔔 PUSH A LAS CLIENTAS
+            // ======================================================
+            // Avisamos a las clientas asociadas a esta profesional
+            // que ya existen nuevos horarios disponibles.
+            // ======================================================
+
+            var clientas = await _context.Usuarios
+                .Where(u =>
+                    u.Rol == "Clienta" &&
+                    u.ManicuristaId == manicuristaId.Value)
+                .Select(u => new
+                {
+                    u.Id
+                })
+                .ToListAsync();
+
+
+            foreach (var clienta in clientas)
+            {
+                await _notificacionService.EnviarPush(
+                    clienta.Id,
+                    "📅 Nuevos horarios disponibles",
+                    "Tu profesional de belleza ya agregó nuevos horarios disponibles para agendar. ✨",
+                    $"/Agendar?manicuristaId={manicuristaId.Value}"
+                );
+            }
+
 
             return RedirectToAction(nameof(Index));
         }
@@ -107,10 +139,9 @@ public IActionResult Create()
 
 
 
-
-
-
+        // ======================================================
         // EDITAR
+        // ======================================================
 
         public async Task<IActionResult> Edit(int? id)
         {
@@ -133,9 +164,6 @@ public IActionResult Create()
 
             return View(disponibilidad);
         }
-
-
-
 
 
 
@@ -191,7 +219,6 @@ public IActionResult Create()
 
 
 
-
             disponibilidadBD.Fecha =
                 disponibilidad.Fecha;
 
@@ -229,8 +256,6 @@ public IActionResult Create()
 
             return RedirectToAction(nameof(Index));
         }
-
-
 
 
 
@@ -293,10 +318,9 @@ public IActionResult Create()
 
 
 
+
             return RedirectToAction(nameof(Index));
         }
-
-
 
 
 
@@ -333,6 +357,7 @@ public IActionResult Create()
                 return false;
 
             }
+
 
 
 
@@ -392,3 +417,4 @@ public IActionResult Create()
     }
 
 }
+
