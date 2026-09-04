@@ -1,5 +1,4 @@
-﻿
-@using Microsoft.AspNetCore.Http
+﻿@using Microsoft.AspNetCore.Http
 @using System.IO
 @using Microsoft.AspNetCore.Hosting
 @inject IHttpContextAccessor HttpContextAccessor
@@ -284,6 +283,84 @@ color:#555;
 font-weight:600;
 }
 
+/* =========================================================
+   🔔 BOTÓN ACTIVAR NOTIFICACIONES
+   ========================================================= */
+
+.push-notificaciones-wrapper{
+display:flex;
+align-items:center;
+margin-right:12px;
+}
+
+.btn-push-notificaciones{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+gap:7px;
+
+padding:8px 14px;
+
+border:none;
+border-radius:25px;
+
+background:
+linear-gradient(
+135deg,
+#ff4da6,
+#e91e63
+);
+
+color:white !important;
+
+font-size:12px;
+font-weight:800;
+
+cursor:pointer;
+text-decoration:none;
+
+box-shadow:
+0 5px 15px rgba(233,30,99,.25);
+
+transition:
+transform .25s ease,
+box-shadow .25s ease,
+opacity .25s ease;
+
+white-space:nowrap;
+}
+
+.btn-push-notificaciones:hover{
+transform:translateY(-2px);
+box-shadow:
+0 8px 20px rgba(233,30,99,.35);
+color:white !important;
+}
+
+.btn-push-notificaciones:active{
+transform:scale(.97);
+}
+
+.btn-push-notificaciones.activando{
+opacity:.75;
+pointer-events:none;
+}
+
+.btn-push-notificaciones.activado{
+background:
+linear-gradient(
+135deg,
+#22c55e,
+#16a34a
+);
+}
+
+.btn-push-notificaciones.bloqueado{
+background:#6c757d;
+cursor:default;
+box-shadow:none;
+}
+
 /* CAMPANA */
 
 .bell-wrapper{
@@ -461,6 +538,16 @@ flex-direction:column;
 align-items:stretch !important;
 }
 
+.push-notificaciones-wrapper{
+width:100%;
+margin-right:0;
+}
+
+.btn-push-notificaciones{
+width:100%;
+padding:11px 15px;
+}
+
 .bell-wrapper{
 margin-right:0;
 text-align:center;
@@ -523,6 +610,7 @@ height:38px;
 
     .chat-page .search-global-wrap,
     .chat-page .bell-wrapper,
+    .chat-page .push-notificaciones-wrapper,
     .chat-page .btn-feed,
     .chat-page .btn-pink,
     .chat-page .btn-bank,
@@ -702,6 +790,30 @@ class="search-dropdown"></div>
 
 @if(!string.IsNullOrEmpty(usuario))
 {
+
+<!-- =========================================================
+     🔔 BOTÓN PARA ACTIVAR NOTIFICACIONES PUSH
+     
+     IMPORTANTE:
+     NO solicita permiso automáticamente.
+     El usuario debe pulsarlo.
+     ========================================================= -->
+
+<div id="pushNotificacionesWrapper"
+     class="push-notificaciones-wrapper">
+
+    <button
+        type="button"
+        id="btnActivarNotificaciones"
+        class="btn-push-notificaciones"
+        onclick="activarNotificacionesPush()">
+
+        🔔 Activar notificaciones
+
+    </button>
+
+</div>
+
 
 <div class="bell-wrapper"
 onclick="togglePanelNotificaciones()">
@@ -1881,6 +1993,7 @@ document.addEventListener(
 
 </script>
 
+
 <!-- =========================================================
      TROPINAILS PRO
      WEB PUSH — SERVICE WORKER
@@ -1896,6 +2009,345 @@ document.addEventListener(
         asp-append-version="true"></script>
 
 
+<!-- =========================================================
+     TROPINAILS PRO
+     CONTROL DEL BOTÓN ACTIVAR NOTIFICACIONES
+     
+     IMPORTANTE:
+     Este código NO solicita permisos automáticamente.
+     
+     Solamente revisa si ya existe una suscripción.
+     El permiso se solicita cuando el usuario pulsa
+     "Activar notificaciones".
+     ========================================================= -->
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    /* =========================================================
+       ACTUALIZAR ESTADO DEL BOTÓN
+       ========================================================= */
+
+    async function revisarEstadoNotificaciones() {
+
+        const wrapper =
+            document.getElementById(
+                "pushNotificacionesWrapper"
+            );
+
+
+        const boton =
+            document.getElementById(
+                "btnActivarNotificaciones"
+            );
+
+
+        if (!wrapper || !boton)
+            return;
+
+
+        /* -----------------------------------------------------
+           VERIFICAR SOPORTE DEL NAVEGADOR
+           ----------------------------------------------------- */
+
+        if (
+            !("serviceWorker" in navigator) ||
+            !("PushManager" in window) ||
+            !("Notification" in window)
+        ) {
+
+            wrapper.style.display =
+                "none";
+
+            return;
+        }
+
+
+        try {
+
+            /* -------------------------------------------------
+               SI YA EXISTE UNA SUSCRIPCIÓN
+               ------------------------------------------------- */
+
+            if (
+                window.TropiNailsPush &&
+                typeof window.TropiNailsPush.obtenerSuscripcion ===
+                "function"
+            ) {
+
+                const suscripcion =
+                    await window.TropiNailsPush.obtenerSuscripcion();
+
+
+                if (suscripcion) {
+
+                    boton.innerHTML =
+                        "✅ Notificaciones activadas";
+
+                    boton.classList.add(
+                        "activado"
+                    );
+
+                    boton.disabled =
+                        true;
+
+                    return;
+                }
+
+            }
+
+
+            /* -------------------------------------------------
+               PERMISO YA CONCEDIDO PERO SIN SUSCRIPCIÓN
+               ------------------------------------------------- */
+
+            if (
+                Notification.permission ===
+                "granted"
+            ) {
+
+                boton.innerHTML =
+                    "🔔 Activar notificaciones";
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               PERMISO TODAVÍA NO SOLICITADO
+               ------------------------------------------------- */
+
+            if (
+                Notification.permission ===
+                "default"
+            ) {
+
+                boton.innerHTML =
+                    "🔔 Activar notificaciones";
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               PERMISO BLOQUEADO
+               ------------------------------------------------- */
+
+            if (
+                Notification.permission ===
+                "denied"
+            ) {
+
+                boton.innerHTML =
+                    "🔒 Notificaciones bloqueadas";
+
+                boton.classList.add(
+                    "bloqueado"
+                );
+
+                boton.disabled =
+                    true;
+
+            }
+
+        }
+        catch (error) {
+
+            console.error(
+                "[TropiNailsPro] Error revisando estado Push:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
+       ACTIVAR NOTIFICACIONES
+       ========================================================= */
+
+    window.activarNotificacionesPush =
+        async function () {
+
+            const boton =
+                document.getElementById(
+                    "btnActivarNotificaciones"
+                );
+
+
+            if (!boton)
+                return;
+
+
+            /* -------------------------------------------------
+               VERIFICAR SISTEMA PUSH
+               ------------------------------------------------- */
+
+            if (
+                !window.TropiNailsPush ||
+                typeof window.TropiNailsPush.iniciar !==
+                "function"
+            ) {
+
+                console.error(
+                    "[TropiNailsPro] El sistema Push todavía no está disponible."
+                );
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               ESTADO VISUAL
+               ------------------------------------------------- */
+
+            boton.classList.add(
+                "activando"
+            );
+
+            boton.innerHTML =
+                "⏳ Activando...";
+
+
+            try {
+
+                /* ------------------------------------------------
+                   AQUÍ ES DONDE SE SOLICITA EL PERMISO
+                   
+                   El usuario tuvo que pulsar el botón.
+                   ------------------------------------------------ */
+
+                const resultado =
+                    await window.TropiNailsPush.iniciar();
+
+
+                /* ------------------------------------------------
+                   ACTIVACIÓN CORRECTA
+                   ------------------------------------------------ */
+
+                if (resultado) {
+
+                    boton.innerHTML =
+                        "✅ Notificaciones activadas";
+
+                    boton.classList.remove(
+                        "activando"
+                    );
+
+                    boton.classList.add(
+                        "activado"
+                    );
+
+                    boton.disabled =
+                        true;
+
+
+                    console.log(
+                        "[TropiNailsPro] ✅ Notificaciones Push activadas correctamente."
+                    );
+
+
+                    return;
+                }
+
+
+                /* ------------------------------------------------
+                   PERMISO DENEGADO
+                   ------------------------------------------------ */
+
+                if (
+                    "Notification" in window &&
+                    Notification.permission ===
+                    "denied"
+                ) {
+
+                    boton.innerHTML =
+                        "🔒 Notificaciones bloqueadas";
+
+                    boton.classList.remove(
+                        "activando"
+                    );
+
+                    boton.classList.add(
+                        "bloqueado"
+                    );
+
+                    boton.disabled =
+                        true;
+
+
+                    console.warn(
+                        "[TropiNailsPro] ⚠️ El usuario bloqueó las notificaciones."
+                    );
+
+
+                    return;
+                }
+
+
+                /* ------------------------------------------------
+                   NO SE PUDO ACTIVAR
+                   ------------------------------------------------ */
+
+                boton.innerHTML =
+                    "🔔 Activar notificaciones";
+
+                boton.classList.remove(
+                    "activando"
+                );
+
+
+                console.warn(
+                    "[TropiNailsPro] ⚠️ No se pudo activar Push."
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "[TropiNailsPro] ❌ Error activando notificaciones:",
+                    error
+                );
+
+
+                boton.innerHTML =
+                    "🔔 Activar notificaciones";
+
+                boton.classList.remove(
+                    "activando"
+                );
+
+            }
+
+        };
+
+
+    /* =========================================================
+       REVISAR ESTADO CUANDO CARGUE LA PÁGINA
+       
+       Esto NO solicita permiso.
+       ========================================================= */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            revisarEstadoNotificaciones();
+
+        }
+    );
+
+
+})();
+
+</script>
+
+
 @await RenderSectionAsync(
     "Scripts",
     required: false
@@ -1903,4 +2355,3 @@ document.addEventListener(
 
 </body>
 </html>
-
