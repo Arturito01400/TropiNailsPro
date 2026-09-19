@@ -697,8 +697,11 @@ public IActionResult RecuperarClave()
 public async Task<IActionResult> RecuperarClave(
     string Identificador)
 {
-    if (string.IsNullOrWhiteSpace(
-        Identificador))
+    // =====================================================
+    // VALIDAR IDENTIFICADOR
+    // =====================================================
+
+    if (string.IsNullOrWhiteSpace(Identificador))
     {
         TempData["Error"] =
             "Debes ingresar un correo o teléfono.";
@@ -706,15 +709,40 @@ public async Task<IActionResult> RecuperarClave(
         return View();
     }
 
+    // =====================================================
+    // LIMPIAR DATOS
+    // =====================================================
+
+    Identificador = Identificador.Trim();
+
+    string identificadorCorreo =
+        Identificador.ToLower();
+
+    // =====================================================
+    // BUSCAR USUARIO
+    // =====================================================
+
     var usuario = await _context.Usuarios
         .FirstOrDefaultAsync(u =>
-            u.Email == Identificador ||
-            u.Telefono == Identificador);
+            (
+                !string.IsNullOrWhiteSpace(u.Email) &&
+                u.Email.Trim().ToLower() == identificadorCorreo
+            )
+            ||
+            (
+                !string.IsNullOrWhiteSpace(u.Telefono) &&
+                u.Telefono.Trim() == Identificador
+            )
+        );
+
+    // =====================================================
+    // USUARIO NO ENCONTRADO
+    // =====================================================
 
     if (usuario == null)
     {
         TempData["Error"] =
-            "No existe una cuenta asociada.";
+            "No existe una cuenta asociada a ese correo o teléfono.";
 
         return View();
     }
@@ -728,12 +756,15 @@ public async Task<IActionResult> RecuperarClave(
 
     usuario.ResetToken = token;
 
-    usuario.TokenExpira = _timeService.ObtenerHoraLocal().AddHours(1);
+    usuario.TokenExpira =
+        _timeService
+            .ObtenerHoraLocal()
+            .AddHours(1);
 
     await _context.SaveChangesAsync();
 
     // =====================================================
-    // LINK RECUPERACION
+    // LINK RECUPERACIÓN
     // =====================================================
 
     string link =
@@ -743,27 +774,61 @@ public async Task<IActionResult> RecuperarClave(
     // ENVIAR EMAIL
     // =====================================================
 
-    if (!string.IsNullOrWhiteSpace(
-        usuario.Email))
+    if (!string.IsNullOrWhiteSpace(usuario.Email))
     {
         await _emailService.EnviarCorreoAsync(
-            usuario.Email,
+            usuario.Email.Trim(),
             "Recuperación de contraseña",
             $@"
-            <h2>Recuperar Contraseña</h2>
+            <div style='font-family:Arial,sans-serif;'>
+                
+                <h2 style='color:#d63384;'>
+                    Recuperar Contraseña
+                </h2>
 
-            <p>Haz clic en el botón:</p>
+                <p>
+                    Hemos recibido una solicitud para cambiar
+                    la contraseña de tu cuenta de TropiNails Pro.
+                </p>
 
-            <a href='{link}'
-               style='padding:12px 20px;
-               background:#d63384;
-               color:white;
-               text-decoration:none;
-               border-radius:8px;'>
-               Cambiar Contraseña
-            </a>
+                <p>
+                    Haz clic en el siguiente botón para crear
+                    una nueva contraseña:
+                </p>
+
+                <br>
+
+                <a href='{link}'
+                   style='display:inline-block;
+                   padding:12px 20px;
+                   background:#d63384;
+                   color:white;
+                   text-decoration:none;
+                   border-radius:8px;
+                   font-weight:bold;'>
+                   
+                    Cambiar Contraseña
+
+                </a>
+
+                <br><br>
+
+                <p style='color:#777;font-size:13px;'>
+                    Este enlace será válido durante 1 hora.
+                </p>
+
+                <p style='color:#777;font-size:13px;'>
+                    Si tú no solicitaste este cambio,
+                    puedes ignorar este correo.
+                </p>
+
+            </div>
             ");
     }
+
+    // =====================================================
+    // MENSAJE
+    // =====================================================
 
     TempData["Mensaje"] =
         "Te enviamos un link de recuperación.";
