@@ -53,9 +53,12 @@ public async Task<IActionResult> Login(
 
     // 🔍 BUSCAR USUARIO
     var usuario = await _context.Usuarios.FirstOrDefaultAsync(u =>
+    u.Activo &&
+    (
         u.Email == Identificador ||
         u.Telefono == Identificador ||
-        u.UsuarioLogin == Identificador);
+        u.UsuarioLogin == Identificador
+    ));
 
     if (usuario == null)
     {

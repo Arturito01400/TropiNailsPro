@@ -1,3 +1,4 @@
+
 @model TropiNailsPro.Models.Usuario
 
 @{
@@ -11,11 +12,18 @@
     </a>
 
     @if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
-}
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
 
     <div class="card shadow-lg border-0">
 
@@ -72,37 +80,27 @@
 
                         <tr>
                             <th>Último Acceso</th>
-
                             <td>
-
                                 @(Model.UltimoAcceso.HasValue
                                     ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
                                     : "Nunca ha iniciado sesión")
-
                             </td>
-
                         </tr>
 
                         <tr>
                             <th>Estado del Plan</th>
-
                             <td>
-
                                 @(Model.PlanActivo
                                     ? "🟢 Activo"
                                     : "🔴 Inactivo")
-
                             </td>
-
                         </tr>
 
                         <tr>
                             <th>Plan Actual</th>
-
                             <td>
                                 @Model.Plan
                             </td>
-
                         </tr>
 
                     </table>
@@ -119,69 +117,73 @@
 
     <!-- SUSCRIPCIÓN -->
 
-<div class="card shadow border-0 mb-4">
+    <div class="card shadow border-0 mb-4">
 
-    <div class="card-header bg-primary text-white">
+        <div class="card-header bg-primary text-white">
 
-        <h5 class="mb-0">
-            🎁 Administración de Suscripción
-        </h5>
+            <h5 class="mb-0">
+                🎁 Administración de Suscripción
+            </h5>
 
-    </div>
+        </div>
 
-    <div class="card-body">
+        <div class="card-body">
 
-        <div class="row">
+            <div class="row">
 
-            <div class="col-md-3 mb-2">
-                <form asp-action="RegalarMeses" method="post">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="meses" value="1" />
+                <div class="col-md-3 mb-2">
+                    <form asp-action="RegalarMeses" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="meses" value="1" />
 
-                    <button type="submit" class="btn btn-success w-100">
-                        +1 Mes
-                    </button>
-                </form>
-            </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            +1 Mes
+                        </button>
+                    </form>
+                </div>
 
-            <div class="col-md-3 mb-2">
-                <form asp-action="RegalarMeses" method="post">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="meses" value="3" />
+                <div class="col-md-3 mb-2">
+                    <form asp-action="RegalarMeses" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="meses" value="3" />
 
-                    <button type="submit" class="btn btn-primary w-100">
-                        +3 Meses
-                    </button>
-                </form>
-            </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            +3 Meses
+                        </button>
+                    </form>
+                </div>
 
-            <div class="col-md-3 mb-2">
-                <form asp-action="RegalarMeses" method="post">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="meses" value="6" />
+                <div class="col-md-3 mb-2">
+                    <form asp-action="RegalarMeses" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="meses" value="6" />
 
-                    <button type="submit" class="btn btn-warning w-100">
-                        +6 Meses
-                    </button>
-                </form>
-            </div>
+                        <button type="submit" class="btn btn-warning w-100">
+                            +6 Meses
+                        </button>
+                    </form>
+                </div>
 
-            <div class="col-md-3 mb-2">
-                <form asp-action="RegalarMeses" method="post">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="meses" value="12" />
+                <div class="col-md-3 mb-2">
+                    <form asp-action="RegalarMeses" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="meses" value="12" />
 
-                    <button type="submit" class="btn btn-dark w-100">
-                        +12 Meses
-                    </button>
-                </form>
+                        <button type="submit" class="btn btn-dark w-100">
+                            +12 Meses
+                        </button>
+                    </form>
+                </div>
+
             </div>
 
         </div>
 
     </div>
-
-</div>
 
     <!-- ESTADÍSTICAS -->
 
@@ -190,9 +192,7 @@
         <div class="card-header bg-success text-white">
 
             <h5 class="mb-0">
-
                 📊 Actividad
-
             </h5>
 
         </div>
@@ -210,11 +210,9 @@
                             <h6>Último Acceso</h6>
 
                             <h5>
-
                                 @(Model.UltimoAcceso.HasValue
                                     ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy")
                                     : "--")
-
                             </h5>
 
                         </div>
@@ -232,9 +230,7 @@
                             <h6>Plan</h6>
 
                             <h5>
-
                                 @Model.Plan
-
                             </h5>
 
                         </div>
@@ -252,9 +248,7 @@
                             <h6>Rol</h6>
 
                             <h5>
-
                                 @Model.Rol
-
                             </h5>
 
                         </div>
@@ -272,9 +266,7 @@
                             <h6>Registro</h6>
 
                             <h5>
-
                                 @Model.FechaRegistro.ToString("dd/MM/yyyy")
-
                             </h5>
 
                         </div>
@@ -296,26 +288,48 @@
         <div class="card-header bg-danger text-white">
 
             <h5 class="mb-0">
-
                 ⚙ Administración
-
             </h5>
 
         </div>
 
         <div class="card-body">
 
-            <button class="btn btn-outline-primary">
+            <button type="button" class="btn btn-outline-primary">
                 Editar Usuario
             </button>
 
-            <button class="btn btn-outline-warning">
+            <button type="button" class="btn btn-outline-warning">
                 Restablecer Contraseña
             </button>
 
-            <button class="btn btn-outline-danger">
-                Eliminar Usuario
-            </button>
+            @if (string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
+                && Model.Activo
+                && Model.Nombre != "Arturo Quezada Montero")
+            {
+                <form asp-controller="Propietario"
+                      asp-action="EliminarUsuario"
+                      method="post"
+                      class="d-inline"
+                      onsubmit="return confirm('¿Estás seguro de retirar esta cuenta de clienta? Se desactivará el acceso y se liberarán su correo y teléfono para un nuevo registro. No se eliminarán directamente sus registros financieros ni sus citas. Esta acción no se puede deshacer desde esta pantalla.');">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="@Model.Id" />
+
+                    <button type="submit" class="btn btn-outline-danger">
+                        Retirar Cuenta de Clienta
+                    </button>
+
+                </form>
+            }
+            else if (string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
+                     && !Model.Activo)
+            {
+                <div class="alert alert-warning mt-3 mb-0">
+                    Esta cuenta ya está desactivada. Sus datos de registro podrían estar liberados para crear una cuenta nueva.
+                </div>
+            }
 
         </div>
 
