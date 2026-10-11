@@ -1,130 +1,144 @@
-
 @model TropiNailsPro.Models.Usuario
 
 @{
-    ViewData["Title"] = "Administrar Usuario";
+ViewData["Title"] = "Administrar Usuario";
 }
 
 <div class="container mt-4">
 
-    <a asp-action="Crecimiento" class="btn btn-outline-secondary mb-4">
-        ← Volver al Panel
-    </a>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success" role="alert">
-            @TempData["Success"]
-        </div>
-    }
+<a asp-action="Crecimiento" class="btn btn-outline-secondary mb-4">
+    ← Volver al Panel
+</a>
 
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger" role="alert">
-            @TempData["Error"]
-        </div>
-    }
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["Success"]
+    </div>
+}
 
-    <div class="card shadow-lg border-0">
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
 
-        <div class="card-body">
+<div class="card shadow-lg border-0">
+    <div class="card-body">
+        <div class="row">
 
-            <div class="row">
+            <!-- FOTO -->
+            <div class="col-md-3 text-center">
 
-                <!-- FOTO -->
+                <img src="@Model.FotoPerfilUrl"
+                     alt="Foto de @Model.Nombre"
+                     class="img-fluid rounded-circle border shadow"
+                     style="width:170px;height:170px;object-fit:cover;" />
 
-                <div class="col-md-3 text-center">
+                <h4 class="mt-3 fw-bold">
+                    @Model.Nombre
+                </h4>
 
-                    <img src="@Model.FotoPerfilUrl"
-                         class="img-fluid rounded-circle border shadow"
-                         style="width:170px;height:170px;object-fit:cover;" />
+                <span class="badge bg-primary">
+                    @Model.Rol
+                </span>
 
-                    <h4 class="mt-3 fw-bold">
-                        @Model.Nombre
-                    </h4>
+                <span class="badge bg-success">
+                    @Model.Plan
+                </span>
 
-                    <span class="badge bg-primary">
-                        @Model.Rol
-                    </span>
+                @if (!Model.Activo)
+                {
+                    <div class="mt-2">
+                        <span class="badge bg-danger">
+                            Cuenta desactivada
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    <div class="mt-2">
+                        <span class="badge bg-success">
+                            Cuenta activa
+                        </span>
+                    </div>
+                }
 
-                    <span class="badge bg-success">
-                        @Model.Plan
-                    </span>
+            </div>
 
-                </div>
+            <!-- INFORMACIÓN -->
+            <div class="col-md-9">
 
-                <!-- INFORMACIÓN -->
+                <h3 class="fw-bold mb-4">
+                    Información General
+                </h3>
 
-                <div class="col-md-9">
+                <table class="table table-bordered">
 
-                    <h3 class="fw-bold mb-4">
-                        Información General
-                    </h3>
+                    <tr>
+                        <th style="width:220px;">Correo</th>
+                        <td>@Model.Email</td>
+                    </tr>
 
-                    <table class="table table-bordered">
+                    <tr>
+                        <th>Teléfono</th>
+                        <td>@Model.Telefono</td>
+                    </tr>
 
-                        <tr>
-                            <th style="width:220px;">Correo</th>
-                            <td>@Model.Email</td>
-                        </tr>
+                    <tr>
+                        <th>Fecha de Registro</th>
+                        <td>@Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
 
-                        <tr>
-                            <th>Teléfono</th>
-                            <td>@Model.Telefono</td>
-                        </tr>
+                    <tr>
+                        <th>Último Acceso</th>
+                        <td>
+                            @(Model.UltimoAcceso.HasValue
+                                ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
+                                : "Nunca ha iniciado sesión")
+                        </td>
+                    </tr>
 
-                        <tr>
-                            <th>Fecha de Registro</th>
-                            <td>@Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</td>
-                        </tr>
+                    <tr>
+                        <th>Estado de la Cuenta</th>
+                        <td>
+                            @(Model.Activo ? "🟢 Activa" : "🔴 Desactivada")
+                        </td>
+                    </tr>
 
-                        <tr>
-                            <th>Último Acceso</th>
-                            <td>
-                                @(Model.UltimoAcceso.HasValue
-                                    ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
-                                    : "Nunca ha iniciado sesión")
-                            </td>
-                        </tr>
+                    <tr>
+                        <th>Estado del Plan</th>
+                        <td>
+                            @(Model.PlanActivo ? "🟢 Activo" : "🔴 Inactivo")
+                        </td>
+                    </tr>
 
-                        <tr>
-                            <th>Estado del Plan</th>
-                            <td>
-                                @(Model.PlanActivo
-                                    ? "🟢 Activo"
-                                    : "🔴 Inactivo")
-                            </td>
-                        </tr>
+                    <tr>
+                        <th>Plan Actual</th>
+                        <td>@Model.Plan</td>
+                    </tr>
 
-                        <tr>
-                            <th>Plan Actual</th>
-                            <td>
-                                @Model.Plan
-                            </td>
-                        </tr>
-
-                    </table>
-
-                </div>
+                </table>
 
             </div>
 
         </div>
-
     </div>
+</div>
 
-    <br />
+<br />
 
-    <!-- SUSCRIPCIÓN -->
-
+<!-- SUSCRIPCIÓN -->
+@if (Model.Activo && string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
+{
     <div class="card shadow border-0 mb-4">
 
         <div class="card-header bg-primary text-white">
-
             <h5 class="mb-0">
                 🎁 Administración de Suscripción
             </h5>
-
         </div>
 
         <div class="card-body">
@@ -182,157 +196,119 @@
             </div>
 
         </div>
+    </div>
+}
 
+<!-- ESTADÍSTICAS -->
+<div class="card shadow border-0 mb-4">
+
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            📊 Actividad
+        </h5>
     </div>
 
-    <!-- ESTADÍSTICAS -->
+    <div class="card-body">
+        <div class="row">
 
-    <div class="card shadow border-0 mb-4">
-
-        <div class="card-header bg-success text-white">
-
-            <h5 class="mb-0">
-                📊 Actividad
-            </h5>
-
-        </div>
-
-        <div class="card-body">
-
-            <div class="row">
-
-                <div class="col-md-3">
-
-                    <div class="card text-center">
-
-                        <div class="card-body">
-
-                            <h6>Último Acceso</h6>
-
-                            <h5>
-                                @(Model.UltimoAcceso.HasValue
-                                    ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy")
-                                    : "--")
-                            </h5>
-
-                        </div>
-
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6>Último Acceso</h6>
+                        <h5>
+                            @(Model.UltimoAcceso.HasValue
+                                ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy")
+                                : "--")
+                        </h5>
                     </div>
-
                 </div>
+            </div>
 
-                <div class="col-md-3">
-
-                    <div class="card text-center">
-
-                        <div class="card-body">
-
-                            <h6>Plan</h6>
-
-                            <h5>
-                                @Model.Plan
-                            </h5>
-
-                        </div>
-
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6>Plan</h6>
+                        <h5>@Model.Plan</h5>
                     </div>
-
                 </div>
+            </div>
 
-                <div class="col-md-3">
-
-                    <div class="card text-center">
-
-                        <div class="card-body">
-
-                            <h6>Rol</h6>
-
-                            <h5>
-                                @Model.Rol
-                            </h5>
-
-                        </div>
-
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6>Rol</h6>
+                        <h5>@Model.Rol</h5>
                     </div>
-
                 </div>
+            </div>
 
-                <div class="col-md-3">
-
-                    <div class="card text-center">
-
-                        <div class="card-body">
-
-                            <h6>Registro</h6>
-
-                            <h5>
-                                @Model.FechaRegistro.ToString("dd/MM/yyyy")
-                            </h5>
-
-                        </div>
-
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6>Registro</h6>
+                        <h5>@Model.FechaRegistro.ToString("dd/MM/yyyy")</h5>
                     </div>
-
                 </div>
-
             </div>
 
         </div>
+    </div>
+</div>
 
+<!-- ADMINISTRACIÓN -->
+<div class="card shadow border-0">
+
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">
+            ⚙ Administración
+        </h5>
     </div>
 
-    <!-- ADMINISTRACIÓN -->
+    <div class="card-body">
 
-    <div class="card shadow border-0">
-
-        <div class="card-header bg-danger text-white">
-
-            <h5 class="mb-0">
-                ⚙ Administración
-            </h5>
-
-        </div>
-
-        <div class="card-body">
-
-            <button type="button" class="btn btn-outline-primary">
+        @if (Model.Activo)
+        {
+            <button type="button" class="btn btn-outline-primary" disabled>
                 Editar Usuario
             </button>
 
-            <button type="button" class="btn btn-outline-warning">
+            <button type="button" class="btn btn-outline-warning" disabled>
                 Restablecer Contraseña
             </button>
+        }
 
-            @if (string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
-                && Model.Activo
-                && Model.Nombre != "Arturo Quezada Montero")
-            {
-                <form asp-controller="Propietario"
-                      asp-action="EliminarUsuario"
-                      method="post"
-                      class="d-inline"
-                      onsubmit="return confirm('¿Estás seguro de retirar esta cuenta de clienta? Se desactivará el acceso y se liberarán su correo y teléfono para un nuevo registro. No se eliminarán directamente sus registros financieros ni sus citas. Esta acción no se puede deshacer desde esta pantalla.');">
+        @if ((string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
+              || string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
+            && Model.Activo
+            && Model.Nombre != "Arturo Quezada Montero")
+        {
+            <form asp-controller="Propietario"
+                  asp-action="EliminarUsuario"
+                  method="post"
+                  class="d-inline"
+                  onsubmit="return confirm('¿Deseas retirar esta cuenta? Se desactivará su acceso y se liberarán el correo y el teléfono para un nuevo registro. Esta operación no elimina directamente sus registros históricos.');">
 
-                    @Html.AntiForgeryToken()
+                @Html.AntiForgeryToken()
 
-                    <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="id" value="@Model.Id" />
 
-                    <button type="submit" class="btn btn-outline-danger">
-                        Retirar Cuenta de Clienta
-                    </button>
+                <button type="submit" class="btn btn-outline-danger">
+                    Retirar Cuenta
+                </button>
 
-                </form>
-            }
-            else if (string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
-                     && !Model.Activo)
-            {
-                <div class="alert alert-warning mt-3 mb-0">
-                    Esta cuenta ya está desactivada. Sus datos de registro podrían estar liberados para crear una cuenta nueva.
-                </div>
-            }
-
-        </div>
+            </form>
+        }
+        else if ((string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
+                  || string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
+                 && !Model.Activo)
+        {
+            <div class="alert alert-warning mt-3 mb-0">
+                Esta cuenta ya está desactivada. Sus datos de registro fueron liberados para permitir un nuevo registro.
+            </div>
+        }
 
     </div>
+</div>
+
 
 </div>
