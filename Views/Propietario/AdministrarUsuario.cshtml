@@ -1,314 +1,335 @@
+
 @model TropiNailsPro.Models.Usuario
 
 @{
-ViewData["Title"] = "Administrar Usuario";
+    ViewData["Title"] = "Administrar Usuario";
 }
 
 <div class="container mt-4">
 
 
-<a asp-action="Crecimiento" class="btn btn-outline-secondary mb-4">
-    ← Volver al Panel
-</a>
+    <a asp-action="Crecimiento" class="btn btn-outline-secondary mb-4">
+        ← Volver al Panel
+    </a>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success" role="alert">
-        @TempData["Success"]
-    </div>
-}
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["Success"]
+        </div>
+    }
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger" role="alert">
-        @TempData["Error"]
-    </div>
-}
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
 
-<div class="card shadow-lg border-0">
-    <div class="card-body">
-        <div class="row">
+    <div class="card shadow-lg border-0">
+        <div class="card-body">
+            <div class="row">
 
-            <!-- FOTO -->
-            <div class="col-md-3 text-center">
+                <!-- FOTO -->
+                <div class="col-md-3 text-center">
 
-                <img src="@Model.FotoPerfilUrl"
-                     alt="Foto de @Model.Nombre"
-                     class="img-fluid rounded-circle border shadow"
-                     style="width:170px;height:170px;object-fit:cover;" />
+                    <img src="@Model.FotoPerfilUrl"
+                         alt="Foto de @Model.Nombre"
+                         class="img-fluid rounded-circle border shadow"
+                         style="width:170px;height:170px;object-fit:cover;" />
 
-                <h4 class="mt-3 fw-bold">
-                    @Model.Nombre
-                </h4>
+                    <h4 class="mt-3 fw-bold">
+                        @Model.Nombre
+                    </h4>
 
-                <span class="badge bg-primary">
-                    @Model.Rol
-                </span>
+                    <span class="badge bg-primary">
+                        @Model.Rol
+                    </span>
 
-                <span class="badge bg-success">
-                    @Model.Plan
-                </span>
+                    <span class="badge bg-success">
+                        @Model.Plan
+                    </span>
 
-                @if (!Model.Activo)
-                {
-                    <div class="mt-2">
-                        <span class="badge bg-danger">
-                            Cuenta desactivada
-                        </span>
-                    </div>
-                }
-                else
-                {
-                    <div class="mt-2">
-                        <span class="badge bg-success">
-                            Cuenta activa
-                        </span>
-                    </div>
-                }
+                    @if (!Model.Activo)
+                    {
+                        <div class="mt-2">
+                            <span class="badge bg-danger">
+                                Cuenta desactivada
+                            </span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mt-2">
+                            <span class="badge bg-success">
+                                Cuenta activa
+                            </span>
+                        </div>
+                    }
+
+                </div>
+
+                <!-- INFORMACIÓN -->
+                <div class="col-md-9">
+
+                    <h3 class="fw-bold mb-4">
+                        Información General
+                    </h3>
+
+                    <table class="table table-bordered">
+
+                        <tr>
+                            <th style="width:220px;">Correo</th>
+                            <td>@Model.Email</td>
+                        </tr>
+
+                        <tr>
+                            <th>Teléfono</th>
+                            <td>@Model.Telefono</td>
+                        </tr>
+
+                        <tr>
+                            <th>Fecha de Registro</th>
+                            <td>@Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+
+                        <tr>
+                            <th>Último Acceso</th>
+                            <td>
+                                @(Model.UltimoAcceso.HasValue
+                                    ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
+                                    : "Nunca ha iniciado sesión")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Estado de la Cuenta</th>
+                            <td>
+                                @(Model.Activo ? "🟢 Activa" : "🔴 Desactivada")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Estado del Plan</th>
+                            <td>
+                                @(Model.PlanActivo ? "🟢 Activo" : "🔴 Inactivo")
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Plan Actual</th>
+                            <td>@Model.Plan</td>
+                        </tr>
+
+                    </table>
+
+                </div>
 
             </div>
-
-            <!-- INFORMACIÓN -->
-            <div class="col-md-9">
-
-                <h3 class="fw-bold mb-4">
-                    Información General
-                </h3>
-
-                <table class="table table-bordered">
-
-                    <tr>
-                        <th style="width:220px;">Correo</th>
-                        <td>@Model.Email</td>
-                    </tr>
-
-                    <tr>
-                        <th>Teléfono</th>
-                        <td>@Model.Telefono</td>
-                    </tr>
-
-                    <tr>
-                        <th>Fecha de Registro</th>
-                        <td>@Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</td>
-                    </tr>
-
-                    <tr>
-                        <th>Último Acceso</th>
-                        <td>
-                            @(Model.UltimoAcceso.HasValue
-                                ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
-                                : "Nunca ha iniciado sesión")
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Estado de la Cuenta</th>
-                        <td>
-                            @(Model.Activo ? "🟢 Activa" : "🔴 Desactivada")
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Estado del Plan</th>
-                        <td>
-                            @(Model.PlanActivo ? "🟢 Activo" : "🔴 Inactivo")
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th>Plan Actual</th>
-                        <td>@Model.Plan</td>
-                    </tr>
-
-                </table>
-
-            </div>
-
         </div>
     </div>
-</div>
 
-<br />
+    <br />
 
-<!-- SUSCRIPCIÓN -->
-@if (Model.Activo && string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
-{
+    <!-- SUSCRIPCIÓN -->
+    @if (Model.Activo && string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
+    {
+        <div class="card shadow border-0 mb-4">
+
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    🎁 Administración de Suscripción
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <!-- NUEVO BOTÓN: REGALAR 15 DÍAS -->
+                    <div class="col-md-3 mb-2">
+                        <form asp-controller="Propietario"
+                              asp-action="RegalarDias"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="dias" value="15" />
+
+                            <button type="submit"
+                                    class="btn btn-info text-white w-100"
+                                    onclick="return confirm('¿Deseas regalar 15 días de suscripción a esta profesional?');">
+                                +15 Días
+                            </button>
+
+                        </form>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <form asp-action="RegalarMeses" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="meses" value="1" />
+
+                            <button type="submit" class="btn btn-success w-100">
+                                +1 Mes
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <form asp-action="RegalarMeses" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="meses" value="3" />
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                +3 Meses
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <form asp-action="RegalarMeses" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="meses" value="6" />
+
+                            <button type="submit" class="btn btn-warning w-100">
+                                +6 Meses
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="col-md-3 mb-2">
+                        <form asp-action="RegalarMeses" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="meses" value="12" />
+
+                            <button type="submit" class="btn btn-dark w-100">
+                                +12 Meses
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    }
+
+    <!-- ESTADÍSTICAS -->
     <div class="card shadow border-0 mb-4">
 
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-success text-white">
             <h5 class="mb-0">
-                🎁 Administración de Suscripción
+                📊 Actividad
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6>Último Acceso</h6>
+                            <h5>
+                                @(Model.UltimoAcceso.HasValue
+                                    ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy")
+                                    : "--")
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6>Plan</h6>
+                            <h5>@Model.Plan</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6>Rol</h6>
+                            <h5>@Model.Rol</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6>Registro</h6>
+                            <h5>@Model.FechaRegistro.ToString("dd/MM/yyyy")</h5>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMINISTRACIÓN -->
+    <div class="card shadow border-0">
+
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                ⚙ Administración
             </h5>
         </div>
 
         <div class="card-body">
 
-            <div class="row">
-
-                <div class="col-md-3 mb-2">
-                    <form asp-action="RegalarMeses" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <input type="hidden" name="meses" value="1" />
-
-                        <button type="submit" class="btn btn-success w-100">
-                            +1 Mes
-                        </button>
-                    </form>
-                </div>
-
-                <div class="col-md-3 mb-2">
-                    <form asp-action="RegalarMeses" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <input type="hidden" name="meses" value="3" />
-
-                        <button type="submit" class="btn btn-primary w-100">
-                            +3 Meses
-                        </button>
-                    </form>
-                </div>
-
-                <div class="col-md-3 mb-2">
-                    <form asp-action="RegalarMeses" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <input type="hidden" name="meses" value="6" />
-
-                        <button type="submit" class="btn btn-warning w-100">
-                            +6 Meses
-                        </button>
-                    </form>
-                </div>
-
-                <div class="col-md-3 mb-2">
-                    <form asp-action="RegalarMeses" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <input type="hidden" name="meses" value="12" />
-
-                        <button type="submit" class="btn btn-dark w-100">
-                            +12 Meses
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-}
-
-<!-- ESTADÍSTICAS -->
-<div class="card shadow border-0 mb-4">
-
-    <div class="card-header bg-success text-white">
-        <h5 class="mb-0">
-            📊 Actividad
-        </h5>
-    </div>
-
-    <div class="card-body">
-        <div class="row">
-
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6>Último Acceso</h6>
-                        <h5>
-                            @(Model.UltimoAcceso.HasValue
-                                ? Model.UltimoAcceso.Value.ToString("dd/MM/yyyy")
-                                : "--")
-                        </h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6>Plan</h6>
-                        <h5>@Model.Plan</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6>Rol</h6>
-                        <h5>@Model.Rol</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6>Registro</h6>
-                        <h5>@Model.FechaRegistro.ToString("dd/MM/yyyy")</h5>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<!-- ADMINISTRACIÓN -->
-<div class="card shadow border-0">
-
-    <div class="card-header bg-danger text-white">
-        <h5 class="mb-0">
-            ⚙ Administración
-        </h5>
-    </div>
-
-    <div class="card-body">
-
-        @if (Model.Activo)
-        {
-            <button type="button" class="btn btn-outline-primary" disabled>
-                Editar Usuario
-            </button>
-
-            <button type="button" class="btn btn-outline-warning" disabled>
-                Restablecer Contraseña
-            </button>
-        }
-
-        @if ((string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
-              || string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
-            && Model.Activo
-            && Model.Nombre != "Arturo Quezada Montero")
-        {
-            <form asp-controller="Propietario"
-                  asp-action="EliminarUsuario"
-                  method="post"
-                  class="d-inline"
-                  onsubmit="return confirm('¿Deseas retirar esta cuenta? Se desactivará su acceso y se liberarán el correo y el teléfono para un nuevo registro. Esta operación no elimina directamente sus registros históricos.');">
-
-                @Html.AntiForgeryToken()
-
-                <input type="hidden" name="id" value="@Model.Id" />
-
-                <button type="submit" class="btn btn-outline-danger">
-                    Retirar Cuenta
+            @if (Model.Activo)
+            {
+                <button type="button" class="btn btn-outline-primary" disabled>
+                    Editar Usuario
                 </button>
 
-            </form>
-        }
-        else if ((string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
-                  || string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
-                 && !Model.Activo)
-        {
-            <div class="alert alert-warning mt-3 mb-0">
-                Esta cuenta ya está desactivada. Sus datos de registro fueron liberados para permitir un nuevo registro.
-            </div>
-        }
+                <button type="button" class="btn btn-outline-warning" disabled>
+                    Restablecer Contraseña
+                </button>
+            }
 
+            @if ((string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
+                  || string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
+                && Model.Activo
+                && Model.Nombre != "Arturo Quezada Montero")
+            {
+                <form asp-controller="Propietario"
+                      asp-action="EliminarUsuario"
+                      method="post"
+                      class="d-inline"
+                      onsubmit="return confirm('¿Deseas retirar esta cuenta? Se desactivará su acceso y se liberarán el correo y el teléfono para un nuevo registro. Esta operación no elimina directamente sus registros históricos.');">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="id" value="@Model.Id" />
+
+                    <button type="submit" class="btn btn-outline-danger">
+                        Retirar Cuenta
+                    </button>
+
+                </form>
+            }
+            else if ((string.Equals(Model.Rol, "Clienta", StringComparison.OrdinalIgnoreCase)
+                      || string.Equals(Model.Rol, "Manicurista", StringComparison.OrdinalIgnoreCase))
+                     && !Model.Activo)
+            {
+                <div class="alert alert-warning mt-3 mb-0">
+                    Esta cuenta ya está desactivada. Sus datos de registro fueron liberados para permitir un nuevo registro.
+                </div>
+            }
+
+        </div>
     </div>
-</div>
 
 
 </div>
