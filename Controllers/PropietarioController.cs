@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using TropiNailsPro.Data;
 using TropiNailsPro.Models;
+using TropiNailsPro.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +14,14 @@ namespace TropiNailsPro.Controllers
     public class PropietarioController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly TimeService _timeService;
 
-        public PropietarioController(AppDbContext context)
+        public PropietarioController(
+            AppDbContext context,
+            TimeService timeService)
         {
             _context = context;
+            _timeService = timeService;
         }
 
         public IActionResult Crecimiento(string filtro = "todos")
@@ -307,28 +312,12 @@ namespace TropiNailsPro.Controllers
                     new { id });
             }
 
-            var ahora = DateTime.Now;
+            // Usar la hora local de Santo Domingo.
+            var ahora = _timeService.ObtenerHoraLocal();
 
-            // Conservar el tiempo restante si el plan todavía está vigente.
-            // Si venció, comenzar a contar desde el momento actual.
-            var fechaBase =
-                usuario.FechaVencimientoPlan.HasValue &&
-                usuario.FechaVencimientoPlan.Value > ahora
-                    ? usuario.FechaVencimientoPlan.Value
-                    : ahora;
-
-            var nuevaFechaVencimiento = fechaBase.AddDays(15);
-
-            // Actualizar los datos del plan del usuario.
-            usuario.PlanActivo = true;
-            usuario.Plan = "Premium";
-
-            if (!usuario.FechaInicioPlan.HasValue)
-            {
-                usuario.FechaInicioPlan = ahora;
-            }
-
-            usuario.FechaVencimientoPlan = nuevaFechaVencimiento;
+            // El regalo comienza desde ahora, sin sumar días
+            // a una fecha futura antigua del plan.
+            var nuevaFechaVencimiento = ahora.AddDays(15);
 
             // Buscar el registro de la profesional.
             var manicurista = _context.Manicuristas
@@ -343,6 +332,20 @@ namespace TropiNailsPro.Controllers
                     nameof(AdministrarUsuario),
                     new { id });
             }
+
+            // Actualizar los datos del plan del usuario.
+            usuario.PlanActivo = true;
+            usuario.Plan = "Premium";
+
+            if (!usuario.FechaInicioPlan.HasValue)
+            {
+                usuario.FechaInicioPlan = ahora;
+            }
+
+            usuario.FechaVencimientoPlan = nuevaFechaVencimiento;
+
+            // Mantener sincronizado el vencimiento del perfil profesional.
+            manicurista.FechaVencimiento = nuevaFechaVencimiento;
 
             // Buscar la suscripción más reciente.
             var suscripcion = _context.Suscripciones
