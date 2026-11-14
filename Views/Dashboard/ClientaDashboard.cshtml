@@ -477,6 +477,127 @@ hr{
 }
 
 
+/* =========================================
+   🎄 DECORACIÓN NAVIDEÑA TROPINAILS
+========================================= */
+
+.navidad-banner {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 20px 12px;
+    margin-bottom: 20px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #123d2c, #176b43, #123d2c);
+    box-shadow: 0 8px 25px rgba(18, 61, 44, .22);
+    border: 2px solid #d8b45b;
+}
+
+.navidad-titulo {
+    color: #ffe6a0;
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 8px 0;
+    text-shadow: 0 0 12px rgba(255, 215, 100, .8);
+    animation: brilloNavidad 2s infinite alternate;
+}
+
+.navidad-mensaje {
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.navidad-luces {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 500px;
+    margin: 0 auto 12px;
+}
+
+.navidad-luz {
+    width: 13px;
+    height: 17px;
+    border-radius: 50%;
+    display: inline-block;
+    animation: lucesNavidad 1s infinite alternate;
+}
+
+.navidad-luz:nth-child(4n+1) {
+    background: #ff3030;
+    box-shadow: 0 0 12px #ff3030;
+}
+
+.navidad-luz:nth-child(4n+2) {
+    background: #ffe45c;
+    box-shadow: 0 0 12px #ffe45c;
+    animation-delay: .3s;
+}
+
+.navidad-luz:nth-child(4n+3) {
+    background: #39ff83;
+    box-shadow: 0 0 12px #39ff83;
+    animation-delay: .6s;
+}
+
+.navidad-luz:nth-child(4n) {
+    background: #53c8ff;
+    box-shadow: 0 0 12px #53c8ff;
+    animation-delay: .9s;
+}
+
+@@keyframes lucesNavidad {
+    from {
+        opacity: .35;
+        transform: scale(.8);
+        filter: brightness(.6);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1.2);
+        filter: brightness(1.5);
+    }
+}
+
+@@keyframes brilloNavidad {
+    from {
+        text-shadow: 0 0 5px #ffe6a0;
+    }
+    to {
+        text-shadow: 0 0 20px #ffd700, 0 0 30px #fff;
+    }
+}
+
+@@media (max-width: 576px) {
+    .navidad-banner {
+        padding: 17px 8px;
+        border-radius: 18px;
+    }
+
+    .navidad-titulo {
+        font-size: 1.55rem;
+    }
+
+    .navidad-mensaje {
+        font-size: .85rem;
+    }
+
+    .navidad-luz {
+        width: 10px;
+        height: 14px;
+    }
+}
+
+@@media (prefers-reduced-motion: reduce) {
+    .navidad-luz,
+    .navidad-titulo {
+        animation: none;
+    }
+}
+
+
 </style>
 
 <div class="container mt-4">
@@ -491,7 +612,37 @@ hr{
     else
     {
 
-    <!-- HEADER -->
+    <!-- 🎄 BANNER ESPECIAL DE NAVIDAD -->
+    <div class="navidad-banner">
+
+        <div class="navidad-luces">
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+            <span class="navidad-luz"></span>
+        </div>
+
+        <h2 class="navidad-titulo">
+            🎄 ¡Feliz Navidad! 🎅
+        </h2>
+
+        <p class="navidad-mensaje">
+            ✨ Que la magia de esta Navidad ilumine tu vida y tu belleza ✨
+        </p>
+
+        <div style="font-size:25px; margin-top:12px;">
+            ❄️ 🎁 ⭐ 🎁 ❄️
+        </div>
+
+    </div>
+
+    <!-- HEADER ORIGINAL -->
     <div class="dashboard-header">
         <h2>👩 Bienvenida, @nombre</h2>
         <p class="text-muted">🙈Tu espacio de belleza y novedades</p>
