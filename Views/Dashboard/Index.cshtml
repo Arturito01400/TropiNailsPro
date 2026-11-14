@@ -94,6 +94,327 @@ body{
 
 
 /* =========================================================
+   ETIQUETA NAVIDEÑA — TEMPORADA DE BENDICIONES
+   ========================================================= */
+
+@@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@400;500;600;700&display=swap');
+
+.navidad-wrapper{
+    width:100%;
+    max-width:850px;
+    margin:0 auto 35px;
+    padding:0 15px;
+}
+
+.navidad-card{
+    position:relative;
+    overflow:hidden;
+    text-align:center;
+    padding:35px 45px;
+    border-radius:20px;
+    background:
+        radial-gradient(circle at 10% 10%,rgba(255,255,255,.15),transparent 30%),
+        radial-gradient(circle at 90% 90%,rgba(255,215,170,.12),transparent 35%),
+        linear-gradient(135deg,#650f29 0%,#9e2949 48%,#bd536c 100%);
+    border:1px solid rgba(255,225,190,.75);
+    box-shadow:
+        0 12px 35px rgba(95,15,39,.22),
+        inset 0 0 0 5px rgba(255,255,255,.06),
+        inset 0 0 0 7px rgba(255,220,190,.18);
+    color:#fff8f1;
+}
+
+/* Marco interior */
+
+.navidad-card::before{
+    content:"";
+    position:absolute;
+    inset:12px;
+    border:1px solid rgba(255,224,190,.48);
+    border-radius:13px;
+    pointer-events:none;
+}
+
+/* Brillo decorativo */
+
+.navidad-card::after{
+    content:"";
+    position:absolute;
+    width:230px;
+    height:230px;
+    top:-130px;
+    right:-90px;
+    border-radius:50%;
+    background:rgba(255,255,255,.09);
+    filter:blur(8px);
+    pointer-events:none;
+}
+
+/* Luces navideñas */
+
+.navidad-luces{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    display:flex;
+    justify-content:space-around;
+    padding:7px 35px;
+    z-index:2;
+}
+
+.navidad-luz{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#ffe5a3;
+    box-shadow:0 0 9px #ffe5a3,0 0 17px rgba(255,229,163,.8);
+    animation:navidadLuces 1.8s infinite alternate;
+}
+
+.navidad-luz:nth-child(2){
+    background:#ffb5c7;
+    box-shadow:0 0 9px #ffb5c7,0 0 17px rgba(255,181,199,.8);
+    animation-delay:.4s;
+}
+
+.navidad-luz:nth-child(3){
+    animation-delay:.8s;
+}
+
+.navidad-luz:nth-child(4){
+    background:#ffb5c7;
+    box-shadow:0 0 9px #ffb5c7,0 0 17px rgba(255,181,199,.8);
+    animation-delay:1.2s;
+}
+
+.navidad-luz:nth-child(5){
+    animation-delay:1.6s;
+}
+
+/* Destellos */
+
+.navidad-sparkle{
+    position:absolute;
+    color:#ffe6b8;
+    font-size:19px;
+    opacity:.8;
+    animation:navidadBrillo 2.5s infinite ease-in-out;
+}
+
+.navidad-sparkle.s1{
+    top:48px;
+    left:35px;
+}
+
+.navidad-sparkle.s2{
+    top:70px;
+    right:40px;
+    animation-delay:.8s;
+}
+
+.navidad-sparkle.s3{
+    bottom:35px;
+    left:65px;
+    animation-delay:1.4s;
+}
+
+.navidad-sparkle.s4{
+    bottom:40px;
+    right:65px;
+    animation-delay:1.8s;
+}
+
+/* Etiqueta superior */
+
+.navidad-etiqueta{
+    position:relative;
+    z-index:1;
+    margin-top:10px;
+    margin-bottom:12px;
+    color:#ffe3bd;
+    font-family:'Cormorant Garamond',serif;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:4px;
+}
+
+/* Título principal */
+
+.navidad-titulo{
+    position:relative;
+    z-index:1;
+    margin:0;
+    color:#fff5ec;
+    font-family:'Great Vibes',cursive;
+    font-size:76px;
+    font-weight:400;
+    line-height:1.2;
+    text-shadow:
+        0 3px 8px rgba(35,0,10,.35),
+        0 0 18px rgba(255,225,200,.15);
+}
+
+/* Separador */
+
+.navidad-separador{
+    position:relative;
+    z-index:1;
+    margin:8px 0 14px;
+    color:#f8d6a9;
+    font-size:23px;
+    letter-spacing:8px;
+}
+
+/* Bendición */
+
+.navidad-bendicion{
+    position:relative;
+    z-index:1;
+    max-width:650px;
+    margin:0 auto 17px;
+    color:#ffe5cb;
+    font-family:'Cormorant Garamond',serif;
+    font-size:23px;
+    font-weight:600;
+    line-height:1.4;
+}
+
+/* Mensaje */
+
+.navidad-mensaje{
+    position:relative;
+    z-index:1;
+    max-width:650px;
+    margin:0 auto;
+    color:#fff5ee;
+    font-family:'Cormorant Garamond',serif;
+    font-size:18px;
+    font-weight:500;
+    line-height:1.7;
+}
+
+/* Cierre */
+
+.navidad-cierre{
+    position:relative;
+    z-index:1;
+    margin-top:20px;
+    color:#f9dfc8;
+    font-family:'Cormorant Garamond',serif;
+    font-size:17px;
+    font-style:italic;
+}
+
+.navidad-firma{
+    position:relative;
+    z-index:1;
+    margin-top:3px;
+    color:#ffe2b4;
+    font-family:'Great Vibes',cursive;
+    font-size:37px;
+    text-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+
+.navidad-corazon{
+    display:inline-block;
+    animation:navidadCorazon 1.5s infinite ease-in-out;
+}
+
+/* Animaciones */
+
+@@keyframes navidadLuces{
+    from{
+        opacity:.45;
+        transform:scale(.8);
+    }
+    to{
+        opacity:1;
+        transform:scale(1.25);
+    }
+}
+
+@@keyframes navidadBrillo{
+    0%,100%{
+        opacity:.35;
+        transform:scale(.8) rotate(0deg);
+    }
+    50%{
+        opacity:1;
+        transform:scale(1.2) rotate(20deg);
+    }
+}
+
+@@keyframes navidadCorazon{
+    0%,100%{
+        transform:scale(1);
+    }
+    50%{
+        transform:scale(1.18);
+    }
+}
+
+/* Adaptación móvil */
+
+@@media screen and (max-width:600px){
+
+    .navidad-wrapper{
+        padding:0 10px;
+        margin-bottom:25px;
+    }
+
+    .navidad-card{
+        padding:30px 23px;
+        border-radius:16px;
+    }
+
+    .navidad-card::before{
+        inset:9px;
+    }
+
+    .navidad-etiqueta{
+        font-size:11px;
+        letter-spacing:2.5px;
+        margin-top:8px;
+    }
+
+    .navidad-titulo{
+        font-size:55px;
+    }
+
+    .navidad-bendicion{
+        font-size:19px;
+    }
+
+    .navidad-mensaje{
+        font-size:16px;
+        line-height:1.6;
+    }
+
+    .navidad-firma{
+        font-size:32px;
+    }
+
+    .navidad-sparkle.s1{
+        left:20px;
+    }
+
+    .navidad-sparkle.s2{
+        right:20px;
+    }
+
+    .navidad-sparkle.s3{
+        left:25px;
+    }
+
+    .navidad-sparkle.s4{
+        right:25px;
+    }
+
+}
+
+
+/* =========================================================
    ANTIGUA TARJETA DE CLIENTA
    ========================================================= */
 
@@ -578,6 +899,74 @@ body{
 }
 
 </style>
+
+
+@if(!esClienta)
+{
+    <div class="navidad-wrapper">
+
+        <div class="navidad-card">
+
+            <div class="navidad-luces">
+                <span class="navidad-luz"></span>
+                <span class="navidad-luz"></span>
+                <span class="navidad-luz"></span>
+                <span class="navidad-luz"></span>
+                <span class="navidad-luz"></span>
+            </div>
+
+            <span class="navidad-sparkle s1">✦</span>
+            <span class="navidad-sparkle s2">✧</span>
+            <span class="navidad-sparkle s3">✧</span>
+            <span class="navidad-sparkle s4">✦</span>
+
+            <div class="navidad-etiqueta">
+                ✦ TEMPORADA DE BENDICIONES ✦
+            </div>
+
+            <h2 class="navidad-titulo">
+                Feliz Navidad
+            </h2>
+
+            <div class="navidad-separador">
+                ❧ ✧ ❧
+            </div>
+
+            <div class="navidad-bendicion">
+                Que Dios bendiga tus manos y multiplique tus sueños
+            </div>
+
+            <div class="navidad-mensaje">
+
+                En esta temporada de tanto trabajo, queremos agradecerte
+                por tu dedicación, esfuerzo y pasión. Que cada servicio
+                se convierta en una nueva oportunidad de crecimiento
+                y bendición.
+
+                <br /><br />
+
+                Que nunca falten la salud, el amor, la paz y la prosperidad
+                en tu hogar.
+
+                <br /><br />
+
+                ¡Gracias por ser parte de nuestra familia!
+                <span class="navidad-corazon">❤️</span>
+
+            </div>
+
+            <div class="navidad-cierre">
+                Con cariño,
+            </div>
+
+            <div class="navidad-firma">
+                ✨ TropiNails Pro ✨
+            </div>
+
+        </div>
+
+    </div>
+}
 
 
 <div class="dashboard-header">
